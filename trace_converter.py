@@ -21,6 +21,7 @@ def main():
         moves = convert_trace(f)
 
     draw_board(moves[0])
+    stats(moves)
 
 
 def convert_trace(trace_file):
@@ -55,6 +56,13 @@ def convert_trace(trace_file):
 def draw_board(move):
     for line in move.board:
         print('{:010b}'.format(line))
+
+
+def stats(moves):
+    print('Points:', sum([m.points for m in moves]))
+    print('Moves:', len(moves))
+    print('Blocks:', set([m.shape for m in moves]))
+
 
 
 if __name__ == '__main__':
