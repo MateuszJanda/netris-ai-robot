@@ -6,6 +6,8 @@ Site: github.com/MateuszJanda
 Ad maiorem Dei gloriam
 """
 
+import sys
+
 
 class MoveData:
     def __init__(self):
@@ -17,11 +19,16 @@ class MoveData:
 
 
 def main():
-    with open('20190529201253.trace', 'r') as f:
+    file_name = sys.argv[1]
+
+    print('Trace file:', file_name)
+    with open(file_name, 'r') as f:
         moves = convert_trace(f)
 
     draw_board(moves[0])
     stats(moves)
+
+    save_new_trace(moves)
 
 
 def convert_trace(trace_file):
@@ -55,7 +62,9 @@ def convert_trace(trace_file):
 
 def draw_board(move):
     for line in move.board:
-        print('{:010b}'.format(line))
+        line = '{:010b}'.format(line)
+        # line = line.replace('0', ' ')
+        print(line)
 
 
 def stats(moves):
@@ -63,6 +72,9 @@ def stats(moves):
     print('Moves:', len(moves))
     print('Blocks:', set([m.shape for m in moves]))
 
+
+def save_new_trace(moves):
+    pass
 
 
 if __name__ == '__main__':
