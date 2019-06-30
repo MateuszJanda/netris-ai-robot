@@ -16,6 +16,7 @@ class MoveData:
         self.rotate = 0
         self.points = 0
         self.board = ''
+        self.raw_board = ''
 
 
 def main():
@@ -28,7 +29,8 @@ def main():
     draw_board(moves[0])
     stats(moves)
 
-    save_new_trace(moves)
+    new_file = file_name.split('.')[0] + '.ctrace'
+    save_new_trace(moves, new_file)
 
 
 def convert_trace(trace_file):
@@ -56,6 +58,7 @@ def convert_trace(trace_file):
                 board = packet[3].split('=')[1]
                 lines = [board[i:i+4] for i in range(0, len(board), 4)]
                 moves[-1].board = reversed([int(line, 16) for line in lines])
+                moves[-1].raw_board = board
 
     return moves
 
@@ -73,8 +76,12 @@ def stats(moves):
     print('Blocks:', set([m.shape for m in moves]))
 
 
-def save_new_trace(moves):
-    pass
+def save_new_trace(moves, file_name):
+    with open(file_name, 'w') as f:
+        for m in moves:
+            f.write('{shape} {move} {rotate} {points} {raw_board}\n' \
+                .format(shape=m.shape, move=m.move, rotate=m.rotate,
+                    points=m.points, raw_board=str(m.raw_board)))
 
 
 if __name__ == '__main__':
