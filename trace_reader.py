@@ -72,7 +72,7 @@ def print_board(move, fill=False):
     by zeros."""
     for line in move.board:
         line = '{:010b}'.format(line)
-        if fill:
+        if not fill:
             line = line.replace('0', ' ')
         print(line)
 
