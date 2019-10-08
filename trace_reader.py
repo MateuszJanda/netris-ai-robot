@@ -23,17 +23,20 @@ def main():
     file_name = sys.argv[1]
 
     print('Trace file:', file_name)
+
+    # Squeez moves
     with open(file_name, 'r') as f:
         moves = convert_trace(f)
 
-    draw_board(moves[0])
-    stats(moves)
+    print_board(moves[0])
+    print_stats(moves)
 
     new_file = file_name.split('.')[0] + '.ctrace'
     save_new_trace(moves, new_file)
 
 
 def convert_trace(trace_file):
+    """Squeez moves."""
     moves = []
     m = None
     for line in trace_file:
@@ -63,20 +66,24 @@ def convert_trace(trace_file):
     return moves
 
 
-def draw_board(move):
+def print_board(move, fill=False):
+    """Print board, when fill=True empty spaces are filled by zeros."""
     for line in move.board:
         line = '{:010b}'.format(line)
-        # line = line.replace('0', ' ')
+        if fill:
+            line = line.replace('0', ' ')
         print(line)
 
 
-def stats(moves):
+def print_stats(moves):
+    """Print trace stats."""
     print('Points:', sum([m.points for m in moves]))
     print('Moves:', len(moves))
     print('Blocks:', set([m.shape for m in moves]))
 
 
 def save_new_trace(moves, file_name):
+    """Save squeezed moves to new trace file."""
     with open(file_name, 'w') as f:
         for m in moves:
             f.write('{shape} {move} {rotate} {points} {raw_board}\n' \
