@@ -33,7 +33,7 @@ def main():
     print_game_stats(moves)
 
     new_file = file_name.split('.')[0] + '.ctrace'
-    save_new_trace(moves, new_file)
+    # save_new_trace(moves, new_file)
 
 
 def convert_trace(trace_file):
@@ -67,17 +67,18 @@ def convert_trace(trace_file):
     return moves
 
 
-def print_board(move, fill=False):
+def print_board(move, fill=True):
     """Print board for given move. when fill=True empty spaces are filled
     by zeros."""
     for line in move.board:
-        line = '{:010b}'.format(line)
+        line = '{:016b}'.format(line)[:10]
         if not fill:
             line = line.replace('0', ' ')
         print(line)
 
 
 def print_move_stat(move):
+    print('[+] Move stats')
     print("Shape", move.shape)
 
 
@@ -89,6 +90,7 @@ def shape_as_matrix(shape):
 
 def print_game_stats(moves):
     """Print trace stats."""
+    print('[+] Game stats')
     print('Points:', sum([m.points for m in moves]))
     print('Moves:', len(moves))
     print('Blocks:', set([m.shape for m in moves]))
