@@ -70,6 +70,7 @@ def convert_trace(trace_file):
 def print_board(move, fill=True):
     """Print board for given move. when fill=True empty spaces are filled
     by zeros."""
+    print("[+] Board dump:")
     for line in move.board:
         line = '{:016b}'.format(line)[:10]
         if not fill:
@@ -78,11 +79,15 @@ def print_board(move, fill=True):
 
 
 def print_move_stat(move):
-    print('[+] Move stats')
+    print('[+] Move stats:')
+    print("Rotation", move.rotate)
     print("Shape", move.shape)
 
+    for row in shape_as_matrix(move):
+        print(''.join(['1' if block else '0' for block in row]))
 
-def shape_as_matrix(shape):
+
+def shape_as_matrix(move):
     # Rotation counterclockwise
     SHAPES = {
         0  : [
@@ -92,9 +97,9 @@ def shape_as_matrix(shape):
              [1],
              [1],
              [1]]
-        ]
+        ],
         2  : [
-            [[1, 1]
+            [[1, 1],
              [1, 1]]
         ],
         3  : [
@@ -147,23 +152,21 @@ def shape_as_matrix(shape):
             [[1, 1, 0],
              [0, 1, 1]],
 
-            [[0, 1]
+            [[0, 1],
              [1, 1],
              [1, 0]]
         ]
     }
 
-    if shape == 0:
-        return [ [0, 1, 1],
-                 [1, 1, 0] ]
+    return SHAPES[move.shape][move.rotate]
 
 
 def print_game_stats(moves):
     """Print trace stats."""
-    print('[+] Game stats')
+    print('[+] Game stats:')
     print('Points:', sum([m.points for m in moves]))
     print('Moves:', len(moves))
-    print('Blocks:', set([m.shape for m in moves]))
+    print('Overall blocks:', set([m.shape for m in moves]))
 
 
 def save_new_trace(moves, file_name):
