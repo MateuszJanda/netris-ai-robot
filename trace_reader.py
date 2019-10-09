@@ -83,7 +83,15 @@ def print_move_stat(move):
 
 
 def shape_as_matrix(shape):
+    # Rotation counterclockwise
     SHAPES = {
+        0  : [
+            [[1, 1, 1, 1]],
+            [[1],
+             [1],
+             [1],
+             [1]]
+        ]
         2  : [
             [[1, 1]
              [1, 1]]
@@ -98,7 +106,10 @@ def shape_as_matrix(shape):
         ],
         11 : [
             [[1, 1, 1],
-             [0, 1, 1]]
+             [0, 1, 0]],
+            [[1, 0],
+             [1, 1],
+             [1, 0]]
         ],
         15 : [
             [[0, 1, 1],
@@ -107,6 +118,9 @@ def shape_as_matrix(shape):
         17 : [
             [[1, 1, 0],
              [0, 1, 1]],
+            [[0, 1]
+             [1, 1],
+             [1, 0]]
         ]
     }
 
