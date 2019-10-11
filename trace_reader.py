@@ -182,6 +182,23 @@ def check_move(prev_move, current_move):
     shape = shape_as_matrix(current_move)
 
     # Move block
+    board = move_blocks(prev_board, shape)
+    board, points = reduce_board(board)
+
+    print("Board:")
+    for line in board:
+        print(''.join(str(block) for block in line))
+    print("Current board:")
+    for line in current_board:
+        print(''.join(str(block) for block in line))
+    print("Points", points)
+    print("Match", board == current_board)
+
+    return points, board == current_board
+
+
+def move_blocks(prev_board, shape):
+    # Move block
     for y in range(BORAD_HEIGHT):
         # If collision then revoke actual board
         for row, line in enumerate(shape):
@@ -200,6 +217,9 @@ def check_move(prev_move, current_move):
         if (y+1) + len(shape) > BORAD_HEIGHT:
             break
 
+    return board
+
+def reduce_board(board):
     # Check for full lines
     cleared_board = []
     points = 0
@@ -217,17 +237,7 @@ def check_move(prev_move, current_move):
         for _ in range(missing):
             board = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] + board
 
-    print("Board:")
-    for line in board:
-        print(''.join(str(block) for block in line))
-    print("Current board:")
-    for line in current_board:
-        print(''.join(str(block) for block in line))
-    print("Points", points)
-    print("Match", board == current_board)
-
-    return points, board == current_board
-
+    return board, points
 
 def print_game_stats(moves):
     """Print trace stats."""
