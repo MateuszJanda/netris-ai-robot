@@ -7,6 +7,11 @@ Ad maiorem Dei gloriam
 """
 
 import sys
+import copy
+
+
+BOARD_WIDTH = 10
+BORAD_HEIGHT = 20
 
 
 class MoveData:
@@ -28,9 +33,11 @@ def main():
     with open(file_name, 'r') as f:
         moves = convert_trace(f)
 
-    print_board(moves[0])
-    print_move_stat(moves[0])
-    print_game_stats(moves)
+    # print_board(moves[0].board)
+    # print_move_stat(moves[0])
+    # print_game_stats(moves)
+
+    check_move(moves[0], moves[1])
 
     new_file = file_name.split('.')[0] + '.ctrace'
     # save_new_trace(moves, new_file)
@@ -67,11 +74,11 @@ def convert_trace(trace_file):
     return moves
 
 
-def print_board(move, fill=True):
+def print_board(board, fill=True):
     """Print board for given move. when fill=True empty spaces are filled
     by zeros."""
     print("[+] Board dump:")
-    for line in move.board:
+    for line in board:
         line = '{:016b}'.format(line)[:10]
         if not fill:
             line = line.replace('0', ' ')
@@ -166,6 +173,54 @@ def shape_as_matrix(move):
     }
 
     return SHAPES[move.shape][move.rotate]
+
+
+def check_move(prev_move, current_move):
+    prev_board = ['{:016b}'.format(line)[:10] for line in prev_move.board]
+
+    matrix = shape_as_matrix(current_move)
+    shape = []
+    for line in matrix:
+        shape.append(''.join(str(block) for block in line))
+
+    # Move block
+    board = copy.copy(prev_board)
+    for y in range(BORAD_HEIGHT):
+        for row, line in enumerate(shape):
+            for col, block in enumerate(line):
+                # Collision, revoke current board
+                if board[y+row][col] == '1' and block == '1':
+                    break
+
+        current_board = copy.copy(board)
+
+        # Next move is out of border
+        if (y+1) + len(shape) > BORAD_HEIGHT:
+            break
+
+    # Check for full lines
+    cleared_board = []
+    points = 0
+    for line in current_board:
+        if line == '1111111111':
+            points += 1
+        else:
+            cleared_board.append(line)
+
+    current_board = copy.copy(cleared_board)
+
+    # Fill missing lines in
+    if len(current_board) != BORAD_HEIGHT:
+        missing = BORAD_HEIGHT - len(cleared_board)
+        for _ in range(missing):
+            current_board = ['0000000000'] + current_board
+
+    # for line in current_board:
+    #     print(line)
+    # print("Points", points)
+    # print("Match", prev_board == current_board)
+
+    return points, prev_board == current_board
 
 
 def print_game_stats(moves):
