@@ -198,7 +198,6 @@ def check_move(prev_move, current_move):
     current_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in current_move.board]
     shape = shape_as_matrix(current_move)
 
-    # Move block
     board = move_blocks(prev_board, shape)
     board, points = reduce_board(board)
 
