@@ -32,7 +32,7 @@ def main():
 
     # Squeez moves
     with open(file_name, "r") as f:
-        moves = convert_trace(f)
+        moves = read_trace(f)
 
     # print_board(moves[0].board)
     # print_move_stats(moves[2])
@@ -47,8 +47,8 @@ def main():
     # save_new_trace(moves, new_file)
 
 
-def convert_trace(trace_file):
-    """Squeez moves."""
+def read_trace(trace_file):
+    """Read trace data."""
     moves = []
     m = None
     for line in trace_file:
@@ -80,8 +80,7 @@ def convert_trace(trace_file):
 
 def print_board(board, fill=True):
     """
-    Print board for given move. when fill=True empty spaces are filled
-    by zeros.
+    Print board for given move. When fill=True empty spaces are filled by zeros.
     """
     print("[+] Board dump:")
     for line in board:
@@ -92,6 +91,7 @@ def print_board(board, fill=True):
 
 
 def print_move_stats(move):
+    """Print move statistics."""
     print("[+] Move stats:")
     print("Rotation", move.rotate)
     print("Shape", move.shape)
@@ -101,6 +101,8 @@ def print_move_stats(move):
 
 
 def shape_as_matrix(move):
+    """Get shape as matrix that fit in board."""
+
     # Rotation counterclockwise
     SHAPES = {
         0  : [
@@ -194,6 +196,7 @@ def shape_as_matrix(move):
 
 
 def check_move(prev_move, current_move):
+    """Check board and points after move."""
     prev_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in prev_move.board]
     current_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in current_move.board]
     shape = shape_as_matrix(current_move)
@@ -217,6 +220,7 @@ def check_move(prev_move, current_move):
 
 
 def move_blocks(prev_board, shape):
+    """Move and fit shape in previous board."""
     board = copy.deepcopy(prev_board)
 
     # Move block
@@ -241,11 +245,15 @@ def move_blocks(prev_board, shape):
     return board
 
 def reduce_board(board):
+    """Reduce full lines and count points."""
+    FULL_LINE = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    EMPTY_LINE = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
     # Check for full lines
     cleared_board = []
     points = 0
     for line in board:
-        if line == [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]:
+        if line == FULL_LINE:
             points += 1
         else:
             cleared_board.append(line)
@@ -256,7 +264,7 @@ def reduce_board(board):
     if len(board) != BORAD_HEIGHT:
         missing = BORAD_HEIGHT - len(cleared_board)
         for _ in range(missing):
-            board = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] + board
+            board = EMPTY_LINE + board
 
     return board, points
 
