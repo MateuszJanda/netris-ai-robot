@@ -35,13 +35,13 @@ def main():
         moves = convert_trace(f)
 
     # print_board(moves[0].board)
-    print_move_stats(moves[2])
+    # print_move_stats(moves[2])
     # print_game_stats(moves)
-    check_move(moves[1], moves[2])
+    # check_move(moves[1], moves[2])
 
-    # for idx in range(len(moves) - 1):
-    #     r = check_move(moves[idx], moves[idx+1])
-    #     print(r)
+    for idx in range(len(moves) - 1):
+        r = check_move(moves[idx], moves[idx+1])
+        print(r)
 
     new_file = file_name.split(".")[0] + ".ctrace"
     # save_new_trace(moves, new_file)
@@ -79,8 +79,10 @@ def convert_trace(trace_file):
 
 
 def print_board(board, fill=True):
-    """Print board for given move. when fill=True empty spaces are filled
-    by zeros."""
+    """
+    Print board for given move. when fill=True empty spaces are filled
+    by zeros.
+    """
     print("[+] Board dump:")
     for line in board:
         line = "{:016b}".format(line)[:10]
@@ -176,7 +178,6 @@ def shape_as_matrix(move):
         ]
     }
 
-    print(move.shape, move.shift, move.rotate)
     ratation = move.rotate % len(SHAPES[move.shape])
     shape = []
     for line in SHAPES[move.shape][ratation]:
@@ -201,26 +202,31 @@ def check_move(prev_move, current_move):
     board = move_blocks(prev_board, shape)
     board, points = reduce_board(board)
 
-    print("Board:")
-    for line in board:
-        print("".join(str(block) for block in line))
-    print("Current board:")
-    for line in current_board:
-        print("".join(str(block) for block in line))
-    print("Points", points)
-    print("Match", board == current_board)
+    # print("Prev board:")
+    # for line in prev_board:
+    #     print("".join(str(block) for block in line))
+    # print("Board:")
+    # for line in board:
+    #     print("".join(str(block) for block in line))
+    # print("Current board:")
+    # for line in current_board:
+    #     print("".join(str(block) for block in line))
+    # print("Points", points)
+    # print("Match", board == current_board)
 
     return points == current_move.points and board == current_board
 
 
 def move_blocks(prev_board, shape):
+    board = copy.deepcopy(prev_board)
+
     # Move block
     for y in range(BORAD_HEIGHT):
         # If collision then revoke actual board
         for row, line in enumerate(shape):
             for col, block in enumerate(line):
                 if prev_board[y+row][col] == 1 and block == 1:
-                    break
+                    return board
 
         # Fill boad with shape
         board = copy.deepcopy(prev_board)
