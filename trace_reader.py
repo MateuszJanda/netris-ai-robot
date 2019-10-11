@@ -173,7 +173,16 @@ def shape_as_matrix(move):
         ]
     }
 
-    return SHAPES[move.shape][move.rotate]
+    shape = []
+    for line in SHAPES[move.shape][move.rotate]:
+        if move.shift < 0:
+            shift = abs(move.shift)
+            shape.append(line[shift:] + [0 for _ in range(shift)])
+        else:
+            shift = move.shift
+            shape.append([0 for _ in range(shift)] + line[:-shift])
+
+    return shape
 
 
 def check_move(prev_move, current_move):
