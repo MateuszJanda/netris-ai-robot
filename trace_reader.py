@@ -37,8 +37,11 @@ def main():
     # print_board(moves[0].board)
     # print_move_stat(moves[0])
     # print_game_stats(moves)
+    # check_move(moves[0], moves[1])
 
-    check_move(moves[0], moves[1])
+    for idx in range(len(moves) - 1):
+        r = check_move(moves[idx], moves[idx+1])
+        print(r)
 
     new_file = file_name.split(".")[0] + ".ctrace"
     # save_new_trace(moves, new_file)
@@ -173,8 +176,9 @@ def shape_as_matrix(move):
         ]
     }
 
+    ratation = move.rotate % len(SHAPES[move.shape])
     shape = []
-    for line in SHAPES[move.shape][move.rotate]:
+    for line in SHAPES[move.shape][ratation]:
         if move.shift < 0:
             shift = abs(move.shift)
             shape.append(line[shift:] + [0 for _ in range(shift)])
@@ -194,16 +198,16 @@ def check_move(prev_move, current_move):
     board = move_blocks(prev_board, shape)
     board, points = reduce_board(board)
 
-    print("Board:")
-    for line in board:
-        print("".join(str(block) for block in line))
-    print("Current board:")
-    for line in current_board:
-        print("".join(str(block) for block in line))
-    print("Points", points)
-    print("Match", board == current_board)
+    # print("Board:")
+    # for line in board:
+    #     print("".join(str(block) for block in line))
+    # print("Current board:")
+    # for line in current_board:
+    #     print("".join(str(block) for block in line))
+    # print("Points", points)
+    # print("Match", board == current_board)
 
-    return points, board == current_board
+    return points == current_move.points and board == current_board
 
 
 def move_blocks(prev_board, shape):
