@@ -35,20 +35,14 @@ def main():
         moves = read_trace(f)
 
     # print_game_stats(moves)
-
-    # print_board(moves[2].board)
-    # check_move(moves[1], moves[2])
-
     # print_move_stats(moves[12])
     # check_move(moves[11], moves[12])
 
-    p = 0
+    correct = 0
     for idx in range(len(moves) - 1):
-        r = check_move(moves[idx], moves[idx+1])
-        print(r)
-        if r:
-            p += 1
-    print("Matching", p/(len(moves)-1) * 100)
+        if check_move(moves[idx], moves[idx+1]):
+            correct += 1
+    print("Correct %.2f%%" % (correct/(len(moves)-1) * 100))
 
     new_file = file_name.split(".")[0] + ".ctrace"
     # save_new_trace(moves, new_file)
