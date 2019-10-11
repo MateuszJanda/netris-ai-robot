@@ -34,10 +34,13 @@ def main():
     with open(file_name, "r") as f:
         moves = read_trace(f)
 
-    # print_board(moves[0].board)
-    # print_move_stats(moves[2])
     # print_game_stats(moves)
+
+    # print_board(moves[2].board)
     # check_move(moves[1], moves[2])
+
+    # print_move_stats(moves[6])
+    # check_move(moves[5], moves[6])
 
     for idx in range(len(moves) - 1):
         r = check_move(moves[idx], moves[idx+1])
@@ -128,17 +131,17 @@ def shape_as_matrix(move):
             [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
              [0, 0, 0, 0, 1, 1, 1, 0, 0, 0]],
 
-            [[0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-             [0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-             [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]]
+            [[0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]]
         ],
         7  : [
             [[0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]],
 
-            [[0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]],
+            [[0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+             [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]],
 
             [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 1, 1, 1, 0, 0, 0]],
@@ -180,6 +183,7 @@ def shape_as_matrix(move):
         ]
     }
 
+    # print(move.shape, move.shift, move.rotate)
     ratation = move.rotate % len(SHAPES[move.shape])
     shape = []
     for line in SHAPES[move.shape][ratation]:
