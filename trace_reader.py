@@ -30,7 +30,7 @@ def main():
 
     print("Trace file:", file_name)
 
-    # Squeez moves
+    # Read moves
     with open(file_name, "r") as f:
         moves = read_trace(f)
 
