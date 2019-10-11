@@ -39,12 +39,16 @@ def main():
     # print_board(moves[2].board)
     # check_move(moves[1], moves[2])
 
-    # print_move_stats(moves[6])
-    # check_move(moves[5], moves[6])
+    # print_move_stats(moves[12])
+    # check_move(moves[11], moves[12])
 
+    p = 0
     for idx in range(len(moves) - 1):
         r = check_move(moves[idx], moves[idx+1])
         print(r)
+        if r:
+            p += 1
+    print("Matching", p/(len(moves)-1) * 100)
 
     new_file = file_name.split(".")[0] + ".ctrace"
     # save_new_trace(moves, new_file)
@@ -96,8 +100,9 @@ def print_board(board, fill=True):
 def print_move_stats(move):
     """Print move statistics."""
     print("[+] Move stats:")
-    print("Rotation", move.rotate)
     print("Shape", move.shape)
+    print("Shift", move.shift)
+    print("Rotation", move.rotate)
 
     for row in shape_as_matrix(move):
         print("".join(["1" if block else "0" for block in row]))
@@ -183,7 +188,6 @@ def shape_as_matrix(move):
         ]
     }
 
-    # print(move.shape, move.shift, move.rotate)
     ratation = move.rotate % len(SHAPES[move.shape])
     shape = []
     for line in SHAPES[move.shape][ratation]:
@@ -251,7 +255,7 @@ def move_blocks(prev_board, shape):
 def reduce_board(board):
     """Reduce full lines and count points."""
     FULL_LINE = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    EMPTY_LINE = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    EMPTY_LINE = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
     # Check for full lines
     cleared_board = []
