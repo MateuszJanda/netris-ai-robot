@@ -25,8 +25,8 @@ class MoveData:
 
 
 def main():
-    # file_name = sys.argv[1]
-    file_name = "20190529201253.trace"
+    file_name = sys.argv[1]
+    # file_name = "20190529201253.trace"
 
     print("Trace file:", file_name)
 
@@ -35,13 +35,13 @@ def main():
         moves = convert_trace(f)
 
     # print_board(moves[0].board)
-    # print_move_stat(moves[0])
+    print_move_stats(moves[2])
     # print_game_stats(moves)
-    # check_move(moves[0], moves[1])
+    check_move(moves[1], moves[2])
 
-    for idx in range(len(moves) - 1):
-        r = check_move(moves[idx], moves[idx+1])
-        print(r)
+    # for idx in range(len(moves) - 1):
+    #     r = check_move(moves[idx], moves[idx+1])
+    #     print(r)
 
     new_file = file_name.split(".")[0] + ".ctrace"
     # save_new_trace(moves, new_file)
@@ -89,12 +89,12 @@ def print_board(board, fill=True):
         print(line)
 
 
-def print_move_stat(move):
+def print_move_stats(move):
     print("[+] Move stats:")
     print("Rotation", move.rotate)
     print("Shape", move.shape)
 
-    for row in shape_as_matrix(shift):
+    for row in shape_as_matrix(move):
         print("".join(["1" if block else "0" for block in row]))
 
 
@@ -176,10 +176,13 @@ def shape_as_matrix(move):
         ]
     }
 
+    print(move.shape, move.shift, move.rotate)
     ratation = move.rotate % len(SHAPES[move.shape])
     shape = []
     for line in SHAPES[move.shape][ratation]:
-        if move.shift < 0:
+        if move.shift == 0:
+            shape.append(line)
+        elif move.shift < 0:
             shift = abs(move.shift)
             shape.append(line[shift:] + [0 for _ in range(shift)])
         else:
@@ -198,14 +201,14 @@ def check_move(prev_move, current_move):
     board = move_blocks(prev_board, shape)
     board, points = reduce_board(board)
 
-    # print("Board:")
-    # for line in board:
-    #     print("".join(str(block) for block in line))
-    # print("Current board:")
-    # for line in current_board:
-    #     print("".join(str(block) for block in line))
-    # print("Points", points)
-    # print("Match", board == current_board)
+    print("Board:")
+    for line in board:
+        print("".join(str(block) for block in line))
+    print("Current board:")
+    for line in current_board:
+        print("".join(str(block) for block in line))
+    print("Points", points)
+    print("Match", board == current_board)
 
     return points == current_move.points and board == current_board
 
