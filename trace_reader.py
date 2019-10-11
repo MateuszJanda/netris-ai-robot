@@ -17,21 +17,21 @@ BORAD_HEIGHT = 20
 class MoveData:
     def __init__(self):
         self.shape = 0
-        self.move = 0
+        self.shift = 0
         self.rotate = 0
         self.points = 0
-        self.board = ''
-        self.raw_board = ''
+        self.board = ""
+        self.raw_board = ""
 
 
 def main():
     # file_name = sys.argv[1]
-    file_name = '20190529201253.trace'
+    file_name = "20190529201253.trace"
 
-    print('Trace file:', file_name)
+    print("Trace file:", file_name)
 
     # Squeez moves
-    with open(file_name, 'r') as f:
+    with open(file_name, "r") as f:
         moves = convert_trace(f)
 
     # print_board(moves[0].board)
@@ -40,7 +40,7 @@ def main():
 
     check_move(moves[0], moves[1])
 
-    new_file = file_name.split('.')[0] + '.ctrace'
+    new_file = file_name.split(".")[0] + ".ctrace"
     # save_new_trace(moves, new_file)
 
 
@@ -51,23 +51,23 @@ def convert_trace(trace_file):
     for line in trace_file:
         packet = line.split()
 
-        if packet[0] == '[>]':
-            if packet[1] == 'NP_newPiece':
+        if packet[0] == "[>]":
+            if packet[1] == "NP_newPiece":
                 if m:
                     moves.append(m)
                 m = MoveData()
-                m.shape = int(packet[2].split('=')[1])
-            elif packet[1] == 'NP_left':
-                m.move -= 1
-            elif packet[1] == 'NP_right':
-                m.move += 1
-            elif packet[1] == 'NP_rotate':
+                m.shape = int(packet[2].split("=")[1])
+            elif packet[1] == "NP_left":
+                m.shift -= 1
+            elif packet[1] == "NP_right":
+                m.shift += 1
+            elif packet[1] == "NP_rotate":
                 m.rotate += 1
-        elif packet[0] == '[<]' and packet[1] == 'NP_points':
-            m.points = int(packet[2].split('=')[1])
-        elif packet[0] == '[<]' and packet[1] == 'NP_boardDump':
+        elif packet[0] == "[<]" and packet[1] == "NP_points":
+            m.points = int(packet[2].split("=")[1])
+        elif packet[0] == "[<]" and packet[1] == "NP_boardDump":
             if len(moves) > 0:
-                board = packet[3].split('=')[1]
+                board = packet[3].split("=")[1]
                 lines = [board[i:i+4] for i in range(0, len(board), 4)]
                 moves[-1].board = list(reversed([int(line, 16) for line in lines]))
                 moves[-1].raw_board = board
@@ -80,19 +80,19 @@ def print_board(board, fill=True):
     by zeros."""
     print("[+] Board dump:")
     for line in board:
-        line = '{:016b}'.format(line)[:10]
+        line = "{:016b}".format(line)[:10]
         if not fill:
-            line = line.replace('0', ' ')
+            line = line.replace("0", " ")
         print(line)
 
 
 def print_move_stat(move):
-    print('[+] Move stats:')
+    print("[+] Move stats:")
     print("Rotation", move.rotate)
     print("Shape", move.shape)
 
-    for row in shape_as_matrix(move):
-        print(''.join(['1' if block else '0' for block in row]))
+    for row in shape_as_matrix(shift):
+        print("".join(["1" if block else "0" for block in row]))
 
 
 def shape_as_matrix(move):
@@ -177,8 +177,8 @@ def shape_as_matrix(move):
 
 
 def check_move(prev_move, current_move):
-    prev_board = [[int(block) for block in '{:016b}'.format(line)[:10]] for line in prev_move.board]
-    current_board = [[int(block) for block in '{:016b}'.format(line)[:10]] for line in current_move.board]
+    prev_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in prev_move.board]
+    current_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in current_move.board]
     shape = shape_as_matrix(current_move)
 
     # Move block
@@ -187,10 +187,10 @@ def check_move(prev_move, current_move):
 
     print("Board:")
     for line in board:
-        print(''.join(str(block) for block in line))
+        print("".join(str(block) for block in line))
     print("Current board:")
     for line in current_board:
-        print(''.join(str(block) for block in line))
+        print("".join(str(block) for block in line))
     print("Points", points)
     print("Match", board == current_board)
 
@@ -241,20 +241,20 @@ def reduce_board(board):
 
 def print_game_stats(moves):
     """Print trace stats."""
-    print('[+] Game stats:')
-    print('Points:', sum([m.points for m in moves]))
-    print('Moves:', len(moves))
-    print('Overall blocks:', set([m.shape for m in moves]))
+    print("[+] Game stats:")
+    print("Points:", sum([m.points for m in moves]))
+    print("Moves:", len(moves))
+    print("Overall blocks:", set([m.shape for m in moves]))
 
 
 def save_new_trace(moves, file_name):
     """Save squeezed moves to new trace file."""
-    with open(file_name, 'w') as f:
+    with open(file_name, "w") as f:
         for m in moves:
-            f.write('{shape} {move} {rotate} {points} {raw_board}\n' \
-                .format(shape=m.shape, move=m.move, rotate=m.rotate,
+            f.write("{shape} {shift} {rotate} {points} {raw_board}\n" \
+                .format(shape=m.shape, shift=m.shift, rotate=m.rotate,
                     points=m.points, raw_board=str(m.raw_board)))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
