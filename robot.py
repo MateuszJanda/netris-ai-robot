@@ -16,6 +16,7 @@ BORAD_HEIGHT = 20
 def main():
     ts = time.time()
     log_name = datetime.datetime.fromtimestamp(ts).strftime('robot_%Y%m%d%H%M%S.txt')
+    log_name = '/dev/pts/3'
 
     piece_id = None
     with open(log_name, 'w') as f:
@@ -30,10 +31,11 @@ def main():
 
             elif cmd.startswith('BoardSize'):
                 params = cmd.split(' ')
-                height = int(params[1])
-                width = int(params[2])
+                width = int(params[1])
+                height = int(params[2])
 
                 if width != BOARD_WIDTH and height != BORAD_HEIGHT:
+                    print('Exit')
                     log(f, '[!] Validation board size fail')
                     break
 
@@ -48,7 +50,6 @@ def main():
                 piece_id = None
 
             elif cmd.startswith('Exit'):
-                log(f, '[!] Game end')
                 break
 
     return 0
