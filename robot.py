@@ -9,38 +9,54 @@ import time
 import datetime
 
 
+BOARD_WIDTH = 10
+BORAD_HEIGHT = 20
+
+
 def main():
     ts = time.time()
     log_name = datetime.datetime.fromtimestamp(ts).strftime('robot_%Y%m%d%H%M%S.txt')
 
-    piece_count = None
+    piece_id = None
     with open(log_name, 'w') as f:
         print('Version 1')
         while True:
             cmd = input()
-            f.write('[>] ' + cmd + '\n')
-            f.flush()
+            log(f, '[>] ' + cmd)
 
             if cmd.startswith('NewPiece'):
-                piece_count = cmd.split(' ')[1]
+                piece_id = cmd.split(' ')[1]
                 print('Message Lorem ipsum')
-            elif cmd.startswith('TimeStamp') and piece_count:
-                f.write('[<] Right ' + piece_count + '\n')
-                f.flush()
 
-                print('Right ' + piece_count)
-                print('Right ' + piece_count)
-                print('Right ' + piece_count)
-                print('Right ' + piece_count)
-                print('Right ' + piece_count)
-                # print('Message right')
-                piece_count = None
+            elif cmd.startswith('BoardSize'):
+                params = cmd.split(' ')
+                height = int(params[1])
+                width = int(params[2])
+
+                if width != BOARD_WIDTH and height != BORAD_HEIGHT:
+                    log(f, '[!] Validation board size fail')
+                    break
+
+            elif cmd.startswith('TimeStamp') and piece_id:
+                log(f, '[<] Right ' + piece_id)
+
+                print('Right ' + piece_id)
+                print('Right ' + piece_id)
+                print('Right ' + piece_id)
+                print('Right ' + piece_id)
+                print('Right ' + piece_id)
+                piece_id = None
+
             elif cmd.startswith('Exit'):
-                f.write('[!] Game end\n')
-                f.flush()
+                log(f, '[!] Game end')
                 break
 
     return 0
+
+
+def log(file, msg):
+    file.write(msg + '\n')
+    file.flush()
 
 
 if __name__ == '__main__':
