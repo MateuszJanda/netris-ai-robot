@@ -5,6 +5,7 @@ Author: Mateusz Janda <mateusz janda at gmail com>
 Site: github.com/MateuszJanda
 Ad maiorem Dei gloriam
 """
+import traceback
 import time
 import datetime
 
@@ -27,57 +28,55 @@ def main():
     piece_id = None
     ver = False
 
-    with open(log_name, 'w') as f:
-        while True:
-            cmd = input()
-            log(f, '[>] ' + cmd)
+    try:
+        with open(log_name, 'w') as f:
+            log(f, '[<] Version 1')
+            print('Version 1')
 
-            if cmd.startswith('Version') and not ver:
-                log(f, "AAA Ver update" + str( ver))
-                log(f, '[<] Version 1')
-                print('Version 1')
-                ver = True
-                log(f, "Ver update" + str(ver))
+            while True:
+                cmd = input()
+                log(f, '[>] ' + cmd)
 
-            elif cmd.startswith('NewPiece'):
-                piece_id = cmd.split(' ')[1]
-                log(f, '[<] Message Lorem ipsum')
-                print('Message Lorem ipsum')
+                if cmd.startswith('NewPiece'):
+                    piece_id = cmd.split(' ')[1]
+                    log(f, '[<] Message Lorem ipsum')
+                    print('Message Lorem ipsum')
 
+                elif cmd.startswith('BoardSize'):
+                    scr_id, height, width = [int(p) for p in cmd.split(' ')[1:]]
 
+                    if width != BOARD_WIDTH and height != BORAD_HEIGHT:
+                        log(f, '[<] Exit')
+                        log(f, '[!] Validation board size fail %d %d %d %d' % (width, BOARD_WIDTH, height, BORAD_HEIGHT))
+                        print('Exit')
+                        break
 
-            # elif cmd.startswith('BoardSize'):
-            #     scr_id, width, height = [int(p) for p in cmd.split(' ')]
+                elif cmd.startswith('RowUpdate'):
+                    params = [int(p) for p in cmd.split(' ')[1:]]
 
-            #     if width != BOARD_WIDTH and height != BORAD_HEIGHT:
-            #         log(f, '[<] Exit')
-            #         log(f, '[!] Validation board size fail')
-            #         print('Exit')
-            #         break
+                    if params[0] != SCR_ID:
+                        continue
 
-            elif cmd.startswith('RowUpdate'):
-                params = [int(p) for p in cmd.split(' ')]
+                    y = params[1]
+                    for x, val in enumerate(params[2:]):
+                        board[BORAD_HEIGHT - 1 - y][x] = FULL_BLOCK if val != 0 else EMPTY_BLOCK
 
-                if params[0] != SCR_ID:
-                    continue
+                elif cmd.startswith('TimeStamp') and piece_id:
+                    log(f, '[<] Right ' + piece_id)
+                    print('Right ' + piece_id)
 
-                y = params[1]
-                for x, val in enumerate(params[2:]):
-                    board[BORAD_HEIGHT - 1 - y][x] = FULL_BLOCK if val != 0 else EMPTY_BLOCK
+                    log(f, '[<] Right ' + piece_id)
+                    print('Right ' + piece_id)
 
-            elif cmd.startswith('TimeStamp') and piece_id:
-                log(f, '[<] Right ' + piece_id)
-                print('Right ' + piece_id)
+                    log(f, '[<] Right ' + piece_id)
+                    print('Right ' + piece_id)
+                    piece_id = None
 
-                log(f, '[<] Right ' + piece_id)
-                print('Right ' + piece_id)
-
-                log(f, '[<] Right ' + piece_id)
-                print('Right ' + piece_id)
-                piece_id = None
-
-            elif cmd.startswith('Exit'):
-                break
+                elif cmd.startswith('Exit'):
+                    break
+    except:
+        with open(log_name, 'w') as f:
+            traceback.print_exc(file=f)
 
     return 0
 
