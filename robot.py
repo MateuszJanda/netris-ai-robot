@@ -5,10 +5,10 @@ Author: Mateusz Janda <mateusz janda at gmail com>
 Site: github.com/MateuszJanda
 Ad maiorem Dei gloriam
 """
+import sys
 import traceback
 import time
 import datetime
-
 
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
@@ -19,12 +19,15 @@ EMPTY_BLOCK = 0
 FULL_BLOCK = 1
 
 
-
 class Robot:
-    def __init__(self, f):
-        self.f = f
+    def __init__(self):
+        self.file = None
+
         self.board = [EMPTY_LINE for _ in range(BORAD_HEIGHT)]
         self.piece_id = None
+
+    def set_log_file(self, file):
+        self.file = file
 
     def new_pice(self, params):
         self.piece_id = params[0]
@@ -34,7 +37,7 @@ class Robot:
         scr_id, height, width = [int(p) for p in params]
 
         if width != BOARD_WIDTH and height != BORAD_HEIGHT:
-            log(self.f, '[!] Validation board size fail %d %d %d %d' % (width, BOARD_WIDTH, height, BORAD_HEIGHT))
+            self._log('[!] Validation board size fail %d %d %d %d' % (width, BOARD_WIDTH, height, BORAD_HEIGHT))
             return False, ['Exit']
 
         return True, []
@@ -61,25 +64,29 @@ class Robot:
     def exit(self, params):
         return False, []
 
+    def _log(self, msg):
+        if self.file:
+            log(self.file, msg)
 
-def main():
-    ts = time.time()
-    # log_name = datetime.datetime.fromtimestamp(ts).strftime('robot_%Y%m%d%H%M%S.txt')
-    log_name = '/dev/pts/3'
+
+def game(robot):
+    log_name = parse_args()
 
     try:
-        with open(log_name, 'w') as f:
-            fun(f)
+        if log_name:
+            with open(log_name, 'w') as file:
+                loop(file, robot)
+        else:
+            loop(None, robot)
     except:
-        with open(log_name, 'w') as f:
-            traceback.print_exc(file=f)
+        if log_name:
+            with open(log_name, 'w') as file:
+                traceback.print_exc(file=file)
 
-    return 0
 
-
-def fun(f):
-    robot = Robot(f)
-    out_cmd(f, 'Version 1')
+def loop(file, robot):
+    robot.set_log_file(file)
+    out_cmd(file, 'Version 1')
 
     handler = {
         'NewPiece' : robot.new_pice,
@@ -90,7 +97,7 @@ def fun(f):
 
     while True:
         cmd = input()
-        log(f, '[>] ' + cmd)
+        log(file, '[>] ' + cmd)
 
         name = cmd.split(' ')[0]
         if name not in handler:
@@ -100,10 +107,20 @@ def fun(f):
         result, cmds = handler[name](params)
 
         for c in cmds:
-            out_cmd(f, c)
+            out_cmd(file, c)
 
         if not result:
             break
+
+
+def parse_args():
+    if len(sys.argv) == 2 and sys.argv[1] == '-l':
+        ts = time.time()
+        return datetime.datetime.fromtimestamp(ts).strftime('robot_%Y%m%d%H%M%S.txt')
+    elif len(sys.argv) == 3 and sys.argv[1] == '-t':
+        return sys.argv[2]
+
+    return None
 
 
 def out_cmd(file, cmd):
@@ -112,9 +129,11 @@ def out_cmd(file, cmd):
 
 
 def log(file, msg):
-    file.write(msg + '\n')
-    file.flush()
+    if file:
+        file.write(msg + '\n')
+        file.flush()
 
 
 if __name__ == '__main__':
-    main()
+    robot = Robot()
+    game(robot)
