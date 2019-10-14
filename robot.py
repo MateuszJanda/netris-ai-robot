@@ -22,16 +22,15 @@ FULL_BLOCK = 1
 class Robot:
     def __init__(self):
         self.file = None
-
         self.board = [EMPTY_LINE for _ in range(BORAD_HEIGHT)]
-        self.piece_id = None
 
     def set_log_file(self, file):
         self.file = file
 
     def new_pice(self, params):
-        self.piece_id = params[0]
-        return True, ['Message Lorem ipsum']
+        piece_id = params[0]
+        out = ['Right ' + piece_id, 'Right ' + piece_id, 'Right ' + piece_id]
+        return True, out
 
     def board_size(self, params):
         scr_id, height, width = [int(p) for p in params]
@@ -51,15 +50,6 @@ class Robot:
                 board[BORAD_HEIGHT - 1 - y][x] = FULL_BLOCK if val != 0 else EMPTY_BLOCK
 
         return True, []
-
-    def time_stamp(self, params):
-        if not self.piece_id:
-            return True, []
-
-        out = ['Right ' + self.piece_id, 'Right ' + self.piece_id, 'Right ' + self.piece_id]
-        self.piece_id = None
-        return True, out
-
 
     def exit(self, params):
         return False, []
@@ -91,7 +81,6 @@ def loop(file, robot):
     handler = {
         'NewPiece' : robot.new_pice,
         'BoardSize' : robot.board_size,
-        'TimeStamp' : robot.time_stamp,
         'Exit' : robot.exit
     }
 
