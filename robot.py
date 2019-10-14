@@ -52,7 +52,7 @@ class Robot:
         return True, []
 
     def exit(self, params):
-        return False, []
+        return True, []
 
     def _log(self, msg):
         if self.file:
