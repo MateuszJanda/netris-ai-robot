@@ -29,7 +29,7 @@ class Robot:
 
     def new_pice(self, params):
         piece_id = params[0]
-        out = ['Right ' + piece_id, 'Right ' + piece_id, 'Right ' + piece_id]
+        out = ['Right ' + piece_id, 'Right ' + piece_id, 'Right ' + piece_id, 'Message Disp asdf']
         return True, out
 
     def board_size(self, params):
