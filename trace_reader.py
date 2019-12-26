@@ -14,7 +14,7 @@ BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
 
 
-class MoveData:
+class SingleMove:
     def __init__(self):
         self.shape = 0
         self.shift = 0
@@ -24,88 +24,8 @@ class MoveData:
         self.raw_board = ""
 
 
-def main():
-    file_name = sys.argv[1]
-    # file_name = "20190529201253.trace"
-
-    print("Trace file:", file_name)
-
-    # Read moves
-    with open(file_name, "r") as f:
-        moves = read_trace(f)
-
-    # print_game_stats(moves)
-    # print_move_stats(moves[12])
-    # check_move(moves[11], moves[12])
-
-    correct = 0
-    for idx in range(len(moves) - 1):
-        if check_move(moves[idx], moves[idx+1]):
-            correct += 1
-    print("Correct %.2f%%" % (correct/(len(moves)-1) * 100))
-
-    new_file = file_name.split(".")[0] + ".ctrace"
-    # save_new_trace(moves, new_file)
-
-
-def read_trace(trace_file):
-    """Read trace data."""
-    moves = []
-    m = None
-    for line in trace_file:
-        packet = line.split()
-
-        if packet[0] == "[>]":
-            if packet[1] == "NP_newPiece":
-                if m:
-                    moves.append(m)
-                m = MoveData()
-                m.shape = int(packet[2].split("=")[1])
-            elif packet[1] == "NP_left":
-                m.shift -= 1
-            elif packet[1] == "NP_right":
-                m.shift += 1
-            elif packet[1] == "NP_rotate":
-                m.rotate += 1
-        elif packet[0] == "[<]" and packet[1] == "NP_points":
-            m.points = int(packet[2].split("=")[1])
-        elif packet[0] == "[<]" and packet[1] == "NP_boardDump":
-            if len(moves) > 0:
-                board = packet[3].split("=")[1]
-                lines = [board[i:i+4] for i in range(0, len(board), 4)]
-                moves[-1].board = list(reversed([int(line, 16) for line in lines]))
-                moves[-1].raw_board = board
-
-    return moves
-
-
-def print_board(board, fill=True):
-    """
-    Print board for given move. When fill=True empty spaces are filled by zeros.
-    """
-    print("[+] Board dump:")
-    for line in board:
-        line = "{:016b}".format(line)[:10]
-        if not fill:
-            line = line.replace("0", " ")
-        print(line)
-
-
-def print_move_stats(move):
-    """Print move statistics."""
-    print("[+] Move stats:")
-    print("Shape", move.shape)
-    print("Shift", move.shift)
-    print("Rotation", move.rotate)
-
-    for row in shape_as_matrix(move):
-        print("".join(["1" if block else "0" for block in row]))
-
-
-def shape_as_matrix(move):
-    """Get shape as matrix that fit in board."""
-
-    # Rotation counterclockwise
+class GameAnalyzer:
+    # Shape number and this representation. Counterclockwise rotation.
     SHAPES = {
         0  : [
             [[0, 0, 0, 0, 1, 1, 1, 1, 0, 0]],
@@ -182,106 +102,197 @@ def shape_as_matrix(move):
         ]
     }
 
-    ratation = move.rotate % len(SHAPES[move.shape])
-    shape = []
-    for line in SHAPES[move.shape][ratation]:
-        if move.shift == 0:
-            shape.append(line)
-        elif move.shift < 0:
-            shift = abs(move.shift)
-            shape.append(line[shift:] + [0 for _ in range(shift)])
-        else:
-            shift = move.shift
-            shape.append([0 for _ in range(shift)] + line[:-shift])
 
-    return shape
+    def __init__(self, game):
+        self.game = game
+
+    def print_game_stats(self):
+        """Print game statistics."""
+        print("[+] Game stats:")
+        print("Points:", sum([m.points for m in self.game]))
+        print("game:", len(self.game))
+        print("Overall blocks:", set([m.shape for m in self.game]))
 
 
-def check_move(prev_move, current_move):
-    """Check board and points after move."""
-    prev_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in prev_move.board]
-    current_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in current_move.board]
-    shape = shape_as_matrix(current_move)
+    def print_move_stats(self, move):
+        """Print move statistics."""
+        print("[+] Move stats:")
+        print("Shape", move.shape)
+        print("Shift", move.shift)
+        print("Rotation", move.rotate)
 
-    board = move_blocks(prev_board, shape)
-    board, points = reduce_board(board)
-
-    # print("Prev board:")
-    # for line in prev_board:
-    #     print("".join(str(block) for block in line))
-    # print("Board:")
-    # for line in board:
-    #     print("".join(str(block) for block in line))
-    # print("Current board:")
-    # for line in current_board:
-    #     print("".join(str(block) for block in line))
-    # print("Points", points)
-    # print("Match", board == current_board)
-
-    return points == current_move.points and board == current_board
+        for row in shape_as_matrix(move):
+            print("".join(["1" if block else "0" for block in row]))
 
 
-def move_blocks(prev_board, shape):
-    """Move and fit shape in previous board."""
-    board = copy.deepcopy(prev_board)
+    def print_board(self, board, fill=True):
+        """
+        Print board for given move. When fill=True empty spaces are filled by zeros.
+        """
+        print("[+] Board dump:")
+        for line in board:
+            line = "{:016b}".format(line)[:10]
+            if not fill:
+                line = line.replace("0", " ")
+            print(line)
 
-    # Move block
-    for y in range(BORAD_HEIGHT):
-        # If collision then revoke actual board
-        for row, line in enumerate(shape):
-            for col, block in enumerate(line):
-                if prev_board[y+row][col] == 1 and block == 1:
-                    return board
 
-        # Fill boad with shape
+    def validate(self):
+        """Validate moves in game."""
+        correct = 0
+        for idx in range(len(self.game) - 1):
+            if self._validate_move(self.game[idx], self.game[idx+1]):
+                correct += 1
+        print("Correct %.2f%%" % (correct/(len(self.game)-1) * 100))
+
+
+    def _validate_move(self, prev_move, current_move):
+        """Check board and points after move."""
+        prev_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in prev_move.board]
+        current_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in current_move.board]
+        shape = self._shape_as_matrix(current_move)
+
+        board = self._move_blocks(prev_board, shape)
+        board, points = self._reduce_board(board)
+
+        # print("Prev board:")
+        # for line in prev_board:
+        #     print("".join(str(block) for block in line))
+        # print("Board:")
+        # for line in board:
+        #     print("".join(str(block) for block in line))
+        # print("Current board:")
+        # for line in current_board:
+        #     print("".join(str(block) for block in line))
+        # print("Points", points)
+        # print("Match", board == current_board)
+
+        return points == current_move.points and board == current_board
+
+
+    def _shape_as_matrix(self, move):
+        """Get shape as matrix that fit in board."""
+        ratation = move.rotate % len(GameAnalyzer.SHAPES[move.shape])
+        shape = []
+        for line in GameAnalyzer.SHAPES[move.shape][ratation]:
+            if move.shift == 0:
+                shape.append(line)
+            elif move.shift < 0:
+                shift = abs(move.shift)
+                shape.append(line[shift:] + [0 for _ in range(shift)])
+            else:
+                shift = move.shift
+                shape.append([0 for _ in range(shift)] + line[:-shift])
+
+        return shape
+
+
+    def _move_blocks(self, prev_board, shape):
+        """Move and fit shape in previous board."""
         board = copy.deepcopy(prev_board)
-        for row, line in enumerate(shape):
-            for col, block in enumerate(line):
-                if block == 1:
-                    board[y+row][col] = 1
 
-        # If next move is out of border, then break
-        if (y+1) + len(shape) > BORAD_HEIGHT:
-            break
+        # Move block
+        for y in range(BORAD_HEIGHT):
+            # If collision then revoke actual board
+            for row, line in enumerate(shape):
+                for col, block in enumerate(line):
+                    if prev_board[y+row][col] == 1 and block == 1:
+                        return board
 
-    return board
+            # Fill boad with shape
+            board = copy.deepcopy(prev_board)
+            for row, line in enumerate(shape):
+                for col, block in enumerate(line):
+                    if block == 1:
+                        board[y+row][col] = 1
 
-def reduce_board(board):
-    """Reduce full lines and count points."""
-    FULL_LINE = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    EMPTY_LINE = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+            # If next move is out of border, then break
+            if (y+1) + len(shape) > BORAD_HEIGHT:
+                break
 
-    # Check for full lines
-    cleared_board = []
-    points = 0
-    for line in board:
-        if line == FULL_LINE:
-            points += 1
-        else:
-            cleared_board.append(line)
-
-    board = copy.deepcopy(cleared_board)
-
-    # Fill missing lines in
-    if len(board) != BORAD_HEIGHT:
-        missing = BORAD_HEIGHT - len(cleared_board)
-        for _ in range(missing):
-            board = EMPTY_LINE + board
-
-    return board, points
-
-def print_game_stats(moves):
-    """Print trace stats."""
-    print("[+] Game stats:")
-    print("Points:", sum([m.points for m in moves]))
-    print("Moves:", len(moves))
-    print("Overall blocks:", set([m.shape for m in moves]))
+        return board
 
 
-def save_new_trace(moves, file_name):
-    """Save squeezed moves to new trace file."""
+    def _reduce_board(self, board):
+        """Reduce full lines and count points."""
+        FULL_LINE = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        EMPTY_LINE = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+
+        # Check for full lines
+        cleared_board = []
+        points = 0
+        for line in board:
+            if line == FULL_LINE:
+                points += 1
+            else:
+                cleared_board.append(line)
+
+        board = copy.deepcopy(cleared_board)
+
+        # Fill missing lines in
+        if len(board) != BORAD_HEIGHT:
+            missing = BORAD_HEIGHT - len(cleared_board)
+            for _ in range(missing):
+                board = EMPTY_LINE + board
+
+        return board, points
+
+
+def main():
+    # file_name = sys.argv[1]
+    file_name = "20190529201253.trace"
+    print("Trace file:", file_name)
+
+    # Read game
+    with open(file_name, "r") as f:
+        game = read_games(f)
+
+    # print_game_stats(game)
+    # print_move_stats(game[12])
+    # _validate_move(game[11], game[12])
+
+    a = GameAnalyzer(game)
+    a.validate()
+
+    new_file = file_name.split(".")[0] + ".ctrace"
+    # save_new_trace(game, new_file)
+
+
+def read_games(trace_file):
+    """Read trace data."""
+    game = []
+    m = None
+    for line in trace_file:
+        packet = line.split()
+
+        if packet[0] == "[>]":
+            if packet[1] == "NP_newPiece":
+                if m:
+                    game.append(m)
+                m = SingleMove()
+                m.shape = int(packet[2].split("=")[1])
+            elif packet[1] == "NP_left":
+                m.shift -= 1
+            elif packet[1] == "NP_right":
+                m.shift += 1
+            elif packet[1] == "NP_rotate":
+                m.rotate += 1
+        elif packet[0] == "[<]" and packet[1] == "NP_points":
+            m.points = int(packet[2].split("=")[1])
+        elif packet[0] == "[<]" and packet[1] == "NP_boardDump":
+            if len(game) > 0:
+                board = packet[3].split("=")[1]
+                lines = [board[i:i+4] for i in range(0, len(board), 4)]
+                game[-1].board = list(reversed([int(line, 16) for line in lines]))
+                game[-1].raw_board = board
+
+    return game
+
+
+def save_new_trace(game, file_name):
+    """Save squeezed game to new trace file."""
     with open(file_name, "w") as f:
-        for m in moves:
+        for m in game:
             f.write("{shape} {shift} {rotate} {points} {raw_board}\n" \
                 .format(shape=m.shape, shift=m.shift, rotate=m.rotate,
                     points=m.points, raw_board=str(m.raw_board)))
