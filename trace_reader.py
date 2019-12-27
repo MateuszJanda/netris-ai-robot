@@ -6,6 +6,7 @@ Site: github.com/MateuszJanda
 Ad maiorem Dei gloriam
 """
 
+import os
 import sys
 import copy
 
@@ -143,7 +144,8 @@ class GameAnalyzer:
         for idx in range(len(self.game) - 1):
             if self._validate_move(self.game[idx], self.game[idx+1]):
                 correct += 1
-        print("Correct %.2f%%" % (correct/(len(self.game)-1) * 100))
+
+        return correct / (len(self.game)-1)
 
 
     def _validate_move(self, prev_move, current_move):
@@ -240,22 +242,25 @@ class GameAnalyzer:
 
 def main():
     # file_name = sys.argv[1]
-    file_name = "20190529201253.trace"
-    print("Trace file:", file_name)
+    # file_name = "20190529201253.trace"
+
+    # List all files with .trace extension
+    file_names = []
+    for r, _, f in os.walk('.'):
+        for file_name in f:
+            if file_name.endswith('.trace'):
+                file_names.append(os.path.join(r, file_name))
 
     # Read game
-    with open(file_name, "r") as f:
-        game = read_games(f)
+    for file_name in file_names:
+        with open(file_name, "r") as f:
+            game = read_games(f)
 
-    # print_game_stats(game)
-    # print_move_stats(game[12])
-    # _validate_move(game[11], game[12])
+            a = GameAnalyzer(game)
+            print("%s: validation %.2f%%" % (file_name, a.validate() * 100))
 
-    a = GameAnalyzer(game)
-    a.validate()
-
-    new_file = file_name.split(".")[0] + ".ctrace"
-    # save_new_trace(game, new_file)
+            new_file = file_name.split(".")[0] + ".ctrace"
+            # save_new_trace(game, new_file)
 
 
 def read_games(trace_file):
