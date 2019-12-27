@@ -264,7 +264,7 @@ def main():
 
 
 def read_games(trace_file):
-    """Read trace data."""
+    """Reading trace data with squeezed shift."""
     game = []
     m = None
     for line in trace_file:
