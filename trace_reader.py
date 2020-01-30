@@ -128,7 +128,8 @@ class GameAnalyzer:
 
     def print_board(self, board, fill=True):
         """
-        Print board for given action. When fill=True empty spaces are filled by zeros.
+        Print board for given action. When fill=True empty spaces are filled
+        by zeros.
         """
         print("[+] Board dump:")
         for line in board:
