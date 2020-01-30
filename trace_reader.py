@@ -17,7 +17,7 @@ BORAD_HEIGHT = 20
 
 class SingleMove:
     def __init__(self):
-        self.shape = 0
+        self.piece = 0
         self.shift = 0
         self.rotate = 0
         self.points = 0
@@ -26,7 +26,7 @@ class SingleMove:
 
 
 class GameAnalyzer:
-    # Shape number and this representation. Counterclockwise rotation.
+    # Shape number and it representation. Counterclockwise rotation.
     SHAPES = {
         0  : [
             [[0, 0, 0, 0, 1, 1, 1, 1, 0, 0]],
@@ -112,23 +112,23 @@ class GameAnalyzer:
         print("[+] Game stats:")
         print("Points:", sum([m.points for m in self.game]))
         print("game:", len(self.game))
-        print("Overall blocks:", set([m.shape for m in self.game]))
+        print("Overall blocks:", set([m.piece for m in self.game]))
 
 
-    def print_move_stats(self, move):
-        """Print move statistics."""
+    def print_action_stats(self, action):
+        """Print action statistics."""
         print("[+] Move stats:")
-        print("Shape", move.shape)
-        print("Shift", move.shift)
-        print("Rotation", move.rotate)
+        print("Shape", action.piece)
+        print("Shift", action.shift)
+        print("Rotation", action.rotate)
 
-        for row in shape_as_matrix(move):
+        for row in piece_as_matrix(action):
             print("".join(["1" if block else "0" for block in row]))
 
 
     def print_board(self, board, fill=True):
         """
-        Print board for given move. When fill=True empty spaces are filled by zeros.
+        Print board for given action. When fill=True empty spaces are filled by zeros.
         """
         print("[+] Board dump:")
         for line in board:
@@ -138,23 +138,23 @@ class GameAnalyzer:
             print(line)
 
 
-    def validate(self):
-        """Validate moves in game."""
+    def reconstruct(self):
+        """Reconstruct actions in game."""
         correct = 0
         for idx in range(len(self.game) - 1):
-            if self._validate_move(self.game[idx], self.game[idx+1]):
+            if self._reconstruct_action(self.game[idx], self.game[idx+1]):
                 correct += 1
 
         return correct / (len(self.game)-1)
 
 
-    def _validate_move(self, prev_move, current_move):
-        """Check board and points after move."""
-        prev_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in prev_move.board]
-        current_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in current_move.board]
-        shape = self._shape_as_matrix(current_move)
+    def _reconstruct_action(self, prev_action, current_action):
+        """Check board and points after action."""
+        prev_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in prev_action.board]
+        current_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in current_action.board]
+        piece = self._piece_as_matrix(current_action)
 
-        board = self._move_blocks(prev_board, shape)
+        board = self._action_blocks(prev_board, piece)
         board, points = self._reduce_board(board)
 
         # print("Prev board:")
@@ -169,47 +169,47 @@ class GameAnalyzer:
         # print("Points", points)
         # print("Match", board == current_board)
 
-        return points == current_move.points and board == current_board
+        return points == current_action.points and board == current_board
 
 
-    def _shape_as_matrix(self, move):
-        """Get shape as matrix that fit in board."""
-        ratation = move.rotate % len(GameAnalyzer.SHAPES[move.shape])
-        shape = []
-        for line in GameAnalyzer.SHAPES[move.shape][ratation]:
-            if move.shift == 0:
-                shape.append(line)
-            elif move.shift < 0:
-                shift = abs(move.shift)
-                shape.append(line[shift:] + [0 for _ in range(shift)])
+    def _piece_as_matrix(self, action):
+        """Get piece as matrix that fit in board."""
+        ratation = action.rotate % len(GameAnalyzer.SHAPES[action.piece])
+        piece = []
+        for line in GameAnalyzer.SHAPES[action.piece][ratation]:
+            if action.shift == 0:
+                piece.append(line)
+            elif action.shift < 0:
+                shift = abs(action.shift)
+                piece.append(line[shift:] + [0 for _ in range(shift)])
             else:
-                shift = move.shift
-                shape.append([0 for _ in range(shift)] + line[:-shift])
+                shift = action.shift
+                piece.append([0 for _ in range(shift)] + line[:-shift])
 
-        return shape
+        return piece
 
 
-    def _move_blocks(self, prev_board, shape):
-        """Move and fit shape in previous board."""
+    def _action_blocks(self, prev_board, piece):
+        """Move and fit piece in previous board."""
         board = copy.deepcopy(prev_board)
 
         # Move block
         for y in range(BORAD_HEIGHT):
             # If collision then revoke actual board
-            for row, line in enumerate(shape):
+            for row, line in enumerate(piece):
                 for col, block in enumerate(line):
                     if prev_board[y+row][col] == 1 and block == 1:
                         return board
 
-            # Fill boad with shape
+            # Fill boad with piece
             board = copy.deepcopy(prev_board)
-            for row, line in enumerate(shape):
+            for row, line in enumerate(piece):
                 for col, block in enumerate(line):
                     if block == 1:
                         board[y+row][col] = 1
 
-            # If next move is out of border, then break
-            if (y+1) + len(shape) > BORAD_HEIGHT:
+            # If next action is out of border, then break
+            if (y+1) + len(piece) > BORAD_HEIGHT:
                 break
 
         return board
@@ -257,7 +257,7 @@ def main():
             game = read_games(f)
 
             a = GameAnalyzer(game)
-            print("%s: validation %.2f%%" % (file_name, a.validate() * 100))
+            print("%s: reconstruction %.2f%%" % (file_name, a.reconstruct() * 100))
 
             new_file = file_name.split(".")[0] + ".ctrace"
             # save_new_trace(game, new_file)
@@ -266,24 +266,25 @@ def main():
 def read_games(trace_file):
     """Reading trace data with squeezed shift."""
     game = []
-    m = None
+    action = None
+
     for line in trace_file:
         packet = line.split()
 
         if packet[0] == "[>]":
             if packet[1] == "NP_newPiece":
-                if m:
-                    game.append(m)
-                m = SingleMove()
-                m.shape = int(packet[2].split("=")[1])
+                if action:
+                    game.append(action)
+                action = SingleMove()
+                action.piece = int(packet[2].split("=")[1])
             elif packet[1] == "NP_left":
-                m.shift -= 1
+                action.shift -= 1
             elif packet[1] == "NP_right":
-                m.shift += 1
+                action.shift += 1
             elif packet[1] == "NP_rotate":
-                m.rotate += 1
+                action.rotate += 1
         elif packet[0] == "[<]" and packet[1] == "NP_points":
-            m.points = int(packet[2].split("=")[1])
+            action.points = int(packet[2].split("=")[1])
         elif packet[0] == "[<]" and packet[1] == "NP_boardDump":
             if len(game) > 0:
                 board = packet[3].split("=")[1]
@@ -298,8 +299,8 @@ def save_new_trace(game, file_name):
     """Save squeezed game to new trace file."""
     with open(file_name, "w") as f:
         for m in game:
-            f.write("{shape} {shift} {rotate} {points} {raw_board}\n" \
-                .format(shape=m.shape, shift=m.shift, rotate=m.rotate,
+            f.write("{piece} {shift} {rotate} {points} {raw_board}\n" \
+                .format(piece=m.piece, shift=m.shift, rotate=m.rotate,
                     points=m.points, raw_board=str(m.raw_board)))
 
 
