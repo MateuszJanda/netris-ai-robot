@@ -15,7 +15,7 @@ BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
 
 
-class SingleMove:
+class Action:
     def __init__(self):
         self.piece = 0
         self.shift = 0
@@ -27,7 +27,7 @@ class SingleMove:
 
 class GameAnalyzer:
     # Shape number and it representation. Counterclockwise rotation.
-    SHAPES = {
+    PIECES = {
         0  : [
             [[0, 0, 0, 0, 1, 1, 1, 1, 0, 0]],
 
@@ -110,9 +110,9 @@ class GameAnalyzer:
     def print_game_stats(self):
         """Print game statistics."""
         print("[+] Game stats:")
-        print("Points:", sum([m.points for m in self.game]))
+        print("Points:", sum([a.points for a in self.game]))
         print("game:", len(self.game))
-        print("Overall blocks:", set([m.piece for m in self.game]))
+        print("Overall pieces:", set([a.piece for a in self.game]))
 
 
     def print_action_stats(self, action):
@@ -123,7 +123,7 @@ class GameAnalyzer:
         print("Rotation", action.rotate)
 
         for row in piece_as_matrix(action):
-            print("".join(["1" if block else "0" for block in row]))
+            print("".join(["1" if piece else "0" for piece in row]))
 
 
     def print_board(self, board, fill=True):
@@ -150,22 +150,22 @@ class GameAnalyzer:
 
     def _reconstruct_action(self, prev_action, current_action):
         """Check board and points after action."""
-        prev_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in prev_action.board]
-        current_board = [[int(block) for block in "{:016b}".format(line)[:10]] for line in current_action.board]
+        prev_board = [[int(piece) for piece in "{:016b}".format(line)[:10]] for line in prev_action.board]
+        current_board = [[int(piece) for piece in "{:016b}".format(line)[:10]] for line in current_action.board]
         piece = self._piece_as_matrix(current_action)
 
-        board = self._action_blocks(prev_board, piece)
+        board = self._action_pieces(prev_board, piece)
         board, points = self._reduce_board(board)
 
         # print("Prev board:")
         # for line in prev_board:
-        #     print("".join(str(block) for block in line))
+        #     print("".join(str(piece) for piece in line))
         # print("Board:")
         # for line in board:
-        #     print("".join(str(block) for block in line))
+        #     print("".join(str(piece) for piece in line))
         # print("Current board:")
         # for line in current_board:
-        #     print("".join(str(block) for block in line))
+        #     print("".join(str(piece) for piece in line))
         # print("Points", points)
         # print("Match", board == current_board)
 
@@ -174,9 +174,8 @@ class GameAnalyzer:
 
     def _piece_as_matrix(self, action):
         """Get piece as matrix that fit in board."""
-        ratation = action.rotate % len(GameAnalyzer.SHAPES[action.piece])
         piece = []
-        for line in GameAnalyzer.SHAPES[action.piece][ratation]:
+        for line in GameAnalyzer.PIECES[action.piece][action.rotate]:
             if action.shift == 0:
                 piece.append(line)
             elif action.shift < 0:
@@ -189,11 +188,11 @@ class GameAnalyzer:
         return piece
 
 
-    def _action_blocks(self, prev_board, piece):
+    def _action_pieces(self, prev_board, piece):
         """Move and fit piece in previous board."""
         board = copy.deepcopy(prev_board)
 
-        # Move block
+        # Move piece
         for y in range(BORAD_HEIGHT):
             # If collision then revoke actual board
             for row, line in enumerate(piece):
@@ -275,7 +274,7 @@ def read_games(trace_file):
             if packet[1] == "NP_newPiece":
                 if action:
                     game.append(action)
-                action = SingleMove()
+                action = Action()
                 action.piece = int(packet[2].split("=")[1])
             elif packet[1] == "NP_left":
                 action.shift -= 1
@@ -283,6 +282,7 @@ def read_games(trace_file):
                 action.shift += 1
             elif packet[1] == "NP_rotate":
                 action.rotate += 1
+                action.rotate %= len(GameAnalyzer.PIECES[action.piece])
         elif packet[0] == "[<]" and packet[1] == "NP_points":
             action.points = int(packet[2].split("=")[1])
         elif packet[0] == "[<]" and packet[1] == "NP_boardDump":
@@ -298,10 +298,10 @@ def read_games(trace_file):
 def save_new_trace(game, file_name):
     """Save squeezed game to new trace file."""
     with open(file_name, "w") as f:
-        for m in game:
+        for a in game:
             f.write("{piece} {shift} {rotate} {points} {raw_board}\n" \
-                .format(piece=m.piece, shift=m.shift, rotate=m.rotate,
-                    points=m.points, raw_board=str(m.raw_board)))
+                .format(piece=a.piece, shift=a.shift, rotate=a.rotate,
+                    points=a.points, raw_board=str(a.raw_board)))
 
 
 if __name__ == "__main__":
