@@ -99,8 +99,8 @@ class Action:
         self.shift = 0
         self.rotate = 0
         self.points = 0
-        self.board = ""
         self.raw_board = ""
+        self.dump = ""
 
 
     def print_stats(self):
@@ -128,39 +128,56 @@ class Action:
 
         return matrix
 
+    def print_board(self, fill=True):
+        """
+        Print board for given action. When fill=True empty spaces are filled
+        by zeros.
+        """
+        for line in self.raw_board:
+            line = "{:016b}".format(line)[:BOARD_WIDTH]
+            if not fill:
+                line = line.replace("0", " ")
+            print(line)
+
 
 class ActionView:
-    def __init__(self, prev_action, action):
-        self.prev_board = [[int(piece) for piece in "{:016b}".format(line)[:BOARD_WIDTH]] for line in prev_action.board]
+    def __init__(self, action, next_action):
+        self.current_board = [[int(piece) for piece in "{:016b}".format(line)[:BOARD_WIDTH]] for line in action.raw_board]
+        self.next_board = [[int(piece) for piece in "{:016b}".format(line)[:BOARD_WIDTH]] for line in next_action.raw_board]
         self.action = action
 
 
     def recreate(self):
         """Check if board can be reconstructed properly by current action."""
-        current_board = [[int(piece) for piece in "{:016b}".format(line)[:BOARD_WIDTH]] for line in self.action.board]
         shape = self.action.piece_as_matrix()
 
         board = self._merge_shape_and_board(shape)
         board, points = self._reduce_board(board)
 
-        return points == self.action.points and board == current_board
+        return points == self.action.points and board == self.next_board
 
+    def height(self):
+        for idx, line in enumerate(self.next_board):
+            if all(line):
+                return len(self.next_board) - idx
+
+        return 0
 
     def _merge_shape_and_board(self, shape):
         """Move and place piece in previous board."""
         BLOCK = 1
-        board = copy.deepcopy(self.prev_board)
+        board = copy.deepcopy(self.current_board)
 
         # Move piece
         for y in range(BORAD_HEIGHT):
             # If collision then revoke actual board
             for row, line in enumerate(shape):
                 for col, block in enumerate(line):
-                    if self.prev_board[y+row][col] and block:
+                    if self.current_board[y+row][col] and block:
                         return board
 
             # Fill boad with piece blocks
-            board = copy.deepcopy(self.prev_board)
+            board = copy.deepcopy(self.current_board)
             for row, line in enumerate(shape):
                 for col, block in enumerate(line):
                     if block:
@@ -196,17 +213,6 @@ class ActionView:
 
         return board, points
 
-    def print_board(self, board, fill=True):
-        """
-        Print board for given action. When fill=True empty spaces are filled
-        by zeros.
-        """
-        for line in board:
-            line = "{:016b}".format(line)[:BOARD_WIDTH]
-            if not fill:
-                line = line.replace("0", " ")
-            print(line)
-
 
 class Game:
     def __init__(self, file_name):
@@ -240,11 +246,9 @@ class Game:
             elif packet[0] == "[<]" and packet[1] == "NP_points":
                 action.points = int(packet[2].split("=")[1])
             elif packet[0] == "[<]" and packet[1] == "NP_boardDump":
-                if len(game) > 0:
-                    board = packet[3].split("=")[1]
-                    lines = [board[i:i+4] for i in range(0, len(board), 4)]
-                    game[-1].board = list(reversed([int(line, 16) for line in lines]))
-                    game[-1].raw_board = board
+                action.dump = packet[3].split("=")[1]
+                lines = [action.dump[i:i+4] for i in range(0, len(action.dump), 4)]
+                action.raw_board = list(reversed([int(line, 16) for line in lines]))
 
         return game
 
