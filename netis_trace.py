@@ -157,25 +157,6 @@ class ActionView:
         return points == self.action.points and board == self.next_board
 
 
-    def current_height(self):
-        """Get max block height on current baord."""
-        return self._height(self.current_board)
-
-
-    def next_height(self):
-        """Get max block height on next baord (after action/move)."""
-        return self._height(self.next_board)
-
-
-    def _height(self, board):
-        """Get max block height on baord."""
-        for idx, line in enumerate(board):
-            if any(line):
-                return len(board) - idx
-
-        return 0
-
-
     def _merge_shape_and_board(self, shape):
         """Move and place piece in previous board."""
         BLOCK = 1
@@ -227,6 +208,32 @@ class ActionView:
         return board, points
 
 
+    def current_max(self):
+        """Get max block height on current baord."""
+        return self._max(self.current_board)
+
+
+    def next_max(self):
+        """Get max block height on next baord (after action/move)."""
+        return self._max(self.next_board)
+
+
+    def _max(self, board):
+        """Get max block height on baord."""
+        for idx, line in enumerate(board):
+            if any(line):
+                return len(board) - idx
+
+        return 0
+
+    def _min(self, board):
+        """Get max block height on baord."""
+        for idx, line in enumerate(board):
+            if any(line):
+                return len(board) - idx
+
+        return 0
+
 class Game:
     def __init__(self, file_name):
         self.game = []
@@ -237,6 +244,7 @@ class Game:
 
     def _read(self, trace):
         """Reading trace data with squeezed shift and rotation."""
+        BYTES_PER_LINE = 4
         game = []
         action = None
 
@@ -260,7 +268,7 @@ class Game:
                 action.points = int(packet[2].split("=")[1])
             elif packet[0] == "[<]" and packet[1] == "NP_boardDump":
                 action.dump = packet[3].split("=")[1]
-                lines = [action.dump[i:i+4] for i in range(0, len(action.dump), 4)]
+                lines = [action.dump[i:i+BYTES_PER_LINE] for i in range(0, len(action.dump), BYTES_PER_LINE)]
                 action.raw_board = list(reversed([int(line, 16) for line in lines]))
 
         return game
@@ -278,7 +286,7 @@ class Game:
         for idx in range(len(self.game) - 1):
             a = ActionView(self.game[idx], self.game[idx+1])
             if a.recreate():
-                print(a.next_height())
+                print(a.next_max())
                 self.game[idx+1].print_board()
                 correct += 1
 
