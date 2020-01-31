@@ -156,12 +156,25 @@ class ActionView:
 
         return points == self.action.points and board == self.next_board
 
-    def height(self):
-        for idx, line in enumerate(self.next_board):
-            if all(line):
-                return len(self.next_board) - idx
+
+    def current_height(self):
+        """Get max block height on current baord."""
+        return self._height(self.current_board)
+
+
+    def next_height(self):
+        """Get max block height on next baord (after action/move)."""
+        return self._height(self.next_board)
+
+
+    def _height(self, board):
+        """Get max block height on baord."""
+        for idx, line in enumerate(board):
+            if any(line):
+                return len(board) - idx
 
         return 0
+
 
     def _merge_shape_and_board(self, shape):
         """Move and place piece in previous board."""
@@ -265,6 +278,8 @@ class Game:
         for idx in range(len(self.game) - 1):
             a = ActionView(self.game[idx], self.game[idx+1])
             if a.recreate():
+                print(a.next_height())
+                self.game[idx+1].print_board()
                 correct += 1
 
         return correct / (len(self.game)-1)
