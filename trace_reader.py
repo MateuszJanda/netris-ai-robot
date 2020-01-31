@@ -25,7 +25,7 @@ class Action:
         self.raw_board = ""
 
 
-class GameAnalyzer:
+class Game:
     # Shape number and it representation. Counterclockwise rotation.
     PIECES = {
         0  : [
@@ -176,7 +176,7 @@ class GameAnalyzer:
     def _piece_as_matrix(self, action):
         """Get piece as matrix that fit in board."""
         piece = []
-        for line in GameAnalyzer.PIECES[action.piece][action.rotate]:
+        for line in Game.PIECES[action.piece][action.rotate]:
             if action.shift == 0:
                 piece.append(line)
             elif action.shift < 0:
@@ -256,7 +256,7 @@ def main():
         with open(file_name, "r") as f:
             game = read_games(f)
 
-            a = GameAnalyzer(game)
+            a = Game(game)
             print("%s: reconstruction %.2f%%" % (file_name, a.reconstruct() * 100))
 
             new_file = file_name.split(".")[0] + ".ctrace"
@@ -283,7 +283,7 @@ def read_games(trace_file):
                 action.shift += 1
             elif packet[1] == "NP_rotate":
                 action.rotate += 1
-                action.rotate %= len(GameAnalyzer.PIECES[action.piece])
+                action.rotate %= len(Game.PIECES[action.piece])
         elif packet[0] == "[<]" and packet[1] == "NP_points":
             action.points = int(packet[2].split("=")[1])
         elif packet[0] == "[<]" and packet[1] == "NP_boardDump":

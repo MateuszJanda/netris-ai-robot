@@ -12,7 +12,7 @@ import trace as t
 
 def main():
     for file_name in trace_files(path='.'):
-        game = t.Game(file_name):
+        game = t.Game(file_name)
         print("%s: reconstruction %.2f%%" % (file_name, game.reconstruct() * 100))
 
 
