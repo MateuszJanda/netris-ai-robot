@@ -7,7 +7,7 @@ Ad maiorem Dei gloriam
 """
 
 import os
-import trace as t
+import netis_trace as t
 
 
 def main():
