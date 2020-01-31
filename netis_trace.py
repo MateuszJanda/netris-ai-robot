@@ -227,12 +227,14 @@ class ActionView:
         return 0
 
     def _min(self, board):
-        """Get max block height on baord."""
-        for idx, line in enumerate(board):
-            if any(line):
-                return len(board) - idx
-
+        """Get min block height on baord."""
+        pass
         return 0
+
+
+    def points(self):
+        return self.action.points
+
 
 class Game:
     def __init__(self, file_name):
