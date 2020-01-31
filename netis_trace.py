@@ -104,8 +104,43 @@ class Game:
     }
 
 
-    def __init__(self, game):
-        self.game = game
+    def __init__(self, file_name):
+        # Read game
+        with open(file_name, "r") as f:
+            self.game = self.read_game(f)
+
+
+    def read_game(self, trace_file):
+        """Reading trace data with squeezed shift."""
+        game = []
+        action = None
+
+        for line in trace_file:
+            packet = line.split()
+
+            if packet[0] == "[>]":
+                if packet[1] == "NP_newPiece":
+                    if action:
+                        game.append(action)
+                    action = Action()
+                    action.piece = int(packet[2].split("=")[1])
+                elif packet[1] == "NP_left":
+                    action.shift -= 1
+                elif packet[1] == "NP_right":
+                    action.shift += 1
+                elif packet[1] == "NP_rotate":
+                    action.rotate += 1
+                    action.rotate %= len(Game.PIECES[action.piece])
+            elif packet[0] == "[<]" and packet[1] == "NP_points":
+                action.points = int(packet[2].split("=")[1])
+            elif packet[0] == "[<]" and packet[1] == "NP_boardDump":
+                if len(game) > 0:
+                    board = packet[3].split("=")[1]
+                    lines = [board[i:i+4] for i in range(0, len(board), 4)]
+                    game[-1].board = list(reversed([int(line, 16) for line in lines]))
+                    game[-1].raw_board = board
+
+        return game
 
     def print_game_stats(self):
         """Print game statistics."""
