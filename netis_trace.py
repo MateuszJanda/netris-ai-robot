@@ -226,10 +226,30 @@ class ActionView:
 
         return 0
 
+
+    def current_min(self):
+        """Get min block height on next baord (after action/move)."""
+        return self._min(self.next_board)
+
+
+    def next_min(self):
+        """Get min block height on next baord (after action/move)."""
+        return self._min(self.next_board)
+
+
     def _min(self, board):
         """Get min block height on baord."""
-        pass
-        return 0
+        min_height = BORAD_HEIGHT
+
+        for col in range(BOARD_WIDTH):
+            for row in range(BORAD_HEIGHT):
+                if board[row][col]:
+                    min_height = min(BORAD_HEIGHT - row, min_height)
+                    break
+                elif row == BORAD_HEIGHT - 1:
+                    min_height = 0
+
+        return min_height
 
 
     def points(self):
@@ -288,8 +308,8 @@ class Game:
         for idx in range(len(self.game) - 1):
             a = ActionView(self.game[idx], self.game[idx+1])
             if a.recreate():
-                print(a.next_max())
-                self.game[idx+1].print_board()
+                # print(a.next_max(), a.next_min())
+                # self.game[idx+1].print_board()
                 correct += 1
 
         return correct / (len(self.game)-1)
