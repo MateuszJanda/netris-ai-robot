@@ -196,41 +196,41 @@ class ActionView:
 
     def recreate(self):
         """Check if board can be reconstructed properly by current action."""
-        shape = self.action.piece_as_matrix()
+        piece = self.action.piece_as_matrix()
 
-        board = self._merge_shape_and_board(shape)
-        board, points = self._reduce_board(board)
+        board = self._merge_piece_with_board(piece)
+        board, points = self._remove_full_lines(board)
 
         return points == self.action.points and board == self.next_action.board
 
-    def _merge_shape_and_board(self, shape):
-        """Move and place piece in previous board."""
+    def _merge_piece_with_board(self, piece):
+        """Move and place piece in current action board."""
         BLOCK = 1
         board = copy.deepcopy(self.action.board)
 
         # Move piece
         for y in range(BORAD_HEIGHT):
             # If collision then revoke actual board
-            for row, line in enumerate(shape):
+            for row, line in enumerate(piece):
                 for col, block in enumerate(line):
                     if self.action.board[y+row][col] and block:
                         return board
 
             # Fill boad with piece blocks
             board = copy.deepcopy(self.action.board)
-            for row, line in enumerate(shape):
+            for row, line in enumerate(piece):
                 for col, block in enumerate(line):
                     if block:
                         board[y+row][col] = BLOCK
 
-            # If next action is out of border, then break
-            if (y+1) + len(shape) > BORAD_HEIGHT:
+            # If next move is out of border then break
+            if (y+1) + len(piece) > BORAD_HEIGHT:
                 break
 
         return board
 
-    def _reduce_board(self, board):
-        """Reduce full lines and count points."""
+    def _remove_full_lines(self, board):
+        """Remove full lines and count points."""
         FULL_LINE = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         EMPTY_LINE = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
