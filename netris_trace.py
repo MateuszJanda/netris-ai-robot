@@ -110,6 +110,7 @@ class Action:
 
     @raw_board.setter
     def raw_board(self, value):
+        """Set raw_board and create board array."""
         self._raw_board = value
         self.board = [[int(piece) for piece in "{:016b}".format(line)[:BOARD_WIDTH]] for line in self._raw_board]
 
@@ -138,7 +139,7 @@ class Action:
         return 0
 
     def piece_as_matrix(self):
-        """Get piece as matrix in right position on board."""
+        """Get piece as matrix in right position on board before drop."""
         matrix = []
         for line in PIECE[self.piece][self.rotate]:
             if self.shift == 0:
@@ -151,6 +152,21 @@ class Action:
                 matrix.append([0 for _ in range(shift)] + line[:-shift])
 
         return matrix
+
+    def piece_columns(self):
+        """Return column range [start, end) where pice will be drop."""
+        matrix = self.piece_as_matrix()
+        left = BOARD_WIDTH
+        right = 0
+
+        for line in matrix:
+            l = next(idx for idx, val in enumerate(line) if val != 0)
+            left = min(l, left)
+
+            r = next(idx for idx, val in enumerate(reversed(line)) if val != 0)
+            right = max(len(line) - r, right)
+
+        return left, right
 
     def print_stats(self):
         """Print action statistics."""
@@ -166,7 +182,7 @@ class Action:
         Print board for given action. When fill=True empty spaces are filled
         by zeros.
         """
-        for line in self.raw_board:
+        for line in self._raw_board:
             line = "{:016b}".format(line)[:BOARD_WIDTH]
             if not fill:
                 line = line.replace("0", " ")
@@ -309,7 +325,8 @@ class Game:
         for idx in range(len(self.game) - 1):
             a = ActionView(self.game[idx], self.game[idx+1])
             if a.recreate():
-                print(a.next_max(), a.next_min())
+                # print(a.next_max(), a.next_min())
+                print(self.game[idx].piece_columns())
                 self.game[idx+1].print_board()
                 correct += 1
 
