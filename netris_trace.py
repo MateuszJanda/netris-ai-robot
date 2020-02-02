@@ -194,6 +194,12 @@ class ActionView:
         self.action = action
         self.next_action = next_action
 
+    def gaps(self):
+        pass
+
+    def clif(self, height):
+        pass
+
     def recreate(self):
         """Check if board can be reconstructed properly by current action."""
         piece = self.action.piece_as_matrix()
