@@ -113,14 +113,29 @@ class Action:
         self._raw_board = value
         self.board = [[int(piece) for piece in "{:016b}".format(line)[:BOARD_WIDTH]] for line in self._raw_board]
 
-    def print_stats(self):
-        """Print action statistics."""
-        print("Shape:", self.piece)
-        print("Shift:", self.shift)
-        print("Rotation:", self.rotate)
+    def max(self):
+        """Get max block height on baord."""
+        max_height = self.column_height(0)
+        for col in range(1, BOARD_WIDTH):
+            max_height = max(max_height, self.column_height(col))
 
-        for line in self.piece_as_matrix():
-            print("".join(["1" if piece else "0" for piece in line]))
+        return max_height
+
+    def min(self):
+        """Get min block height on baord."""
+        min_height = self.column_height(0)
+        for col in range(1, BOARD_WIDTH):
+            min_height = min(min_height, self.column_height(col))
+
+        return min_height
+
+    def column_height(self, col):
+        """Return height of given column."""
+        for row in range(BORAD_HEIGHT):
+            if self.board[row][col]:
+                return BORAD_HEIGHT - row
+
+        return 0
 
     def piece_as_matrix(self):
         """Get piece as matrix in right position on board."""
@@ -137,6 +152,15 @@ class Action:
 
         return matrix
 
+    def print_stats(self):
+        """Print action statistics."""
+        print("Shape:", self.piece)
+        print("Shift:", self.shift)
+        print("Rotation:", self.rotate)
+
+        for line in self.piece_as_matrix():
+            print("".join(["1" if piece else "0" for piece in line]))
+
     def print_board(self, fill=True):
         """
         Print board for given action. When fill=True empty spaces are filled
@@ -151,9 +175,8 @@ class Action:
 
 class ActionView:
     def __init__(self, action, next_action):
-        self.current_board = [[int(piece) for piece in "{:016b}".format(line)[:BOARD_WIDTH]] for line in action.raw_board]
-        self.next_board = [[int(piece) for piece in "{:016b}".format(line)[:BOARD_WIDTH]] for line in next_action.raw_board]
         self.action = action
+        self.next_action = next_action
 
     def recreate(self):
         """Check if board can be reconstructed properly by current action."""
@@ -162,23 +185,23 @@ class ActionView:
         board = self._merge_shape_and_board(shape)
         board, points = self._reduce_board(board)
 
-        return points == self.action.points and board == self.next_board
+        return points == self.action.points and board == self.next_action.board
 
     def _merge_shape_and_board(self, shape):
         """Move and place piece in previous board."""
         BLOCK = 1
-        board = copy.deepcopy(self.current_board)
+        board = copy.deepcopy(self.action.board)
 
         # Move piece
         for y in range(BORAD_HEIGHT):
             # If collision then revoke actual board
             for row, line in enumerate(shape):
                 for col, block in enumerate(line):
-                    if self.current_board[y+row][col] and block:
+                    if self.action.board[y+row][col] and block:
                         return board
 
             # Fill boad with piece blocks
-            board = copy.deepcopy(self.current_board)
+            board = copy.deepcopy(self.action.board)
             for row, line in enumerate(shape):
                 for col, block in enumerate(line):
                     if block:
@@ -216,46 +239,22 @@ class ActionView:
 
     def current_max(self):
         """Get max block height on current baord."""
-        return self._max(self.current_board)
+        return self.action.max()
 
     def next_max(self):
         """Get max block height on next baord (after action/move)."""
-        return self._max(self.next_board)
-
-    def _max(self, board):
-        """Get max block height on baord."""
-        max_height = self.col_height(0, board)
-        for col in range(1, BOARD_WIDTH):
-            max_height = max(max_height, self.col_height(col, board))
-
-        return max_height
+        return self.next_action.max()
 
     def current_min(self):
         """Get min block height on next baord (after action/move)."""
-        return self._min(self.next_board)
+        return self.action.min()
 
     def next_min(self):
         """Get min block height on next baord (after action/move)."""
-        return self._min(self.next_board)
-
-    def _min(self, board):
-        """Get min block height on baord."""
-        min_height = self.col_height(0, board)
-        for col in range(1, BOARD_WIDTH):
-            min_height = min(min_height, self.col_height(col, board))
-
-        return min_height
+        return self.next_action.min()
 
     def points(self):
         return self.action.points
-
-    def col_height(self, col, board):
-        """Return height of given column."""
-        for row in range(BORAD_HEIGHT):
-            if board[row][col]:
-                return BORAD_HEIGHT - row
-
-        return 0
 
 
 class Game:
