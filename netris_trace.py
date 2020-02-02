@@ -99,9 +99,26 @@ class Action:
         self.shift = 0
         self.rotate = 0
         self.points = 0
-        self.raw_board = ""
-        self.dump = ""
 
+        self._raw_board = ""
+        self._dump = ""
+        self._board = ""
+
+    @property
+    def raw_board(self):
+        return self._raw_board
+
+    @raw_board.setter
+    def raw_board(self, value):
+        self._raw_board = value
+
+    @property
+    def dump(self):
+        return self._dump
+
+    @dump.setter
+    def dump(self, value):
+        self._dump = value
 
     def print_stats(self):
         """Print action statistics."""
