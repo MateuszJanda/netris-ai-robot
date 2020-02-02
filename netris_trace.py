@@ -99,10 +99,10 @@ class Action:
         self.shift = 0
         self.rotate = 0
         self.points = 0
+        self.dump = ""
 
         self._raw_board = ""
-        self._dump = ""
-        self._board = ""
+        self.board = ""
 
     @property
     def raw_board(self):
@@ -111,14 +111,7 @@ class Action:
     @raw_board.setter
     def raw_board(self, value):
         self._raw_board = value
-
-    @property
-    def dump(self):
-        return self._dump
-
-    @dump.setter
-    def dump(self, value):
-        self._dump = value
+        self.board = [[int(piece) for piece in "{:016b}".format(line)[:BOARD_WIDTH]] for line in self._raw_board]
 
     def print_stats(self):
         """Print action statistics."""
@@ -128,7 +121,6 @@ class Action:
 
         for line in self.piece_as_matrix():
             print("".join(["1" if piece else "0" for piece in line]))
-
 
     def piece_as_matrix(self):
         """Get piece as matrix in right position on board."""
