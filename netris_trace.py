@@ -250,7 +250,7 @@ class ActionView:
         FULL_LINE = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         EMPTY_LINE = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-        # Check for full lines
+        # Check for full lines and count point
         cleared_board = []
         points = 0
         for line in board:
@@ -261,7 +261,7 @@ class ActionView:
 
         board = copy.deepcopy(cleared_board)
 
-        # Fill missing lines in board
+        # Replace missing by empty lines in board
         if len(board) != BORAD_HEIGHT:
             missing = BORAD_HEIGHT - len(cleared_board)
             for _ in range(missing):
