@@ -13,6 +13,7 @@ import copy
 
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
+BLOCK = 1
 
 
 # Piece index and it representation. Counterclockwise rotation.
@@ -191,8 +192,6 @@ class ActionView:
         Count all gaps (blocks that can't be reached by next action) created
         by piece.
         """
-        BLOCK = 1
-
         piece = self.action.piece_as_matrix()
         board = self._merge_piece_with_board(piece)
 
@@ -208,6 +207,7 @@ class ActionView:
         return counter
 
     def clif(self, height):
+
         pass
 
     def recreate(self):
@@ -221,7 +221,6 @@ class ActionView:
 
     def _merge_piece_with_board(self, piece):
         """Move and place piece in current action board."""
-        BLOCK = 1
         board = copy.deepcopy(self.action.board)
 
         # Move piece
