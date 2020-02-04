@@ -195,7 +195,31 @@ class ActionView:
         self.next_action = next_action
 
     def gaps(self):
-        pass
+        """Count all gaps (blocks that can't be reached by next action) created
+        by piece."""
+        BLOCK = 1
+
+        piece = self.action.piece_as_matrix()
+        board = self._merge_piece_with_board(piece)
+
+        counter = 0
+        for col in range(BOARD_WIDTH):
+            row1 = BORAD_HEIGHT - self.column_height(col, board)
+            row2 = BORAD_HEIGHT - self.column_height(col, self.action.board)
+
+            for row in range(row1 + 1, row2):
+                if board[row][col] != BLOCK:
+                    counter += 1
+
+        return counter
+
+    def column_height(self, col, board):
+        """Return height of given column."""
+        for row in range(BORAD_HEIGHT):
+            if board[row][col]:
+                return BORAD_HEIGHT - row
+
+        return 0
 
     def clif(self, height):
         pass
@@ -333,7 +357,8 @@ class Game:
             if a.recreate():
                 # print(a.next_max(), a.next_min())
                 # print(self.game[idx].piece_columns())
-                # self.game[idx+1].print_board()
+                print(a.gaps())
+                self.game[idx+1].print_board()
                 correct += 1
 
         return correct / (len(self.game)-1)
