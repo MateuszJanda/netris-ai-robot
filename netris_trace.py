@@ -207,8 +207,30 @@ class ActionView:
         return counter
 
     def clif(self, height):
+        """Check if piece create clif of given height or higher."""
+        piece = self.action.piece_as_matrix()
+        board = self._merge_piece_with_board(piece)
+        start, end = self.action.piece_columns()
 
-        pass
+        left = self._clif_height(start - 1, start, board)
+        right = self._clif_height(end, end - 1, board)
+
+        print(left, right)
+
+        return left >= height or right >= height
+
+    def _clif_height(self, clif_col, piece_col, board):
+        """Calculate clif height for given column."""
+        if clif_col < 0 or clif_col >= BOARD_WIDTH:
+            return 0
+
+        h1 = column_height(clif_col, board)
+        h2 = column_height(piece_col, board)
+
+        if h2 > h1:
+            return h2 - h1
+
+        return 0
 
     def recreate(self):
         """Check if board can be reconstructed properly by current action."""
@@ -342,7 +364,8 @@ class Game:
             if a.recreate():
                 # print(a.next_max(), a.next_min())
                 # print(self.game[idx].piece_columns())
-                print(a.gaps())
+                # print(a.gaps())
+                print(a.clif(1))
                 self.game[idx+1].print_board()
                 correct += 1
 
