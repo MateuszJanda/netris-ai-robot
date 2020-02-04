@@ -116,27 +116,19 @@ class Action:
 
     def max(self):
         """Get max block height on baord."""
-        max_height = self.column_height(0)
+        max_height = column_height(0, self.board)
         for col in range(1, BOARD_WIDTH):
-            max_height = max(max_height, self.column_height(col))
+            max_height = max(max_height, self.column_height(col, self.board))
 
         return max_height
 
     def min(self):
         """Get min block height on baord."""
-        min_height = self.column_height(0)
+        min_height = self.column_height(0, self.board)
         for col in range(1, BOARD_WIDTH):
-            min_height = min(min_height, self.column_height(col))
+            min_height = min(min_height, self.column_height(col, self.board))
 
         return min_height
-
-    def column_height(self, col):
-        """Return height of given column."""
-        for row in range(BORAD_HEIGHT):
-            if self.board[row][col]:
-                return BORAD_HEIGHT - row
-
-        return 0
 
     def piece_as_matrix(self):
         """Get piece as matrix in right position on board before drop."""
@@ -195,8 +187,10 @@ class ActionView:
         self.next_action = next_action
 
     def gaps(self):
-        """Count all gaps (blocks that can't be reached by next action) created
-        by piece."""
+        """
+        Count all gaps (blocks that can't be reached by next action) created
+        by piece.
+        """
         BLOCK = 1
 
         piece = self.action.piece_as_matrix()
@@ -204,22 +198,14 @@ class ActionView:
 
         counter = 0
         for col in range(BOARD_WIDTH):
-            row1 = BORAD_HEIGHT - self.column_height(col, board)
-            row2 = BORAD_HEIGHT - self.column_height(col, self.action.board)
+            row1 = BORAD_HEIGHT - column_height(col, board)
+            row2 = BORAD_HEIGHT - column_height(col, self.action.board)
 
             for row in range(row1 + 1, row2):
                 if board[row][col] != BLOCK:
                     counter += 1
 
         return counter
-
-    def column_height(self, col, board):
-        """Return height of given column."""
-        for row in range(BORAD_HEIGHT):
-            if board[row][col]:
-                return BORAD_HEIGHT - row
-
-        return 0
 
     def clif(self, height):
         pass
@@ -363,6 +349,14 @@ class Game:
 
         return correct / (len(self.game)-1)
 
+
+def column_height(col, board):
+    """Return height of given column in board."""
+    for row in range(BORAD_HEIGHT):
+        if board[row][col]:
+            return BORAD_HEIGHT - row
+
+    return 0
 
 
 def save_new_trace(game, file_name):
