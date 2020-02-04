@@ -24,7 +24,7 @@ def trace_files(path):
             if file_name.endswith('.trace'):
                 file_names.append(os.path.join(r, file_name))
 
-    return file_names
+    return sorted(file_names)
 
 
 if __name__ == '__main__':

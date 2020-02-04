@@ -332,8 +332,8 @@ class Game:
             a = ActionView(self.game[idx], self.game[idx+1])
             if a.recreate():
                 # print(a.next_max(), a.next_min())
-                print(self.game[idx].piece_columns())
-                self.game[idx+1].print_board()
+                # print(self.game[idx].piece_columns())
+                # self.game[idx+1].print_board()
                 correct += 1
 
         return correct / (len(self.game)-1)
