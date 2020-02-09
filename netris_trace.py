@@ -95,7 +95,7 @@ PIECE = {
 
 
 class Action:
-    def __init__(self):
+    def __init__(self) -> None:
         self.piece = 0
         self.shift = 0
         self.rotate = 0
@@ -115,7 +115,7 @@ class Action:
         self._raw_board = value
         self.board = [[int(piece) for piece in "{:016b}".format(line)[:BOARD_WIDTH]] for line in self._raw_board]
 
-    def max(self):
+    def max(self) -> int:
         """Get max block height on baord."""
         max_height = column_height(0, self.board)
         for col in range(1, BOARD_WIDTH):
@@ -123,7 +123,7 @@ class Action:
 
         return max_height
 
-    def min(self):
+    def min(self) -> int:
         """Get min block height on baord."""
         min_height = self.column_height(0, self.board)
         for col in range(1, BOARD_WIDTH):
@@ -161,7 +161,7 @@ class Action:
 
         return left, right
 
-    def print_stats(self):
+    def print_stats(self) -> None:
         """Print action statistics."""
         print("Shape:", self.piece)
         print("Shift:", self.shift)
@@ -170,7 +170,7 @@ class Action:
         for line in self.piece_as_matrix():
             print("".join(["1" if piece else "0" for piece in line]))
 
-    def print_board(self, fill=True):
+    def print_board(self, fill: bool=True) -> int:
         """
         Print board for given action. When fill=True empty spaces are filled
         by zeros.
@@ -183,11 +183,11 @@ class Action:
 
 
 class ActionView:
-    def __init__(self, action, next_action):
+    def __init__(self, action, next_action) -> None:
         self.action = action
         self.next_action = next_action
 
-    def gaps(self):
+    def gaps(self) -> int:
         """
         Count all gaps (blocks that can't be reached by next action) created
         by piece.
@@ -206,7 +206,7 @@ class ActionView:
 
         return counter
 
-    def clif(self, height):
+    def clif(self, height: int) -> int:
         """Check if piece create clif of given height or higher."""
         piece = self.action.piece_as_matrix()
         board = self._merge_piece_with_board(piece)
@@ -219,7 +219,7 @@ class ActionView:
 
         return left >= height or right >= height
 
-    def _clif_height(self, clif_col, piece_col, board):
+    def _clif_height(self, clif_col: int, piece_col: int, board) -> int:
         """Calculate clif height for given column."""
         if clif_col < 0 or clif_col >= BOARD_WIDTH:
             return 0
@@ -232,7 +232,7 @@ class ActionView:
 
         return 0
 
-    def recreate(self):
+    def recreate(self) -> bool:
         """Check if board can be reconstructed properly by current action."""
         piece = self.action.piece_as_matrix()
 
@@ -290,28 +290,28 @@ class ActionView:
 
         return board, points
 
-    def current_max(self):
+    def current_max(self) -> int:
         """Get max block height on current baord."""
         return self.action.max()
 
-    def next_max(self):
+    def next_max(self) -> int:
         """Get max block height on next baord (after action/move)."""
         return self.next_action.max()
 
-    def current_min(self):
+    def current_min(self) -> int:
         """Get min block height on next baord (after action/move)."""
         return self.action.min()
 
-    def next_min(self):
+    def next_min(self) -> int:
         """Get min block height on next baord (after action/move)."""
         return self.next_action.min()
 
-    def points(self):
+    def points(self) -> int:
         return self.action.points
 
 
 class Game:
-    def __init__(self, file_name):
+    def __init__(self, file_name: str) -> None:
         self.game = []
 
         with open(file_name, "r") as f:
@@ -349,14 +349,14 @@ class Game:
 
         return game
 
-    def print_stats(self):
+    def print_stats(self) -> None:
         """Print game statistics."""
         print("Points:", sum([a.points for a in self.game]))
         print("Actions:", len(self.game))
         print("Overall pieces:", set([a.piece for a in self.game]))
 
 
-    def recreate(self):
+    def recreate(self) -> bool:
         """Return percentage of actions recondtructed in game."""
         correct = 0
         for idx in range(len(self.game) - 1):
@@ -372,7 +372,7 @@ class Game:
         return correct / (len(self.game)-1)
 
 
-def column_height(col, board):
+def column_height(col, board) -> int:
     """Return height of given column in board."""
     for row in range(BORAD_HEIGHT):
         if board[row][col]:
