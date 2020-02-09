@@ -9,12 +9,15 @@ Ad maiorem Dei gloriam
 import os
 import sys
 import copy
+from typing import List, Optional, Tuple, TextIO
+
+Board = List[List[int]]
+RawBoard = List[int]
 
 
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
 BLOCK = 1
-
 
 # Piece index and it representation. Counterclockwise rotation.
 PIECE = {
@@ -100,17 +103,17 @@ class Action:
         self.shift = 0
         self.rotate = 0
         self.points = 0
-        self.dump = ""
+        self.dump: str = ""
 
-        self._raw_board = ""
-        self.board = ""
+        self._raw_board: RawBoard = []
+        self.board: Board = []
 
     @property
-    def raw_board(self):
+    def raw_board(self) -> RawBoard:
         return self._raw_board
 
     @raw_board.setter
-    def raw_board(self, value):
+    def raw_board(self, value: RawBoard):
         """Set raw_board and create board array."""
         self._raw_board = value
         self.board = [[int(piece) for piece in "{:016b}".format(line)[:BOARD_WIDTH]] for line in self._raw_board]
@@ -119,19 +122,19 @@ class Action:
         """Get max block height on baord."""
         max_height = column_height(0, self.board)
         for col in range(1, BOARD_WIDTH):
-            max_height = max(max_height, self.column_height(col, self.board))
+            max_height = max(max_height, column_height(col, self.board))
 
         return max_height
 
     def min(self) -> int:
         """Get min block height on baord."""
-        min_height = self.column_height(0, self.board)
+        min_height = column_height(0, self.board)
         for col in range(1, BOARD_WIDTH):
-            min_height = min(min_height, self.column_height(col, self.board))
+            min_height = min(min_height, column_height(col, self.board))
 
         return min_height
 
-    def piece_as_matrix(self):
+    def piece_as_matrix(self) -> Board:
         """Get piece as matrix in right position on board before drop."""
         matrix = []
         for line in PIECE[self.piece][self.rotate]:
@@ -146,7 +149,7 @@ class Action:
 
         return matrix
 
-    def piece_columns(self):
+    def piece_columns(self) -> Tuple[int, int]:
         """Return column range [start, end) where pice will be drop."""
         matrix = self.piece_as_matrix()
         left = BOARD_WIDTH
@@ -170,20 +173,20 @@ class Action:
         for line in self.piece_as_matrix():
             print("".join(["1" if piece else "0" for piece in line]))
 
-    def print_board(self, fill: bool=True) -> int:
+    def print_board(self, fill: bool=True) -> None:
         """
         Print board for given action. When fill=True empty spaces are filled
         by zeros.
         """
-        for line in self._raw_board:
-            line = "{:016b}".format(line)[:BOARD_WIDTH]
+        for num in self._raw_board:
+            line = "{:016b}".format(num)[:BOARD_WIDTH]
             if not fill:
                 line = line.replace("0", " ")
             print(line)
 
 
 class ActionView:
-    def __init__(self, action, next_action) -> None:
+    def __init__(self, action: Action, next_action: Action) -> None:
         self.action = action
         self.next_action = next_action
 
@@ -219,7 +222,7 @@ class ActionView:
 
         return left >= height or right >= height
 
-    def _clif_height(self, clif_col: int, piece_col: int, board) -> int:
+    def _clif_height(self, clif_col: int, piece_col: int, board: Board) -> int:
         """Calculate clif height for given column."""
         if clif_col < 0 or clif_col >= BOARD_WIDTH:
             return 0
@@ -241,7 +244,7 @@ class ActionView:
 
         return points == self.action.points and board == self.next_action.board
 
-    def _merge_piece_with_board(self, piece):
+    def _merge_piece_with_board(self, piece: Board) -> Board:
         """Move and place piece in current action board."""
         board = copy.deepcopy(self.action.board)
 
@@ -266,7 +269,7 @@ class ActionView:
 
         return board
 
-    def _remove_full_lines(self, board):
+    def _remove_full_lines(self, board: Board) -> Tuple[Board, int]:
         """Remove full lines and count points."""
         FULL_LINE = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         EMPTY_LINE = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
@@ -312,17 +315,17 @@ class ActionView:
 
 class Game:
     def __init__(self, file_name: str) -> None:
-        self.game = []
+        self.game: List[Action] = []
 
         with open(file_name, "r") as f:
             self.game = self._read(f)
 
 
-    def _read(self, trace):
+    def _read(self, trace: TextIO) -> List[Action]:
         """Reading trace data with squeezed shift and rotation."""
         BYTES_PER_LINE = 4
-        game = []
-        action = None
+        game: List[Action] = []
+        action: Optional[Action] = None
 
         for line in trace:
             packet = line.split()
@@ -356,23 +359,23 @@ class Game:
         print("Overall pieces:", set([a.piece for a in self.game]))
 
 
-    def recreate(self) -> bool:
+    def recreate(self) -> float:
         """Return percentage of actions recondtructed in game."""
         correct = 0
-        for idx in range(len(self.game) - 1):
-            a = ActionView(self.game[idx], self.game[idx+1])
-            if a.recreate():
-                # print(a.next_max(), a.next_min())
-                # print(self.game[idx].piece_columns())
-                # print(a.gaps())
-                print(a.clif(1))
-                self.game[idx+1].print_board()
-                correct += 1
+        # for idx in range(len(self.game) - 1):
+        #     a = ActionView(self.game[idx], self.game[idx+1])
+        #     if a.recreate():
+        #         # print(a.next_max(), a.next_min())
+        #         # print(self.game[idx].piece_columns())
+        #         # print(a.gaps())
+        #         print(a.clif(1))
+        #         self.game[idx+1].print_board()
+        #         correct += 1
 
         return correct / (len(self.game)-1)
 
 
-def column_height(col, board) -> int:
+def column_height(col: int, board: Board) -> int:
     """Return height of given column in board."""
     for row in range(BORAD_HEIGHT):
         if board[row][col]:
@@ -381,7 +384,7 @@ def column_height(col, board) -> int:
     return 0
 
 
-def save_new_trace(game, file_name):
+def save_new_trace(game: List[Action], file_name: str) -> None:
     """Save squeezed game to new trace file."""
     with open(file_name, "w") as f:
         for a in game:
