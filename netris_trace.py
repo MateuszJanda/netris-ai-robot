@@ -99,7 +99,7 @@ Board = List[List[int]]
 RawBoard = List[int]
 
 
-class Action:
+class Tour:
     def __init__(self) -> None:
         self.piece = 0
         self.shift = 0
@@ -122,7 +122,7 @@ class Action:
         self.board = [[int(piece) for piece in "{:016b}".format(line)[:BOARD_WIDTH]] for line in self._raw_board]
 
     def max(self) -> int:
-        """Get max block height on baord."""
+        """Get max block height on board."""
         max_height = column_height(0, self.board)
         for col in range(1, BOARD_WIDTH):
             max_height = max(max_height, column_height(col, self.board))
@@ -130,7 +130,7 @@ class Action:
         return max_height
 
     def min(self) -> int:
-        """Get min block height on baord."""
+        """Get min block height on board."""
         min_height = column_height(0, self.board)
         for col in range(1, BOARD_WIDTH):
             min_height = min(min_height, column_height(col, self.board))
@@ -153,7 +153,7 @@ class Action:
         return matrix
 
     def piece_columns(self) -> Tuple[int, int]:
-        """Return column range [start, end) where pice will be drop."""
+        """Return column range [start, end) where piece will be dropped."""
         matrix = self.piece_as_matrix()
         left = BOARD_WIDTH
         right = 0
@@ -168,7 +168,7 @@ class Action:
         return left, right
 
     def print_stats(self) -> None:
-        """Print action statistics."""
+        """Print tour statistics."""
         print("Shape:", self.piece)
         print("Shift:", self.shift)
         print("Rotation:", self.rotate)
@@ -178,7 +178,7 @@ class Action:
 
     def print_board(self, fill: bool=True) -> None:
         """
-        Print board for given action. When fill=True empty spaces are filled
+        Print board for given tour. When fill=True empty spaces are filled
         by zeros.
         """
         for num in self._raw_board:
@@ -188,23 +188,23 @@ class Action:
             print(line)
 
 
-class ActionView:
-    def __init__(self, action: Action, next_action: Action) -> None:
-        self.action = action
-        self.next_action = next_action
+class Action:
+    def __init__(self, tour: Tour, next_tour: Tour) -> None:
+        self.tour = tour
+        self.next_tour = next_tour
 
     def gaps(self) -> int:
         """
-        Count all gaps (blocks that can't be reached by next action) created
+        Count all gaps (blocks that can't be reached by next tour) created
         by piece, under horizontal projection of piece.
         """
-        piece = self.action.piece_as_matrix()
+        piece = self.tour.piece_as_matrix()
         board = self._merge_piece_with_board(piece)
 
         counter = 0
         for col in range(BOARD_WIDTH):
             row1 = BORAD_HEIGHT - column_height(col, board)
-            row2 = BORAD_HEIGHT - column_height(col, self.action.board)
+            row2 = BORAD_HEIGHT - column_height(col, self.tour.board)
 
             for row in range(row1 + 1, row2):
                 if board[row][col] != BLOCK:
@@ -212,25 +212,25 @@ class ActionView:
 
         return counter
 
-    def clif(self, height: int) -> int:
-        """Check if piece create clif of given height or higher."""
-        piece = self.action.piece_as_matrix()
+    def cliff(self, height: int) -> int:
+        """Check if piece create cliff of given height or higher."""
+        piece = self.tour.piece_as_matrix()
         board = self._merge_piece_with_board(piece)
-        start, end = self.action.piece_columns()
+        start, end = self.tour.piece_columns()
 
-        left = self._clif_height(start - 1, start, board)
-        right = self._clif_height(end, end - 1, board)
+        left = self._cliff_height(start - 1, start, board)
+        right = self._cliff_height(end, end - 1, board)
 
         print(left, right)
 
         return left >= height or right >= height
 
-    def _clif_height(self, clif_col: int, piece_col: int, board: Board) -> int:
-        """Calculate clif height for given column."""
-        if clif_col < 0 or clif_col >= BOARD_WIDTH:
+    def _cliff_height(self, cliff_col: int, piece_col: int, board: Board) -> int:
+        """Calculate cliff height for given column."""
+        if cliff_col < 0 or cliff_col >= BOARD_WIDTH:
             return 0
 
-        h1 = column_height(clif_col, board)
+        h1 = column_height(cliff_col, board)
         h2 = column_height(piece_col, board)
 
         if h2 > h1:
@@ -238,29 +238,29 @@ class ActionView:
 
         return 0
 
-    def recreate(self) -> bool:
-        """Check if board can be reconstructed properly by current action."""
-        piece = self.action.piece_as_matrix()
+    def valid(self) -> bool:
+        """Check if board can be reconstructed properly by current tour."""
+        piece = self.tour.piece_as_matrix()
 
         board = self._merge_piece_with_board(piece)
         board, points = self._remove_full_lines(board)
 
-        return points == self.action.points and board == self.next_action.board
+        return points == self.tour.points and board == self.next_tour.board
 
     def _merge_piece_with_board(self, piece: Board) -> Board:
-        """Move and place piece in current action board."""
-        board = copy.deepcopy(self.action.board)
+        """Move and place piece in current tour board."""
+        board = copy.deepcopy(self.tour.board)
 
         # Move piece
         for y in range(BORAD_HEIGHT):
             # If collision then revoke actual board
             for row, line in enumerate(piece):
                 for col, block in enumerate(line):
-                    if self.action.board[y+row][col] and block:
+                    if self.tour.board[y+row][col] and block:
                         return board
 
-            # Fill boad with piece blocks
-            board = copy.deepcopy(self.action.board)
+            # Fill board with piece blocks
+            board = copy.deepcopy(self.tour.board)
             for row, line in enumerate(piece):
                 for col, block in enumerate(line):
                     if block:
@@ -297,29 +297,29 @@ class ActionView:
         return board, points
 
     def current_max(self) -> int:
-        """Get max block height on current baord."""
-        return self.action.max()
+        """Get max block height on current board."""
+        return self.tour.max()
 
     def next_max(self) -> int:
-        """Get max block height on next baord (after action/move)."""
-        return self.next_action.max()
+        """Get max block height on next board (after tour/move)."""
+        return self.next_tour.max()
 
     def current_min(self) -> int:
-        """Get min block height on next baord (after action/move)."""
-        return self.action.min()
+        """Get min block height on next board (after tour/move)."""
+        return self.tour.min()
 
     def next_min(self) -> int:
-        """Get min block height on next baord (after action/move)."""
-        return self.next_action.min()
+        """Get min block height on next board (after tour/move)."""
+        return self.next_tour.min()
 
     def points(self) -> int:
         """Get points - erased full lines."""
-        return self.action.points
+        return self.tour.points
 
 
 class Game:
     def __init__(self, file_name: str) -> None:
-        self._game: List[Action] = []
+        self._game: List[Tour] = []
 
         with open(file_name, "r") as f:
             self._game = self._read(f)
@@ -329,60 +329,60 @@ class Game:
         self._idx = 0
         return self
 
-    def __next__(self) -> ActionView:
-        """Return valid ActionView."""
+    def __next__(self) -> Action:
+        """Return valid Action."""
         while self._idx < len(self._game) - 1:
-            action = ActionView(self._game[self._idx], self._game[self._idx+1])
+            action = Action(self._game[self._idx], self._game[self._idx+1])
             self._idx += 1
-            if action.recreate():
+            if action.valid():
                 return action
 
         raise StopIteration
 
-    def _read(self, trace: TextIO) -> List[Action]:
+    def _read(self, trace: TextIO) -> List[Tour]:
         """Reading trace data with squeezed shift and rotation."""
         BYTES_PER_LINE = 4
-        game: List[Action] = []
-        action: Optional[Action] = None
+        game: List[Tour] = []
+        tour: Optional[Tour] = None
 
         for line in trace:
             packet = line.split()
 
             if packet[0] == "[>]":
                 if packet[1] == "NP_newPiece":
-                    if action:
-                        game.append(action)
-                    action = Action()
-                    action.piece = int(packet[2].split("=")[1])
+                    if tour:
+                        game.append(tour)
+                    tour = Tour()
+                    tour.piece = int(packet[2].split("=")[1])
                 elif packet[1] == "NP_left":
-                    action.shift -= 1
+                    tour.shift -= 1
                 elif packet[1] == "NP_right":
-                    action.shift += 1
+                    tour.shift += 1
                 elif packet[1] == "NP_rotate":
-                    action.rotate += 1
-                    action.rotate %= len(PIECE[action.piece])
+                    tour.rotate += 1
+                    tour.rotate %= len(PIECE[tour.piece])
             elif packet[0] == "[<]" and packet[1] == "NP_points":
-                action.points = int(packet[2].split("=")[1])
+                tour.points = int(packet[2].split("=")[1])
             elif packet[0] == "[<]" and packet[1] == "NP_boardDump":
-                action.dump = packet[3].split("=")[1]
-                lines = [action.dump[i:i+BYTES_PER_LINE] for i in range(0, len(action.dump), BYTES_PER_LINE)]
-                action.raw_board = list(reversed([int(line, 16) for line in lines]))
+                tour.dump = packet[3].split("=")[1]
+                lines = [tour.dump[i:i+BYTES_PER_LINE] for i in range(0, len(tour.dump), BYTES_PER_LINE)]
+                tour.raw_board = list(reversed([int(line, 16) for line in lines]))
 
         return game
 
     def print_stats(self) -> None:
         """Print game statistics."""
         print("Points:", sum([a.points for a in self._game]))
-        print("Actions:", len(self._game))
+        print("Tours:", len(self._game))
         print("Overall pieces:", set([a.piece for a in self._game]))
 
 
     def recreate(self) -> float:
-        """Return percentage of actions recondtructed in game."""
+        """Return percentage of tours reconstructed in game."""
         correct = 0
         for idx in range(len(self._game) - 1):
-            action = ActionView(self._game[idx], self._game[idx+1])
-            if action.recreate():
+            action = Action(self._game[idx], self._game[idx+1])
+            if action.valid():
                 correct += 1
 
         return correct / (len(self._game)-1)
@@ -410,8 +410,8 @@ class Reader:
         self._game = iter(Game(self._file_names[self._idx]))
         return self
 
-    def __next__(self) -> ActionView:
-        """Return ActionView from all games."""
+    def __next__(self) -> Action:
+        """Return Action from all games."""
         try:
             return next(self._game)
         except StopIteration as e:
