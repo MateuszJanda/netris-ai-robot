@@ -319,6 +319,7 @@ class Action:
 
 class Game:
     def __init__(self, file_name: str) -> None:
+        """Read game from single trace file."""
         self._game: List[Tour] = []
 
         with open(file_name, "r") as f:
@@ -399,6 +400,7 @@ def column_height(col: int, board: Board) -> int:
 
 class Reader:
     def __init__(self, path: str) -> None:
+        """Read single trace of all trace in path."""
         if os.path.isfile(path):
             self._file_names = [path]
         else:

@@ -10,7 +10,7 @@ import os
 import netris_trace as t
 
 def main():
-    for action in t.Reader('20190529201253.trace'):
+    for action in t.Reader("20190529201253.trace"rga):
         print(action.current_max())
 
 
