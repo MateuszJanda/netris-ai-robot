@@ -16,6 +16,7 @@ BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
 BLOCK = 1
 
+
 # Piece index and it representation. Counterclockwise rotation.
 PIECE = {
     0  : [
@@ -93,9 +94,9 @@ PIECE = {
     ]
 }
 
+
 Board = List[List[int]]
 RawBoard = List[int]
-
 
 
 class Action:
@@ -111,6 +112,7 @@ class Action:
 
     @property
     def raw_board(self) -> RawBoard:
+        """Read raw board."""
         return self._raw_board
 
     @raw_board.setter
@@ -311,6 +313,7 @@ class ActionView:
         return self.next_action.min()
 
     def points(self) -> int:
+        """Get points - erased full lines."""
         return self.action.points
 
 
@@ -321,12 +324,13 @@ class Game:
         with open(file_name, "r") as f:
             self.game = self._read(f)
 
-        self._idx = 0
-
     def __iter__(self):
+        """Return iterator."""
+        self._idx = 0
         return self
 
-    def __next__(self):
+    def __next__(self) -> ActionView:
+        """Return valid ActionView."""
         while self._idx < len(self.game) - 1:
             action = ActionView(self.game[self._idx], self.game[self._idx+1])
             self._idx += 1
@@ -393,45 +397,37 @@ def column_height(col: int, board: Board) -> int:
     return 0
 
 
-def save_new_trace(game: List[Action], file_name: str) -> None:
-    """Save squeezed game to new trace file."""
-    with open(file_name, "w") as f:
-        for a in game:
-            f.write("{piece} {shift} {rotate} {points} {raw_board}\n" \
-                .format(piece=a.piece, shift=a.shift, rotate=a.rotate,
-                    points=a.points, raw_board=str(a.raw_board)))
-
-
 class Reader:
     def __init__(self, path: str) -> None:
         if os.path.isfile(path):
-            self.file_names = [path]
+            self._file_names = [path]
         else:
-            self.file_names = self._all_trace_in_path(path)
-
-        self._idx = 0
-        self._game = Game(self.file_names[self._idx])
+            self._file_names = self._all_files_in_path(path)
 
     def __iter__(self):
+        """Get first game from list and return iterator."""
+        self._idx = 0
+        self._game = iter(Game(self._file_names[self._idx]))
         return self
 
     def __next__(self) -> ActionView:
+        """Return ActionView from all games."""
         try:
             return next(self._game)
         except StopIteration as e:
-            if self._idx + 1 < len(self.file_names):
+            if self._idx + 1 < len(self._file_names):
                 self._idx += 1
-                self._game = Game(self.file_names[self._idx])
+                self._game = Game(self._file_names[self._idx])
                 return next(self._game)
 
         raise StopIteration
 
-    def _all_trace_in_path(dir_path: str) -> List[str]:
+    def _all_files_in_path(self, dir_path: str) -> List[str]:
         """List all files with .trace extension."""
-        file_names = []
+        _file_names = []
         for r, _, f in os.walk(dir_path):
             for file_name in f:
                 if file_name.endswith('.trace'):
-                    file_names.append(os.path.join(r, file_name))
+                    _file_names.append(os.path.join(r, file_name))
 
-        return sorted(file_names)
+        return sorted(_file_names)
