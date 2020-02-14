@@ -11,9 +11,6 @@ import sys
 import copy
 from typing import List, Optional, Tuple, TextIO
 
-Board = List[List[int]]
-RawBoard = List[int]
-
 
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
@@ -95,6 +92,10 @@ PIECE = {
          [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]
     ]
 }
+
+Board = List[List[int]]
+RawBoard = List[int]
+
 
 
 class Action:
@@ -374,6 +375,13 @@ class Game:
 
         return correct / (len(self.game)-1)
 
+    def get_action(self) -> ActionView:
+        correct = 0
+        for idx in range(len(self.game) - 1):
+            action = ActionView(self.game[idx], self.game[idx+1])
+            if action.recreate():
+                yield action
+
 
 def column_height(col: int, board: Board) -> int:
     """Return height of given column in board."""
@@ -392,3 +400,29 @@ def save_new_trace(game: List[Action], file_name: str) -> None:
                 .format(piece=a.piece, shift=a.shift, rotate=a.rotate,
                     points=a.points, raw_board=str(a.raw_board)))
 
+
+class Reader:
+    def __init__(self, path: str) -> None:
+        self.path = path
+
+    def __iter__(self):
+        return self
+
+    def __next__(self) -> ActionView:
+        if os.path.isfile(self.path):
+            game = Game(self.path)
+            yield game.get_action()
+
+        for file_name in self._all_trace_in_path(self._path):
+            game = t.Game(file_name)
+            yield game.get_action()
+
+    def _all_trace_in_path(dir_path: str) -> List[str]:
+        """List all files with .trace extension."""
+        file_names = []
+        for r, _, f in os.walk(dir_path):
+            for file_name in f:
+                if file_name.endswith('.trace'):
+                    file_names.append(os.path.join(r, file_name))
+
+        return sorted(file_names)
