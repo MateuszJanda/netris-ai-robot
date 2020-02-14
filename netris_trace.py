@@ -319,10 +319,10 @@ class ActionView:
 
 class Game:
     def __init__(self, file_name: str) -> None:
-        self.game: List[Action] = []
+        self._game: List[Action] = []
 
         with open(file_name, "r") as f:
-            self.game = self._read(f)
+            self._game = self._read(f)
 
     def __iter__(self):
         """Return iterator."""
@@ -331,8 +331,8 @@ class Game:
 
     def __next__(self) -> ActionView:
         """Return valid ActionView."""
-        while self._idx < len(self.game) - 1:
-            action = ActionView(self.game[self._idx], self.game[self._idx+1])
+        while self._idx < len(self._game) - 1:
+            action = ActionView(self._game[self._idx], self._game[self._idx+1])
             self._idx += 1
             if action.recreate():
                 return action
@@ -372,20 +372,20 @@ class Game:
 
     def print_stats(self) -> None:
         """Print game statistics."""
-        print("Points:", sum([a.points for a in self.game]))
-        print("Actions:", len(self.game))
-        print("Overall pieces:", set([a.piece for a in self.game]))
+        print("Points:", sum([a.points for a in self._game]))
+        print("Actions:", len(self._game))
+        print("Overall pieces:", set([a.piece for a in self._game]))
 
 
     def recreate(self) -> float:
         """Return percentage of actions recondtructed in game."""
         correct = 0
-        for idx in range(len(self.game) - 1):
-            actiob = ActionView(self.game[idx], self.game[idx+1])
+        for idx in range(len(self._game) - 1):
+            action = ActionView(self._game[idx], self._game[idx+1])
             if action.recreate():
                 correct += 1
 
-        return correct / (len(self.game)-1)
+        return correct / (len(self._game)-1)
 
 
 def column_height(col: int, board: Board) -> int:
