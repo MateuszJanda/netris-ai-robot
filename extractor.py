@@ -7,7 +7,7 @@ Ad maiorem Dei gloriam
 """
 
 import os
-import netris_trace as t
+import trace_parser as t
 
 def main():
     for action in t.Reader("20190529201253.trace"):
