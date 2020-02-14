@@ -196,7 +196,7 @@ class ActionView:
     def gaps(self) -> int:
         """
         Count all gaps (blocks that can't be reached by next action) created
-        by piece.
+        by piece, under horizontal projection of piece.
         """
         piece = self.action.piece_as_matrix()
         board = self._merge_piece_with_board(piece)
@@ -427,7 +427,7 @@ class Reader:
         _file_names = []
         for r, _, f in os.walk(dir_path):
             for file_name in f:
-                if file_name.endswith('.trace'):
+                if file_name.endswith(".trace"):
                     _file_names.append(os.path.join(r, file_name))
 
         return sorted(_file_names)
