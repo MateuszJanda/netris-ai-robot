@@ -321,6 +321,19 @@ class Game:
         with open(file_name, "r") as f:
             self.game = self._read(f)
 
+        self._idx = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while self._idx < len(self.game) - 1:
+            action = ActionView(self.game[self._idx], self.game[self._idx+1])
+            self._idx += 1
+            if action.recreate():
+                return action
+
+        raise StopIteration
 
     def _read(self, trace: TextIO) -> List[Action]:
         """Reading trace data with squeezed shift and rotation."""
@@ -363,24 +376,12 @@ class Game:
     def recreate(self) -> float:
         """Return percentage of actions recondtructed in game."""
         correct = 0
-        # for idx in range(len(self.game) - 1):
-        #     a = ActionView(self.game[idx], self.game[idx+1])
-        #     if a.recreate():
-        #         # print(a.next_max(), a.next_min())
-        #         # print(self.game[idx].piece_columns())
-        #         # print(a.gaps())
-        #         print(a.clif(1))
-        #         self.game[idx+1].print_board()
-        #         correct += 1
+        for idx in range(len(self.game) - 1):
+            actiob = ActionView(self.game[idx], self.game[idx+1])
+            if action.recreate():
+                correct += 1
 
         return correct / (len(self.game)-1)
-
-    def get_action(self) -> ActionView:
-        correct = 0
-        for idx in range(len(self.game) - 1):
-            action = ActionView(self.game[idx], self.game[idx+1])
-            if action.recreate():
-                yield action
 
 
 def column_height(col: int, board: Board) -> int:
@@ -403,19 +404,27 @@ def save_new_trace(game: List[Action], file_name: str) -> None:
 
 class Reader:
     def __init__(self, path: str) -> None:
-        self.path = path
+        if os.path.isfile(path):
+            self.file_names = [path]
+        else:
+            self.file_names = self._all_trace_in_path(path)
+
+        self._idx = 0
+        self._game = Game(self.file_names[self._idx])
 
     def __iter__(self):
         return self
 
     def __next__(self) -> ActionView:
-        if os.path.isfile(self.path):
-            game = Game(self.path)
-            yield game.get_action()
+        try:
+            return next(self._game)
+        except StopIteration as e:
+            if self._idx + 1 < len(self.file_names):
+                self._idx += 1
+                self._game = Game(self.file_names[self._idx])
+                return next(self._game)
 
-        for file_name in self._all_trace_in_path(self._path):
-            game = t.Game(file_name)
-            yield game.get_action()
+        raise StopIteration
 
     def _all_trace_in_path(dir_path: str) -> List[str]:
         """List all files with .trace extension."""
