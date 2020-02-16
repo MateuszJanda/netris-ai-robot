@@ -328,7 +328,7 @@ class Action:
         """Return piece rotation."""
         return self.tour.rotate
 
-    def board_as_list(self) -> List[int]:
+    def normalized_board(self) -> List[int]:
         """Return board as flat list."""
         result = []
         for line in self.tour.board:

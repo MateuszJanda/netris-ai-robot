@@ -28,17 +28,17 @@ def only_wins():
             piece = action.piece()
             shift = action.shift()
             rotate = action.rotate()
-            board = action.board_as_list()
+            board = action.normalized_board()
 
             entry = [piece] + [shift] + [rotate] + board
             data.append(entry)
 
         # Print progress
         if total % 100 == 0:
-            print('Progress: %d, extracted: %d' % )
+            print('Progress: %d, extracted: %d' % (total, len(data)))
 
     pickle.dump(data, open('only_wins.pickle', 'wb'))
-    print('Total: %d, extracted: %d' % (total, len(data))
+    print('Total: %d, extracted: %d' % (total, len(data)))
 
 
 if __name__ == '__main__':
