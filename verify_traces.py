@@ -11,9 +11,14 @@ import trace_parser as t
 
 
 def main():
+    total_actions = 0
+
     for file_name in trace_files(path='.'):
         game = t.Game(file_name)
-        print("%s: reconstruction %.2f%%" % (file_name, game.recreate() * 100))
+        total_actions += len(game.tours) - 1
+        print("%s: reconstruction %.2f%%, actions %d" % (file_name, game.recreate() * 100, len(game.tours) - 1))
+
+    print("Total actions %d" % total_actions)
 
 
 def trace_files(path):
