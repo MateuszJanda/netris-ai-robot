@@ -439,7 +439,7 @@ class Reader:
         except StopIteration as e:
             if self._idx + 1 < len(self._file_names):
                 self._idx += 1
-                self._game = Game(self._file_names[self._idx])
+                self._game = iter(Game(self._file_names[self._idx]))
                 return next(self._game)
 
         raise StopIteration

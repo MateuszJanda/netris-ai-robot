@@ -20,7 +20,8 @@ def only_wins():
     total = 0
     data = []
 
-    for action in t.Reader("20190529201253.trace"):
+    # for action in t.Reader("data/20190529201253.trace"):
+    for action in t.Reader("data/"):
         total += 1
 
         if action.points():
@@ -33,11 +34,11 @@ def only_wins():
             data.append(entry)
 
         # Print progress
-        if total % 50 == 0:
-            print('Progress:', total)
+        if total % 100 == 0:
+            print('Progress: %d, extracted: %d' % )
 
     pickle.dump(data, open('only_wins.pickle', 'wb'))
-    print('Checked %d/%d' % (len(data), total))
+    print('Total: %d, extracted: %d' % (total, len(data))
 
 
 if __name__ == '__main__':
