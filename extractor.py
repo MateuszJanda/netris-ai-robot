@@ -20,18 +20,19 @@ def only_wins():
     total = 0
     data = []
 
-    # for action in t.Reader("data/20190529201253.trace"):
     for action in t.Reader("data/"):
         total += 1
 
         if action.points():
-            piece = action.piece()
-            shift = action.shift()
-            rotate = action.rotate()
+            piece = action.normalized_piece()
+            shift = action.normalized_shift()
+            rotate = action.normalized_rotate()
             board = action.normalized_board()
 
-            entry = [piece] + [shift] + [rotate] + board
-            data.append(entry)
+            data_in = piece + board
+            data_out = shift + rotate
+
+            data.append((data_in, data_out))
 
         # Print progress
         if total % 100 == 0:
