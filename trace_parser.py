@@ -327,7 +327,7 @@ class Action:
             15: 5,
             17: 6
         }
-        return [ids[self.tour.piece]]
+        return [ids[self.tour.piece] / len(ids)]
 
     def normalized_shift(self) -> List[int]:
         """Return piece shift as list."""
