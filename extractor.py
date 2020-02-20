@@ -11,6 +11,12 @@ import pickle
 import trace_parser as t
 
 
+BOARD_SIZE = 20*10
+PIECE_SIZE = 1
+SHIFT_SIZE = 10
+ROTATE_SIZE = 4
+
+
 def main():
     only_wins()
 
@@ -25,22 +31,28 @@ def only_wins():
 
         if action.points():
             piece = action.normalized_piece()
+            board = action.normalized_board()
             shift = action.normalized_shift()
             rotate = action.normalized_rotate()
-            board = action.normalized_board()
 
-            data_in = piece + board
-            data_out = shift + rotate
+            data_input = piece + board
+            data_output = shift + rotate
 
-            data.append((data_in, data_out))
+            assert(len(data_input) == PIECE_SIZE + BOARD_SIZE)
+            assert(len(data_output) == SHIFT_SIZE + ROTATE_SIZE)
+
+            data.append((data_input, data_output))
 
         # Print progress
         if total % 100 == 0:
-            print('Progress: %d, extracted: %d' % (total, len(data)))
+            print("Progress: %d, extracted: %d" % (total, len(data)))
 
-    pickle.dump(data, open('only_wins.pickle', 'wb'))
-    print('Total: %d, extracted: %d' % (total, len(data)))
+    print("Total: %d, extracted: %d" % (total, len(data)))
+    print("Single input size: %d", len(data[0][0]))
+    print("Single output size: %d", len(data[0][1]))
+
+    pickle.dump(data, open("only_wins.pickle", "wb"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
