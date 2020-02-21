@@ -316,7 +316,7 @@ class Action:
         """Get points - erased full lines."""
         return self.tour.points
 
-    def normalized_piece(self) -> List[int]:
+    def piece(self) -> List[int]:
         """Return normalized piece id."""
         ids = {
             0: 0,
@@ -327,22 +327,17 @@ class Action:
             15: 5,
             17: 6
         }
-        return [ids[self.tour.piece] / len(ids)]
+        return [ids[self.tour.piece]]
 
-    def normalized_shift(self) -> List[int]:
+    def shift(self) -> List[int]:
         """Return piece shift as list."""
-        idx = self.tour.shift + 5
-        shift = [0 for _ in range(BOARD_WIDTH)]
-        shift[idx] = 1
-        return shift
+        return [self.tour.shift + 5]
 
-    def normalized_rotate(self) -> List[int]:
+    def rotate(self) -> List[int]:
         """Return piece rotation as list."""
-        rotate = [0, 0, 0, 0]
-        rotate[self.tour.rotate] = 1
-        return rotate
+        return [self.tour.rotate]
 
-    def normalized_board(self) -> List[int]:
+    def flat_board(self) -> List[int]:
         """Return board as flat list."""
         result = []
         for line in self.tour.board:

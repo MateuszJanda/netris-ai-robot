@@ -13,8 +13,8 @@ import trace_parser as t
 
 BOARD_SIZE = 20*10
 PIECE_SIZE = 1
-SHIFT_SIZE = 10
-ROTATE_SIZE = 4
+SHIFT_SIZE = 1
+ROTATE_SIZE = 1
 
 
 def main():
@@ -30,10 +30,10 @@ def only_wins():
         total += 1
 
         if action.points():
-            piece = action.normalized_piece()
-            board = action.normalized_board()
-            shift = action.normalized_shift()
-            rotate = action.normalized_rotate()
+            piece = action.piece()
+            board = action.flat_board()
+            shift = action.shift()
+            rotate = action.rotate()
 
             data_input = piece + board
             data_output = shift + rotate
@@ -45,7 +45,7 @@ def only_wins():
 
         # Print progress
         if total % 100 == 0:
-            print("Progress: %d, extracted: %d" % (total, len(data)))
+            print("Extracted: %d" % (len(data)))
 
     print("Total: %d, extracted: %d" % (total, len(data)))
     print("Single input size: %d", len(data[0][0]))
