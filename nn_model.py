@@ -47,11 +47,12 @@ def main():
     x_train, y_shift_train, y_rotate_train, \
         x_test, y_shift_test, y_rotate_test = load_data()
 
-    # Fir model
+    # Fit model
     model.fit(x=x_train, y=[y_shift_train, y_rotate_train],
-        epochs=5)
+        epochs=45)
 
     # Evaluate model with test data
+    print("\nEvaluate:")
     model.evaluate(x=x_test, y=[y_shift_test, y_rotate_test],
         verbose=2)
 
