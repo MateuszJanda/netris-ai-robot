@@ -48,8 +48,8 @@ def only_wins():
             print("Extracted: %d" % (len(data)))
 
     print("Total: %d, extracted: %d" % (total, len(data)))
-    print("Single input size: %d", len(data[0][0]))
-    print("Single output size: %d", len(data[0][1]))
+    print("Single input size: %d" % len(data[0][0]))
+    print("Single output size: %d" % len(data[0][1]))
 
     pickle.dump(data, open("only_wins.pickle", "wb"))
 
