@@ -36,27 +36,27 @@ def main():
     # All layers together in model
     model = tf.keras.models.Model(inputs=inputs, outputs=[outputs_1, outputs_2])
 
-    # Compile model and loss functions
+    # set loss functions and compile model
     loss_fn_1 = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     loss_fn_2 = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     model.compile(optimizer='adam',
         loss=[loss_fn_1, loss_fn_2],
         metrics=['accuracy'])
 
-    # Read data and fit model
+    # Read data
     x_train, y_shift_train, y_rotate_train, \
         x_test, y_shift_test, y_rotate_test = load_data()
 
-    # model.fit(x=x_train, y={"shift": y_shift_train, "rotate": y_rotate_train},
+    # Fir model
     model.fit(x=x_train, y=[y_shift_train, y_rotate_train],
         epochs=5)
 
-    # model.evaluate(x=x_test, y={"shift": y_shift_test, "rotate": y_rotate_test},
+    # Evaluate model with test data
     model.evaluate(x=x_test, y=[y_shift_test, y_rotate_test],
         verbose=2)
 
 
-def load_data(split=0.3):
+def load_data(split=0.7):
     with open("only_wins.pickle", "rb") as f:
         data = pickle.load(f)
 
@@ -70,15 +70,15 @@ def load_data(split=0.3):
         # Normalize piece type - float in range [0, 1)
         i[0] = i[0] / PIECE_TYPES
 
-        # Split data (70% data for training, 30% for test)
+        # Split data between train and test
         if random.random() < split:
-            x_test.append(np.array(i))
-            y_shift_test.append(o[0])
-            y_rotate_test.append(o[1])
-        else:
             x_train.append(np.array(i))
             y_shift_train.append(o[0])
             y_rotate_train.append(o[1])
+        else:
+            x_test.append(np.array(i))
+            y_shift_test.append(o[0])
+            y_rotate_test.append(o[1])
 
     x_train = np.array(x_train)
     y_shift_train = np.array(y_shift_train)
