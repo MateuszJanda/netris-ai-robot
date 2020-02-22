@@ -35,24 +35,17 @@ def main():
 
     # All layers together in model
     model = tf.keras.models.Model(inputs=inputs, outputs=[outputs_1, outputs_2])
-    # model = tf.keras.models.Model(inputs=inputs, outputs=[outputs_1])
 
     # Compile model and loss functions
-    # loss_fn_1 = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
-    # loss_fn_2 = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
-    # loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     loss_fn_1 = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     loss_fn_2 = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     model.compile(optimizer='adam',
-        # loss=[loss_fn],
         loss=[loss_fn_1, loss_fn_2],
-        # loss=['categorical_crossentropy', 'categorical_crossentropy'],
         metrics=['accuracy'])
 
     # Read data and fit model
     x_train, y_shift_train, y_rotate_train, \
         x_test, y_shift_test, y_rotate_test = load_data()
-    # model.fit(x_train, y_train, epochs=5)
 
     # model.fit(x=x_train, y={"shift": y_shift_train, "rotate": y_rotate_train},
     model.fit(x=x_train, y=[y_shift_train, y_rotate_train],
@@ -77,6 +70,7 @@ def load_data(split=0.3):
         # Normalize piece type - float in range [0, 1)
         i[0] = i[0] / PIECE_TYPES
 
+        # Split data (70% data for training, 30% for test)
         if random.random() < split:
             x_test.append(np.array(i))
             y_shift_test.append(o[0])
