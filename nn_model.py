@@ -27,13 +27,13 @@ def main():
 
     # Hidden layers
     hidden_1 = tf.keras.layers.Dense(128, activation='relu')(inputs)
-    # hidden_2 = tf.keras.layers.Dropout(0.2)(hidden_1)
+    hidden_2 = tf.keras.layers.Dropout(0.2)(hidden_1)
 
     # Last layer - two separate outputs
     # outputs_1 = tf.keras.layers.Dense(SHIFT_SIZE, activation='relu')(hidden_2)
-    outputs_1 = tf.keras.layers.Dense(SHIFT_SIZE, activation='softmax')(hidden_1)
+    outputs_1 = tf.keras.layers.Dense(SHIFT_SIZE, activation='softmax')(hidden_2)
     # outputs_2 = tf.keras.layers.Dense(ROTATE_SIZE, activation='relu')(hidden_2)
-    outputs_2 = tf.keras.layers.Dense(ROTATE_SIZE, activation='softmax')(hidden_1)
+    outputs_2 = tf.keras.layers.Dense(ROTATE_SIZE, activation='softmax')(hidden_2)
 
     # All layers together in model
     model = tf.keras.models.Model(inputs=inputs, outputs=[outputs_1, outputs_2])
@@ -76,9 +76,9 @@ def load_data(split=0.3):
     y_shift_test = []
     y_rotate_test = []
     for i, o in data:
+        # Normalize piece type - float in range [0, 1)
         i[0] = i[0] / PIECE_TYPES
 
-        # o = [o[0]]
         if random.random() < split:
             x_test.append(np.array(i))
             y_shift_test.append(o[0])
