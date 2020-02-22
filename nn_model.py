@@ -18,6 +18,8 @@ PIECE_SIZE = 1
 SHIFT_SIZE = 10
 ROTATE_SIZE = 4
 
+PIECE_TYPES = 6
+
 
 def main():
     # Input layer
@@ -47,7 +49,7 @@ def main():
     model.evaluate(x_test, y_test, verbose=2)
 
 
-def load_data():
+def load_data(split=0.3):
     with open("only_wins.pickle", "rb") as f:
         data = pickle.load(f)
 
@@ -57,15 +59,17 @@ def load_data():
     y_test = []
 
     for i, o in data:
-        if random.random() < 0.3:
+        i[0] = i[0] / PIECE_TYPES
+
+        if random.random() < split:
             x_test.append(np.array(i))
             y_test.append(np.array(o))
         else:
             x_train.append(np.array(i))
             y_train.append(np.array(o))
 
-    print("Single input size: %d" % len(x_train[0]))
-    print("Single output size: %d" % len(y_train[1]))
+    print("Single input shape: %d" % x_train[0].shape)
+    print("Single output shape: %d" % y_train[1].shape)
 
     return np.array(x_train), np.array(y_train), np.array(x_test), np.array(y_test)
 
