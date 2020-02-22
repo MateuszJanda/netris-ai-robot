@@ -30,10 +30,8 @@ def main():
     hidden_2 = tf.keras.layers.Dropout(0.2)(hidden_1)
 
     # Last layer - two separate outputs
-    # outputs_1 = tf.keras.layers.Dense(SHIFT_SIZE, activation='relu')(hidden_2)
-    outputs_1 = tf.keras.layers.Dense(SHIFT_SIZE, activation='softmax')(hidden_2)
-    # outputs_2 = tf.keras.layers.Dense(ROTATE_SIZE, activation='relu')(hidden_2)
-    outputs_2 = tf.keras.layers.Dense(ROTATE_SIZE, activation='softmax')(hidden_2)
+    outputs_1 = tf.keras.layers.Dense(SHIFT_SIZE, activation='relu')(hidden_2)
+    outputs_2 = tf.keras.layers.Dense(ROTATE_SIZE, activation='relu')(hidden_2)
 
     # All layers together in model
     model = tf.keras.models.Model(inputs=inputs, outputs=[outputs_1, outputs_2])
