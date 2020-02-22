@@ -8,6 +8,7 @@ Ad maiorem Dei gloriam
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 import pickle
+import random
 import numpy as np
 import tensorflow as tf
 
@@ -40,25 +41,33 @@ def main():
         metrics=['accuracy'])
 
     # Read data and fit model
-    x_train, y_train = load_data()
+    x_train, y_train, x_test, y_test = load_data()
     model.fit(x_train, y_train, epochs=5)
+
+    model.evaluate(x_test, y_test, verbose=2)
 
 
 def load_data():
     with open("only_wins.pickle", "rb") as f:
         data = pickle.load(f)
 
-    data_input = []
-    data_output = []
+    x_train = []
+    y_train = []
+    x_test = []
+    y_test = []
+
     for i, o in data:
-        data_input.append(np.array(i))
-        data_output.append(np.array(o))
+        if random.random() < 0.3:
+            x_test.append(np.array(i))
+            y_test.append(np.array(o))
+        else:
+            x_train.append(np.array(i))
+            y_train.append(np.array(o))
 
-    print("Single input size: %d", len(data_input[0]))
-    print("Single output size: %d", len(data_output[1]))
+    print("Single input size: %d" % len(x_train[0]))
+    print("Single output size: %d" % len(y_train[1]))
 
-    return np.array(data_input), np.array(data_output)
-
+    return np.array(x_train), np.array(y_train), np.array(x_test), np.array(y_test)
 
 
 if __name__ == '__main__':
