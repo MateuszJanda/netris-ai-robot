@@ -15,6 +15,7 @@ from typing import List, Optional, Tuple, TextIO
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
 BLOCK = 1
+SHFIT_OFFSET = 5
 
 
 # Piece index and it representation. Counterclockwise rotation.
@@ -329,13 +330,13 @@ class Action:
         }
         return [ids[self.tour.piece]]
 
-    def shift(self) -> List[int]:
+    def shift(self) -> int:
         """Return piece shift as list."""
-        return [self.tour.shift + 5]
+        return self.tour.shift + SHFIT_OFFSET
 
-    def rotate(self) -> List[int]:
+    def rotate(self) -> int:
         """Return piece rotation as list."""
-        return [self.tour.rotate]
+        return self.tour.rotate
 
     def flat_board(self) -> List[int]:
         """Return board as flat list."""

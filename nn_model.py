@@ -67,19 +67,19 @@ def load_data(split=0.7):
     x_test = []
     y_shift_test = []
     y_rotate_test = []
-    for i, o in data:
+    for i, s, r in data:
         # Normalize piece type - float in range [0, 1)
         i[0] = i[0] / PIECE_TYPES
 
         # Split data between train and test
         if random.random() < split:
             x_train.append(np.array(i))
-            y_shift_train.append(o[0])
-            y_rotate_train.append(o[1])
+            y_shift_train.append(s)
+            y_rotate_train.append(r)
         else:
             x_test.append(np.array(i))
-            y_shift_test.append(o[0])
-            y_rotate_test.append(o[1])
+            y_shift_test.append(s)
+            y_rotate_test.append(r)
 
     x_train = np.array(x_train)
     y_shift_train = np.array(y_shift_train)
