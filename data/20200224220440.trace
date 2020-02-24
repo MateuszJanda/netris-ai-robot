@@ -1,0 +1,1434 @@
+[+] Game: single player
+[<] NP_version
+[>] NP_version
+[<] NP_startConn
+[>] NP_startConn
+[<] NP_userName
+[>] NP_userName
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=00000000000000000000000000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=01c00100000000000000000000000000000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=07c00700000000000000000000000000000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=07c00780018001000000000000000000000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_left
+[>] NP_down
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=07c00780018001000100030002000000000000000000000000000000000000000000000000000000
+[>] NP_right
+[>] NP_down
+[>] NP_left
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_drop
+[>] NP_right
+[>] NP_newPiece shape=17
+[<] NP_boardDump size=40 dump=07c00780078007000100030002000000000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_right
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=1fc03780078007000100030002000000000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=dfc0f780078007000100030002000000000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_drop
+[>] NP_right
+[>] NP_down
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=dfc0ff803f8007000100030002000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=dfc0ff80ff80c7000100030002000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_drop
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=dfc0ff80ff80ff001100030002000000000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_newPiece shape=17
+[<] NP_boardDump size=40 dump=dfc0ff80ff80ff00d100c30002000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=dfc0ff80ff80ff00f100f30012000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=2
+[>] NP_giveJunk count=1
+[>] NP_newPiece shape=17
+[<] NP_boardDump size=40 dump=dfc0ff80f140f3001200000000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=dfc0ff80f1c0f3c01240000000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=3
+[<] NP_boardDump size=40 dump=dfc0ff80f1c0f3c013c000c000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_right
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=dfc0ff80f7c0f7c017c000c000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=dfc0ff80f7c0f7c017c003c001800000000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=dfc0ff80f7c0f7c017c003c001c000c0008000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_left
+[>] NP_down
+[>] NP_newPiece shape=17
+[<] NP_boardDump size=40 dump=dfc0ff80f7c0f7c077c033c001c000c0008000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=dfc0ff80f7c0f7c0f7c0f3c041c000c0008000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=3
+[>] NP_giveJunk count=2
+[>] NP_newPiece shape=17
+[<] NP_boardDump size=40 dump=dfc0ff80f7c041c000c0008000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_right
+[>] NP_down
+[>] NP_clear
+[<] NP_points points=1
+[>] NP_newPiece shape=3
+[<] NP_boardDump size=40 dump=dfc0ff804dc004c00080000000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=dfc0ff807dc024c02080000000000000000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=dfc0ff807dc03cc02880080000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=dfc0ff807dc03cc03880180010001000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=dfc0ff807fc03fc03a80180010001000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=2
+[>] NP_giveJunk count=1
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=dfc0ff80ba8018001000100000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=1
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=dfc0bac0184010401000000000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_right
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=3
+[<] NP_boardDump size=40 dump=dfc0bac0184010401040004000400040000000000000000000000000000000000000000000000000
+[>] NP_right
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_newPiece shape=3
+[<] NP_boardDump size=40 dump=dfc0bec01c401c401040004000400040000000000000000000000000000000000000000000000000
+[>] NP_right
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_drop
+[>] NP_left
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=dfc0bec01c401c401c40084008400040000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=3
+[<] NP_boardDump size=40 dump=dfc0bec01dc01dc01c40084008400040000000000000000000000000000000000000000000000000
+[>] NP_right
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=dfc0bec01dc01dc01dc0094009400040000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=dfc0bec01fc01fc01fc00b4009400040000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=dfc0bec03fc03fc03fc02b4009400040000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=2
+[>] NP_giveJunk count=1
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=dfc0bec03fc02b400940004000000000000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=dfc0bec03fc03b401940184000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=dfc0bec03fc03b403940384030000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=1
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=dfc0fec07b4039403840300000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_right
+[>] NP_down
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=dfc0fec07b4039403840380018001000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=dfc0fec0fb40f940b840380018001000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=17
+[<] NP_boardDump size=40 dump=dfc0fec0ff40fd40bc403c0018001000000000000000000000000000000000000000000000000000
+[>] NP_right
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=dfc0fec0ff40ff40bf403d0018001000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=2
+[>] NP_giveJunk count=1
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=dfc0fec0bfc03d801800100000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=1
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=dfc0fec0fd8058001000000000000000000000000000000000000000000000000000000000000000
+[>] NP_right
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_rotate
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=dfc0fec0ff805e001400000000000000000000000000000000000000000000000000000000000000
+[>] NP_right
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=1
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=dfc0fec05ec014400000000000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_right
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=1
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=dfc05fc015c000000000000000000000000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=dfc05fc017c006000400000000000000000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_left
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=dfc05fc017c016003400100000000000000000000000000000000000000000000000000000000000
+[>] NP_right
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_right
+[>] NP_down
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=dfc05fc017c017003700120000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_right
+[>] NP_down
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=dfc05fc017c017003700130003000200000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=dfc05fc01fc01f003f001b0003000200000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=dfc05fc01fc01fc03f401b4003000200000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_right
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=dfc05fc07fc07fc03f401b4003000200000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=dfc05fc07fc07fc03f401f400f000600000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=dfc05fc07fc07fc03f401f401f001e00100000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=2
+[>] NP_giveJunk count=1
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=dfc05fc0ff401f401f001e0010000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=dfc05fc0ff401f401f001e0018001800100000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=dfc05fc0ff40ff409f001e0018001800100000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_right
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=2
+[>] NP_giveJunk count=1
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=dfc05fc09f801e801800180010000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=1
+[>] NP_newPiece shape=3
+[<] NP_boardDump size=40 dump=7fc0bf803e8018001800100000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=7fc0bfc03ec018c01800100000000000000000000000000000000000000000000000000000000000
+[>] NP_right
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=17
+[<] NP_boardDump size=40 dump=7fc0bfc03fc01bc01900100000000000000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=7fc0bfc03fc01fc01f00120000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=3
+[<] NP_boardDump size=40 dump=7fc0bfc03fc01fc01f001e0006000000000000000000000000000000000000000000000000000000
+[>] NP_right
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=7fc0bfc03fc01fc01fc01e8006800000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=7fc0bfc03fc01fc01fc01e801e801800000000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=17
+[<] NP_boardDump size=40 dump=7fc0bfc03fc01fc01fc01f801f801980000000000000000000000000000000000000000000000000
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=7fc0bfc03fc01fc01fc01f801f801f800c0000000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_right
+[>] NP_down
+[>] NP_newPiece shape=3
+[<] NP_boardDump size=40 dump=7fc0bfc03fc01fc01fc01f801f801f800f0003000000000000000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=1
+[>] NP_newPiece shape=3
+[<] NP_boardDump size=40 dump=7fc0bfc09fc09fc01f801f801f800f00030000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=7fc0bfc09fc09fc01f801f801f801f001f0000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=17
+[<] NP_boardDump size=40 dump=7fc0bfc09fc09fc01fc01fc01fc01f401f0000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_left
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=2
+[>] NP_giveJunk count=1
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=7fc0bfc01fc01fc01fc01f401f000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=1
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=7fc0bfc09fc01fc01f401f0000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_right
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc05f401f0000000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07f407f0040000000000000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_left
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07f407f0060006000400000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07f407f007c007000400000000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_left
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07f407f007c007800580010000000000000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07f407f007c007800580018001800100000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07c807800580018001800100000000000000000000000000000000000
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07f807980580018001800100000000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=17
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07f807980580058005800500040000000000000000000000000000000
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=17
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07f807b805b0059005800500040000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07f807b805b005b005b00510040000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07f807b805b005f005f00570040000000000000000000000000000000
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07f807b805bc05fc05f00570040000000000000000000000000000000
+[>] NP_down
+[>] NP_rotate
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_drop
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07f807b805bc05fc05f005f005c000000000000000000000000000000
+[>] NP_right
+[>] NP_down
+[>] NP_rotate
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_right
+[>] NP_down
+[>] NP_down
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07f807b805bc05fc05fc05f405c400000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07f807b805bc05fc05fc05f405dc00180000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07f807b805bc05fc05fc05f405fc00780020000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=15
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07f807b805bc05fc05fc05f405fc007c002c000800000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07f807b805bc05fc05fc05f405fc007c003c003800200000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_drop
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc07fc07fc07fc07f807b805bc05fc05fc05f405fc01fc01bc003800200000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=3
+[>] NP_giveJunk count=2
+[>] NP_newPiece shape=17
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc0ff807b805bc05fc05fc05f405fc01fc01bc003800200000000000000000000000000
+[>] NP_down
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc0ff807b805bc05fc05fc05f40dfc0dfc05bc003800200000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_left
+[>] NP_left
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_drop
+[>] NP_clear
+[<] NP_points points=1
+[>] NP_newPiece shape=7
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc0ff807b805bc05fc05fc05f40dfc07bc0338002000000000000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_rotate
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=11
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc0ff807b805bc05fc05fc05f40dfc07bc0338003800080008000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_rotate
+[>] NP_down
+[>] NP_rotate
+[>] NP_down
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=2
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc0ff807b805bc05fc05fc05f40dfc07fc03f8007800080008000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_right
+[>] NP_down
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_down
+[>] NP_drop
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc0ff807b805bc05fc05fc05f40dfc07fc03f8007800380038000000000000000000000
+[>] NP_rotate
+[>] NP_down
+[>] NP_left
+[>] NP_right
+[>] NP_down
+[>] NP_right
+[>] NP_right
+[>] NP_newPiece shape=0
+[<] NP_boardDump size=40 dump=7fc0bfc0bfc0ff807b805bc05fc05fc05f40dfc07fc03f8007800380038001000100010001000000
+[>] NP_right
+[>] NP_right
+[<] NP_endConn
