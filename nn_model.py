@@ -56,6 +56,11 @@ def main():
     model.evaluate(x=x_test, y=[y_shift_test, y_rotate_test],
         verbose=2)
 
+    # Summary and save entire model
+    print("\nSummary:")
+    model.summary()
+    model.save("only_wins.h5")
+
 
 def load_data(split=0.7):
     with open("only_wins.pickle", "rb") as f:
