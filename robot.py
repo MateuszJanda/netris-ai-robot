@@ -10,7 +10,6 @@ import sys
 import traceback
 import time
 import datetime
-import numpy as np
 
 
 BOARD_WIDTH = 10
@@ -24,10 +23,8 @@ FULL_BLOCK = 1
 
 class Robot:
     def __init__(self):
-        # self.file = None
         self.file = open('/dev/pts/2', 'w')
-
-        self.board = np.zeros(shape=(BORAD_HEIGHT, BOARD_WIDTH), dtype=int)
+        self.board = [EMPTY_LINE for _ in range(BORAD_HEIGHT)]
 
 
     def set_log_file(self, file):
@@ -37,14 +34,14 @@ class Robot:
     def new_pice(self, params):
         piece_id = params[0]
         out = ['Right ' + piece_id, 'Right ' + piece_id, 'Right ' + piece_id, 'Message Disp asdf']
-        # self._print_board()
+        self._print_board()
         return True, out
 
     def board_size(self, params):
         scr_id, height, width = [int(p) for p in params]
 
         if width != BOARD_WIDTH and height != BORAD_HEIGHT:
-            self._log2('[!] Validation board size fail %d %d %d %d' % (width, BOARD_WIDTH, height, BORAD_HEIGHT))
+            self._log('[!] Validation board size fail %d %d %d %d' % (width, BOARD_WIDTH, height, BORAD_HEIGHT))
             return False, ['Exit']
 
         return True, []
@@ -56,18 +53,8 @@ class Robot:
             return True, []
 
         y = params[1]
-        # self._log2(y)
         for x, val in enumerate(params[2:]):
-            self._log2('----')
-            self._log2('asdf %d' % 45)
-            self._log2(x, y, val)
-            self._log2(BORAD_HEIGHT - 1 - y)
-            self._log2(FULL_BLOCK if val != 0 else EMPTY_BLOCK)
             self.board[BORAD_HEIGHT - 1 - y][x] = FULL_BLOCK if val != 0 else EMPTY_BLOCK
-            # board[0][0] = FULL_BLOCK if val != 0 else EMPTY_BLOCK
-            # self.board[0][0] = 1
-            self._log2('end')
-
 
         return True, []
 
@@ -75,16 +62,17 @@ class Robot:
         return True, []
 
     def _print_board(self):
+        self._log('Board')
+        return
         for line in self.board:
             l = ''.join(['1' if b else ' ' for b in line])
             # print(l, file=self.stderr)
             self.stderr.write(l)
             # print(l)
 
-    def _log2(self, *args, **kwargs):
+    def _log(self, *args, **kwargs):
         if self.file:
             print(*args, **kwargs, file=self.file)
-
 
 
 def game(robot):
