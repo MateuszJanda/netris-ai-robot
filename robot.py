@@ -10,13 +10,13 @@ import sys
 import traceback
 import time
 import datetime
+import numpy as np
 
 
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
 SCR_ID = 0
 
-EMPTY_LINE = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 EMPTY_BLOCK = 0
 FULL_BLOCK = 1
 
@@ -24,8 +24,7 @@ FULL_BLOCK = 1
 class Robot:
     def __init__(self):
         self.file = open('/dev/pts/2', 'w')
-        self.board = [EMPTY_LINE for _ in range(BORAD_HEIGHT)]
-
+        self.board = np.zeros(shape=(BORAD_HEIGHT, BOARD_WIDTH), dtype=int)
 
     def set_log_file(self, file):
         # self.file = file
@@ -63,12 +62,9 @@ class Robot:
 
     def _print_board(self):
         self._log('Board')
-        return
         for line in self.board:
             l = ''.join(['1' if b else ' ' for b in line])
-            # print(l, file=self.stderr)
-            self.stderr.write(l)
-            # print(l)
+            self._log(l)
 
     def _log(self, *args, **kwargs):
         if self.file:
