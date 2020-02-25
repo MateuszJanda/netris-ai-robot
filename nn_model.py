@@ -36,11 +36,9 @@ def main():
     # All layers together in model
     model = tf.keras.models.Model(inputs=inputs, outputs=[outputs_1, outputs_2])
 
-    # set loss functions and compile model
-    loss_fn_1 = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-    loss_fn_2 = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+    # Compile model
     model.compile(optimizer='adam',
-        loss=[loss_fn_1, loss_fn_2],
+        loss=['sparse_categorical_crossentropy', 'sparse_categorical_crossentropy'],
         metrics=['accuracy'])
 
     # Read data
