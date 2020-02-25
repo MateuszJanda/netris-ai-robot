@@ -12,7 +12,7 @@ import trace_parser as t
 
 
 BOARD_SIZE = 20*10
-ROTATE_SIZE = 1
+PIECE_SIZE = 1
 
 
 def main():
