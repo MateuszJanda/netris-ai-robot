@@ -72,6 +72,8 @@ class RobotML:
         self.sequence_num = params[0]
         self.fresh_piece = True
 
+        return True, []
+
     def board_size(self, params):
         """Handle BoardSize command from server. Validate height and width."""
         scr_id, height, width = [int(p) for p in params]
