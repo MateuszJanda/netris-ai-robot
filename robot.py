@@ -13,10 +13,11 @@ import time
 import datetime
 import numpy as np
 import os
-# Disable info logs
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 import tensorflow as tf
 
+
+DEBUG_OUT = "/dev/pts/2"
+# DEBUG_OUT = None
 
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
@@ -25,10 +26,17 @@ SCR_ID = 0
 EMPTY_BLOCK = 0
 FULL_BLOCK = 1
 
+# Disable TensorFlow info logs
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
+
 
 class Robot:
     def __init__(self):
-        self.file = open('/dev/pts/2', 'w')
+        if DEBUG_OUT:
+            self.file = open(DEBUG_OUT, 'w')
+            sys.stderr = self.file
+        else:
+            self.file = None
         self.board = np.zeros(shape=(BORAD_HEIGHT, BOARD_WIDTH), dtype=int)
 
     def set_log_file(self, file):
@@ -78,8 +86,11 @@ class Robot:
 
 class RobotML:
     def __init__(self):
-        self.file = open('/dev/pts/2', 'w')
-        sys.stderr = self.file
+        if DEBUG_OUT:
+            self.file = open(DEBUG_OUT, 'w')
+            sys.stderr = self.file
+        else:
+            self.file = None
         self.board = np.zeros(shape=(BORAD_HEIGHT, BOARD_WIDTH), dtype=int)
         self.model = tf.keras.models.load_model('only_wins.h5')
 
