@@ -22,7 +22,6 @@ DEBUG_OUT = "/dev/pts/1"
 
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
-PIECE_TYPES = 6
 SHFIT_OFFSET = 5
 
 SCREEN_ID = 0
@@ -33,17 +32,18 @@ FULL_BLOCK = 1
 # Disable TensorFlow info logs
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
-class BlockTypeA:
-    BT_none = 0
-    BT_white = 1,
-    BT_blue = 2,
-    BT_magenta = 3,
-
-                            BT_cyan, BT_yellow, BT_green, BT_red,
-                            BT_wall, BT_len } BlockTypeA;
-
 
 class RobotML:
+    COLOR_TO_PIECE = {
+        1 : 4,      # 11
+        2 : 0,      # 0
+        3 : 1,      # 2
+        4 : 2,      # 3
+        5 : 3,      # 7
+        6 : 5,      # 15
+        7 : 6,      # 17
+    }
+
     def __init__(self):
         if DEBUG_OUT:
             self.file = open(DEBUG_OUT, 'w')
@@ -102,26 +102,27 @@ class RobotML:
 
         # Take action if this is new piece
         cmd_out = []
-        if self.fresh_piece and params[1] = FIRST_LINE:
+        if self.fresh_piece and params[1] == FIRST_LINE:
             piece = self._extract_piece(params)
-            cmd_out = self._action(piece)
+            cmd_out = self._action_commands(piece)
             self.fresh_piece = False
 
         return True, cmd_out
 
     def _extract_piece(self, params):
-        """Extract new piece from row."""
-        for piece in params[2:]:
+        """Extract new piece order number from row."""
+        for color_type in params[2:]:
             # Block of moving piece have negative values
-            if piece < 0:
-                return -piece
+            if color_type < 0:
+                color_type = -color_type
+                return RobotML.COLOR_TO_PIECE[color_type]
 
         self._log("Missing new piece")
         raise Exception("Missing new piece.")
         return None
 
-    def _action(self, piece):
-        normalized_piece = int(piece) / PIECE_TYPES
+    def _action_commands(self, piece):
+        normalized_piece = piece / (len(RobotML.COLOR_TO_PIECE) - 1)
         x_data = np.array([np.concatenate(([normalized_piece], self.board.flatten()))])
 
         y_shift, y_rotate = self.model.predict(x_data)

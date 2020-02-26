@@ -19,7 +19,7 @@ PIECE_SIZE = 1
 SHIFT_SIZE = 10
 ROTATE_SIZE = 4
 
-PIECE_TYPES = 6
+PIECE_TYPES = 7
 
 # Disable TensorFlow info logs
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
@@ -89,8 +89,8 @@ def load_data(split=0.7):
     y_shift_test = []
     y_rotate_test = []
     for i, s, r in data:
-        # Normalize piece type - float in range [0, 1)
-        i[0] = i[0] / PIECE_TYPES
+        # Normalize piece type [0, 6] (7 in total) to float in range [0, 1]
+        i[0] = i[0] / (PIECE_TYPES - 1)
 
         # Split data between train and test
         if random.random() < split:
