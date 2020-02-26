@@ -13,7 +13,7 @@ import time
 import datetime
 import numpy as np
 import os
-
+# Disable info logs
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 import tensorflow as tf
 
