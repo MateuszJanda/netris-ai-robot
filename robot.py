@@ -7,16 +7,17 @@ Ad maiorem Dei gloriam
 """
 
 from __future__ import absolute_import, division, print_function, unicode_literals
+import os
 import sys
 import traceback
 import time
 import datetime
+import nn_model
 import numpy as np
-import os
 import tensorflow as tf
 
 
-DEBUG_OUT = "/dev/pts/2"
+DEBUG_OUT = "/dev/pts/1"
 # DEBUG_OUT = None
 
 BOARD_WIDTH = 10
@@ -92,7 +93,9 @@ class RobotML:
         else:
             self.file = None
         self.board = np.zeros(shape=(BORAD_HEIGHT, BOARD_WIDTH), dtype=int)
-        self.model = tf.keras.models.load_model('only_wins.h5')
+
+        self.model = nn_model.create_model()
+        self.model.load_weights("only_wins_checkpoint/cp.cpkt")
 
     def set_log_file(self, file):
         # self.file = file
