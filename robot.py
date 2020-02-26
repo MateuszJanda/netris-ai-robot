@@ -25,7 +25,7 @@ BORAD_HEIGHT = 20
 SHFIT_OFFSET = 5
 
 SCREEN_ID = 0
-FIRST_LINE = 19
+TOP_LINE = 19
 EMPTY_BLOCK = 0
 FULL_BLOCK = 1
 
@@ -104,7 +104,7 @@ class RobotML:
 
         # Take action if this is new piece
         cmd_out = []
-        if self.fresh_piece and params[1] == FIRST_LINE:
+        if self.fresh_piece and params[1] == TOP_LINE:
             piece = self._extract_piece(params)
             cmd_out = self._action_commands(piece)
             self.fresh_piece = False
