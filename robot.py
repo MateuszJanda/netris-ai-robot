@@ -20,6 +20,8 @@ import tensorflow as tf
 DEBUG_OUT = "/dev/pts/1"
 # DEBUG_OUT = None
 
+LOG_FILE = None
+
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
 SHFIT_OFFSET = 5
@@ -33,7 +35,7 @@ FULL_BLOCK = 1
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
 
-class RobotML:
+class Robot:
     COLOR_TO_PIECE = {
         1 : 4,      # 11
         2 : 0,      # 0
@@ -45,12 +47,6 @@ class RobotML:
     }
 
     def __init__(self):
-        if DEBUG_OUT:
-            self.file = open(DEBUG_OUT, 'w')
-            sys.stderr = self.file
-        else:
-            self.file = None
-
         self.model = nn_model.create_model()
         self.model.load_weights("only_wins_checkpoint/cp.cpkt")
 
@@ -59,16 +55,15 @@ class RobotML:
         self.fresh_piece = False
         self.piece = None
 
-    def set_log_file(self, file):
-        # self.file = file
-        pass
+    def exit(self, params):
+        """Handle Exit command."""
+        return True, []
 
     def new_pice(self, params):
         """
         Handle NewPiece from server. Unfortunately server provide here only
         sequence number not real piece id.
         """
-        self._log("[ ] NewPiece", params)
         self.sequence_num = params[0]
         self.fresh_piece = True
 
@@ -79,7 +74,7 @@ class RobotML:
         scr_id, height, width = [int(p) for p in params]
 
         if width != BOARD_WIDTH and height != BORAD_HEIGHT:
-            self._log('[!] Validation board size fail %d %d %d %d' % (width, BOARD_WIDTH, height, BORAD_HEIGHT))
+            log('[!] Validation board size fail %d %d %d %d' % (width, BOARD_WIDTH, height, BORAD_HEIGHT))
             return False, ['Exit']
 
         return True, []
@@ -89,7 +84,6 @@ class RobotML:
         Handle RowUpdate command from server. Update board and take action for
         new piece.
         """
-        self._log("[ ] RowUpdate", params)
         params = [int(p) for p in params]
 
         # Analyze data (board) that belongs only to this robot
@@ -117,14 +111,14 @@ class RobotML:
             # Block of moving piece have negative values
             if color_type < 0:
                 color_type = -color_type
-                return RobotML.COLOR_TO_PIECE[color_type]
+                return Robot.COLOR_TO_PIECE[color_type]
 
-        self._log("Missing new piece")
+        log("Missing new piece")
         raise Exception("Missing new piece.")
         return None
 
     def _action_commands(self, piece):
-        normalized_piece = piece / (len(RobotML.COLOR_TO_PIECE) - 1)
+        normalized_piece = piece / (len(Robot.COLOR_TO_PIECE) - 1)
         x_data = np.array([np.concatenate(([normalized_piece], self.board.flatten()))])
 
         y_shift, y_rotate = self.model.predict(x_data)
@@ -148,49 +142,47 @@ class RobotML:
         cmd_out.append('Drop ' + self.sequence_num)
         return cmd_out
 
-    def exit(self, params):
-        return True, []
-
     def _print_board(self):
-        self._log('Board')
+        log('Board')
         for line in self.board:
             l = ''.join(['1' if b else ' ' for b in line])
-            self._log(l)
-
-    def _log(self, *args, **kwargs):
-        if self.file:
-            print(*args, **kwargs, file=self.file)
+            log(l)
 
 
-def game(robot):
+def main():
     log_name = parse_args()
+    robot = Robot()
 
-    # try:
+    global LOG_FILE
+
     if log_name:
-        with open(log_name, 'w') as file:
-            loop(file, robot)
-    else:
-        loop(None, robot)
-    # except:
-    #     if log_name:
-    #         with open(log_name, 'w') as file:
-    #             traceback.print_exc(file=file)
+        LOG_FILE = open(log_name, 'w')
+        sys.stderr = LOG_FILE
+    elif DEBUG_OUT:
+        LOG_FILE = open(DEBUG_OUT, 'w')
+        sys.stderr = LOG_FILE
+
+    try:
+        command_loop(robot)
+    finally:
+        if log_name:
+            LOG_FILE.close()
 
 
-def loop(file, robot):
-    robot.set_log_file(file)
-    out_cmd(file, 'Version 1')
+def command_loop(robot):
+    """Handle command from server."""
+    send_command('Version 1')
 
     handler = {
+        'Exit' : robot.exit,
         'NewPiece' : robot.new_pice,
         'BoardSize' : robot.board_size,
         'RowUpdate' : robot.row_update,
-        'Exit' : robot.exit
     }
 
     while True:
         cmd = input()
-        log(file, '[>] ' + cmd)
+        log('[>] ' + cmd)
 
         name = cmd.split(' ')[0]
         if name not in handler:
@@ -200,33 +192,39 @@ def loop(file, robot):
         result, cmds = handler[name](params)
 
         for c in cmds:
-            out_cmd(file, c)
+            send_command(c)
 
         if not result:
             break
 
 
 def parse_args():
+    """Parse command line arguments."""
     if len(sys.argv) == 2 and sys.argv[1] == '-l':
-        ts = time.time()
-        return datetime.datetime.fromtimestamp(ts).strftime('robot_%Y%m%d%H%M%S.txt')
+        return create_log_name()
     elif len(sys.argv) == 3 and sys.argv[1] == '-t':
         return sys.argv[2]
 
     return None
 
 
-def out_cmd(file, cmd):
-    log(file, '[<] ' + cmd)
+def create_log_name():
+    """Generate log file name."""
+    ts = time.time()
+    return datetime.datetime.fromtimestamp(ts).strftime('robot_%Y%m%d%H%M%S.txt')
+
+
+def send_command(cmd):
+    """Send command to server."""
+    log('[<] ' + cmd)
     print(cmd)
 
 
-def log(file, msg):
-    if file:
-        file.write(msg + '\n')
-        file.flush()
+def log(*args, **kwargs):
+    """Print log to other terminal or file."""
+    if LOG_FILE:
+        print(*args, **kwargs, file=LOG_FILE)
 
 
 if __name__ == '__main__':
-    robot = RobotML()
-    game(robot)
+    main()
