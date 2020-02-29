@@ -196,7 +196,7 @@ class Action:
 
     def gaps(self) -> int:
         """
-        Count all gaps (blocks that can't be reached by next tour) created
+        Count all gaps (blocks that can't be reached in next tour) created
         by piece, under horizontal projection of piece.
         """
         piece = self.tour.piece_as_matrix()
@@ -221,8 +221,6 @@ class Action:
 
         left = self._cliff_height(start - 1, start, board)
         right = self._cliff_height(end, end - 1, board)
-
-        print(left, right)
 
         return left >= height or right >= height
 
@@ -306,7 +304,7 @@ class Action:
         return self.next_tour.max()
 
     def current_min(self) -> int:
-        """Get min block height on next board (after tour/move)."""
+        """Get min block height on current board."""
         return self.tour.min()
 
     def next_min(self) -> int:
@@ -314,7 +312,7 @@ class Action:
         return self.next_tour.min()
 
     def points(self) -> int:
-        """Get points - erased full lines."""
+        """Get points (erased full lines)."""
         return self.tour.points
 
     def piece(self) -> List[int]:

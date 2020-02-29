@@ -16,7 +16,8 @@ PIECE_SIZE = 1
 
 
 def main():
-    only_wins()
+    # only_wins()
+    no_gaps()
 
 
 def only_wins():
@@ -47,6 +48,39 @@ def only_wins():
     print("Single input size: %d" % len(data[0][0]))
 
     pickle.dump(data, open("only_wins.pickle", "wb"))
+
+
+def no_gaps():
+    """
+    Extract data only from action where points have been scored or no gaps and
+    high cliffs was made.
+    """
+    total = 0
+    data = []
+
+    for action in t.Reader("data/"):
+        total += 1
+
+        if action.points() or (action.gaps() == 0 and not action.cliff(3)):
+            piece = action.piece()
+            board = action.flat_board()
+            shift = action.shift()
+            rotate = action.rotate()
+
+            data_input = piece + board
+
+            assert(len(data_input) == PIECE_SIZE + BOARD_SIZE)
+
+            data.append((data_input, shift, rotate))
+
+        # Print progress
+        if total % 100 == 0:
+            print("Extracted: %d" % (len(data)))
+
+    print("Total: %d, extracted: %d" % (total, len(data)))
+    print("Single input size: %d" % len(data[0][0]))
+
+    pickle.dump(data, open("no_gaps.pickle", "wb"))
 
 
 if __name__ == "__main__":
