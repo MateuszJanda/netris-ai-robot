@@ -32,7 +32,7 @@ EMPTY_BLOCK = 0
 FULL_BLOCK = 1
 
 # Disable TensorFlow info logs
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
 
 
 class Robot:
@@ -94,8 +94,8 @@ class Robot:
         scr_id, height, width = [int(p) for p in params]
 
         if width != BOARD_WIDTH and height != BORAD_HEIGHT:
-            log('[!] Validation board size fail %d %d %d %d' % (width, BOARD_WIDTH, height, BORAD_HEIGHT))
-            return False, ['Exit']
+            log("[!] Validation board size fail %d %d %d %d" % (width, BOARD_WIDTH, height, BORAD_HEIGHT))
+            return False, ["Exit"]
 
         return True, []
 
@@ -148,18 +148,18 @@ class Robot:
         cmd_out = []
         if shift < 0:
             while shift != 0:
-                cmd_out.append('Left ' + self.sequence_num)
+                cmd_out.append("Left " + self.sequence_num)
                 shift += 1
         elif shift > 0:
             while shift != 0:
-                cmd_out.append('Right ' + self.sequence_num)
+                cmd_out.append("Right " + self.sequence_num)
                 shift -= 1
 
         while rotate != 0:
-            cmd_out.append('Rotate ' + self.sequence_num)
+            cmd_out.append("Rotate " + self.sequence_num)
             rotate -= 1
 
-        cmd_out.append('Drop ' + self.sequence_num)
+        cmd_out.append("Drop " + self.sequence_num)
         return cmd_out
 
     def _predict_action(self, piece):
@@ -175,9 +175,9 @@ class Robot:
 
     def _print_board(self):
         """Print current board state. For debug purpose."""
-        log('Board')
+        log("Board")
         for line in self.board:
-            l = ''.join(['1' if b else ' ' for b in line])
+            l = "".join(["1" if b else " " for b in line])
             log(l)
 
 
@@ -188,10 +188,10 @@ def main():
     global LOG_FILE
 
     if log_name:
-        LOG_FILE = open(log_name, 'w')
+        LOG_FILE = open(log_name, "w")
         sys.stderr = LOG_FILE
     elif DEBUG_OUT:
-        LOG_FILE = open(DEBUG_OUT, 'w')
+        LOG_FILE = open(DEBUG_OUT, "w")
         sys.stderr = LOG_FILE
 
     try:
@@ -203,24 +203,24 @@ def main():
 
 def command_loop(robot):
     """Handle command from server."""
-    send_command('Version 1')
+    send_command("Version 1")
 
     handler = {
-        'Exit' : robot.exit,
-        'NewPiece' : robot.new_pice,
-        'BoardSize' : robot.board_size,
-        'RowUpdate' : robot.row_update,
+        "Exit" : robot.exit,
+        "NewPiece" : robot.new_pice,
+        "BoardSize" : robot.board_size,
+        "RowUpdate" : robot.row_update,
     }
 
     while True:
         cmd = input()
-        # log('[>] ' + cmd)
+        # log("[>] " + cmd)
 
-        name = cmd.split(' ')[0]
+        name = cmd.split(" ")[0]
         if name not in handler:
             continue
 
-        params = cmd.split(' ')[1:]
+        params = cmd.split(" ")[1:]
         continue_loop, cmds = handler[name](params)
 
         for c in cmds:
@@ -232,9 +232,9 @@ def command_loop(robot):
 
 def parse_args():
     """Parse command line arguments."""
-    if len(sys.argv) == 2 and sys.argv[1] == '-l':
+    if len(sys.argv) == 2 and sys.argv[1] == "-l":
         return create_log_name()
-    elif len(sys.argv) == 3 and sys.argv[1] == '-t':
+    elif len(sys.argv) == 3 and sys.argv[1] == "-t":
         return sys.argv[2]
 
     return None
@@ -243,12 +243,12 @@ def parse_args():
 def create_log_name():
     """Generate log file name."""
     ts = time.time()
-    return datetime.datetime.fromtimestamp(ts).strftime('robot_%Y%m%d%H%M%S.txt')
+    return datetime.datetime.fromtimestamp(ts).strftime("robot_%Y%m%d%H%M%S.txt")
 
 
 def send_command(cmd):
     """Send command to server."""
-    # log('[<] ' + cmd)
+    # log("[<] " + cmd)
     print(cmd)
 
 
@@ -258,5 +258,5 @@ def log(*args, **kwargs):
         print(*args, **kwargs, file=LOG_FILE)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
