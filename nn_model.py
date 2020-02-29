@@ -45,7 +45,7 @@ def main():
 
     # checkpoint_path = "checkpoints/only_wins/cp.cpkt"
     checkpoint_path = "checkpoints/no_gaps/cp.cpkt"
-    print("Model saved as: %s" % checkpoint_path)
+    print("Model weights saved in: %s" % checkpoint_path)
     model.save_weights(checkpoint_path, save_format="tf")
 
 

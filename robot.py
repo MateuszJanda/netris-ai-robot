@@ -68,7 +68,11 @@ class Robot:
 
     def __init__(self):
         self.model = nn_model.create_model()
-        self.model.load_weights("checkpoints/no_gaps/cp.cpkt")
+
+        checkpoint_path = "checkpoints/no_gaps/cp.cpkt"
+        if not os.path.isfile(checkpoint_path + ".index"):
+            raise Exception("Missing checkpoint " + checkpoint_path + ". Can't initialize model.")
+        self.model.load_weights(checkpoint_path)
 
         self.board = np.zeros(shape=(BORAD_HEIGHT, BOARD_WIDTH), dtype=int)
         self.sequence_num = None
