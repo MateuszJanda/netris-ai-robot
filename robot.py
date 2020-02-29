@@ -143,12 +143,7 @@ class Robot:
 
     def _action_commands(self, piece):
         """Determine next robot move."""
-        normalized_piece = piece / (len(Robot.COLOR_TO_PIECE) - 1)
-        x_data = np.array([np.concatenate(([normalized_piece], self.board.flatten()))])
-
-        y_shift, y_rotate = self.model.predict(x_data)
-        shift = np.argmax(y_shift) - SHFIT_OFFSET
-        rotate = np.argmax(y_rotate)
+        shift, rotate = self._predict_action(piece)
 
         cmd_out = []
         if shift < 0:
@@ -167,8 +162,19 @@ class Robot:
         cmd_out.append('Drop ' + self.sequence_num)
         return cmd_out
 
+    def _predict_action(self, piece):
+        """Prediction action by piece and current board state."""
+        normalized_piece = piece / (len(Robot.COLOR_TO_PIECE) - 1)
+        x_data = np.array([np.concatenate(([normalized_piece], self.board.flatten()))])
+
+        y_shift, y_rotate = self.model.predict(x_data)
+        shift = np.argmax(y_shift) - SHFIT_OFFSET
+        rotate = np.argmax(y_rotate)
+
+        return shift, rotate
+
     def _print_board(self):
-        """Print current board state."""
+        """Print current board state. For debug purpose."""
         log('Board')
         for line in self.board:
             l = ''.join(['1' if b else ' ' for b in line])
