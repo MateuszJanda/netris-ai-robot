@@ -110,18 +110,21 @@ class Robot:
         if params[0] != SCREEN_ID:
             return True, []
 
-        # Update board
         y = params[1]
-        for x, val in enumerate(params[2:]):
-            # New piece blocks have negative values, board blocks positive
-            self.board[BORAD_HEIGHT - 1 - y][x] = FULL_BLOCK if val > 0 else EMPTY_BLOCK
+        # Server inform about switch from piece block to fixed block starting
+        # from second RowUpdate command after NewPiece command. This is to late,
+        # for prediction, so better is assume that first line is always empty.
+        if y != TOP_LINE:
+            for x, val in enumerate(params[2:]):
+                self.board[BORAD_HEIGHT - 1 - y][x] = FULL_BLOCK if val else EMPTY_BLOCK
 
         # Take action if this is new piece
         cmd_out = []
-        if self.fresh_piece and params[1] == TOP_LINE:
+        if self.fresh_piece and y == TOP_LINE:
             piece = self._extract_piece(params)
             cmd_out = self._action_commands(piece)
             self.fresh_piece = False
+            # self._print_board()
 
         return True, cmd_out
 
@@ -161,7 +164,7 @@ class Robot:
             cmd_out.append('Rotate ' + self.sequence_num)
             rotate -= 1
 
-        # cmd_out.append('Drop ' + self.sequence_num)
+        cmd_out.append('Drop ' + self.sequence_num)
         return cmd_out
 
     def _print_board(self):
@@ -204,7 +207,7 @@ def command_loop(robot):
 
     while True:
         cmd = input()
-        log('[>] ' + cmd)
+        # log('[>] ' + cmd)
 
         name = cmd.split(' ')[0]
         if name not in handler:
@@ -238,7 +241,7 @@ def create_log_name():
 
 def send_command(cmd):
     """Send command to server."""
-    log('[<] ' + cmd)
+    # log('[<] ' + cmd)
     print(cmd)
 
 
