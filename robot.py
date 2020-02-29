@@ -37,13 +37,33 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
 class Robot:
     COLOR_TO_PIECE = {
-        1 : 4,      # 11
-        2 : 0,      # 0
-        3 : 1,      # 2
-        4 : 2,      # 3
-        5 : 3,      # 7
-        6 : 5,      # 15
-        7 : 6,      # 17
+        1: 4,      # 11
+        2: 0,      # 0
+        3: 1,      # 2
+        4: 2,      # 3
+        5: 3,      # 7
+        6: 5,      # 15
+        7: 6,      # 17
+    }
+
+    PIECE_TO_PIECE_ID = {
+        4: 11,
+        0: 0,
+        1: 2,
+        2: 3,
+        3: 7,
+        5: 15,
+        6: 17,
+    }
+
+    PIECE_ID_TO_NAME = {
+        11: "white pyramid",
+        0 : "blue log",
+        2 : "violet square",
+        3 : "azure L",
+        7 : "yellow mirror L",
+        15: "green S",
+        17: "red Z",
     }
 
     def __init__(self):
@@ -111,6 +131,7 @@ class Robot:
             # Block of moving piece have negative values
             if color_type < 0:
                 color_type = -color_type
+                log("Extracted piece:", Robot.PIECE_ID_TO_NAME[Robot.PIECE_TO_PIECE_ID[Robot.COLOR_TO_PIECE[color_type]]])
                 return Robot.COLOR_TO_PIECE[color_type]
 
         log("Missing new piece")
@@ -118,6 +139,7 @@ class Robot:
         return None
 
     def _action_commands(self, piece):
+        """Determine next robot move."""
         normalized_piece = piece / (len(Robot.COLOR_TO_PIECE) - 1)
         x_data = np.array([np.concatenate(([normalized_piece], self.board.flatten()))])
 
@@ -139,7 +161,7 @@ class Robot:
             cmd_out.append('Rotate ' + self.sequence_num)
             rotate -= 1
 
-        cmd_out.append('Drop ' + self.sequence_num)
+        # cmd_out.append('Drop ' + self.sequence_num)
         return cmd_out
 
     def _print_board(self):
