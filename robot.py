@@ -221,12 +221,12 @@ def command_loop(robot):
             continue
 
         params = cmd.split(' ')[1:]
-        result, cmds = handler[name](params)
+        continue_loop, cmds = handler[name](params)
 
         for c in cmds:
             send_command(c)
 
-        if not result:
+        if not continue_loop:
             break
 
 
