@@ -168,6 +168,7 @@ class Robot:
         return cmd_out
 
     def _print_board(self):
+        """Print current board state."""
         log('Board')
         for line in self.board:
             l = ''.join(['1' if b else ' ' for b in line])
