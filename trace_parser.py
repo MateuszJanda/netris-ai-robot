@@ -428,7 +428,7 @@ def column_height(col: int, board: Board) -> int:
 
 class Reader:
     def __init__(self, path: str) -> None:
-        """Read single trace of all trace in path."""
+        """Read single trace or all trace in path."""
         if os.path.isfile(path):
             self._file_names = [path]
         else:
