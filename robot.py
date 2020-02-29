@@ -69,6 +69,7 @@ class Robot:
     def __init__(self):
         self.model = nn_model.create_model()
 
+        # checkpoint_path = "checkpoints/only_wins/cp.cpkt"
         checkpoint_path = "checkpoints/no_gaps/cp.cpkt"
         if not os.path.isfile(checkpoint_path + ".index"):
             raise Exception("Missing checkpoint " + checkpoint_path + ". Can't initialize model.")
