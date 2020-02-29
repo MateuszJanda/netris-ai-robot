@@ -68,7 +68,7 @@ class Robot:
 
     def __init__(self):
         self.model = nn_model.create_model()
-        self.model.load_weights("only_wins_checkpoint/cp.cpkt")
+        self.model.load_weights("checkpoints/no_gaps/cp.cpkt")
 
         self.board = np.zeros(shape=(BORAD_HEIGHT, BOARD_WIDTH), dtype=int)
         self.sequence_num = None

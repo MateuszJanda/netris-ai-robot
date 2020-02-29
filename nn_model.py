@@ -43,7 +43,8 @@ def main():
     print("\nSummary:")
     model.summary()
 
-    checkpoint_path = "only_wins_checkpoint/cp.cpkt"
+    # checkpoint_path = "checkpoints/only_wins/cp.cpkt"
+    checkpoint_path = "checkpoints/no_gaps/cp.cpkt"
     print("Model saved as: %s" % checkpoint_path)
     model.save_weights(checkpoint_path, save_format="tf")
 
@@ -79,7 +80,8 @@ def load_data(split=0.7):
     Load pre-parsed data, convert them to numpy as split for training and
     test basket.
     """
-    with open("only_wins.pickle", "rb") as f:
+    # with open("only_wins.pickle", "rb") as f:
+    with open("no_gaps.pickle", "rb") as f:
         data = pickle.load(f)
 
     x_train = []
