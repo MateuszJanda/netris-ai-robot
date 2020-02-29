@@ -16,71 +16,43 @@ PIECE_SIZE = 1
 
 
 def main():
-    # only_wins()
-    no_gaps()
+    only_wins = lambda action: action.points()
+    no_gaps = lambda action: action.points() or (action.gaps() == 0 and not action.cliff(3))
+
+    # extract_data(only_wins, "only_wins.pickle")
+    extract_data(no_gaps, "no_gaps.pickle")
 
 
-def only_wins():
-    """Extract data only from action where points have been scored."""
+def extract_data(action_filter, file_name):
+    """Extract data only from action where filter allow to."""
     total = 0
     data = []
 
     for action in t.Reader("data/"):
         total += 1
 
-        if action.points():
-            piece = action.piece()
-            board = action.flat_board()
-            shift = action.shift()
-            rotate = action.rotate()
+        if not action_filter(action):
+            continue
 
-            data_input = piece + board
+        piece = action.piece()
+        board = action.flat_board()
+        shift = action.shift()
+        rotate = action.rotate()
 
-            assert(len(data_input) == PIECE_SIZE + BOARD_SIZE)
+        data_input = piece + board
 
-            data.append((data_input, shift, rotate))
+        assert(len(data_input) == PIECE_SIZE + BOARD_SIZE)
 
-        # Print progress
-        if total % 100 == 0:
-            print("Extracted: %d" % (len(data)))
-
-    print("Total: %d, extracted: %d" % (total, len(data)))
-    print("Single input size: %d" % len(data[0][0]))
-
-    pickle.dump(data, open("only_wins.pickle", "wb"))
-
-
-def no_gaps():
-    """
-    Extract data only from action where points have been scored or no gaps and
-    high cliffs was made.
-    """
-    total = 0
-    data = []
-
-    for action in t.Reader("data/"):
-        total += 1
-
-        if action.points() or (action.gaps() == 0 and not action.cliff(3)):
-            piece = action.piece()
-            board = action.flat_board()
-            shift = action.shift()
-            rotate = action.rotate()
-
-            data_input = piece + board
-
-            assert(len(data_input) == PIECE_SIZE + BOARD_SIZE)
-
-            data.append((data_input, shift, rotate))
+        data.append((data_input, shift, rotate))
 
         # Print progress
         if total % 100 == 0:
             print("Extracted: %d" % (len(data)))
 
-    print("Total: %d, extracted: %d" % (total, len(data)))
+    print("Total: %d, extracted: %d (%0.2f%%)" % (total, len(data), len(data)/total))
     print("Single input size: %d" % len(data[0][0]))
 
-    pickle.dump(data, open("no_gaps.pickle", "wb"))
+    pickle.dump(data, open(file_name, "wb"))
 
 
 if __name__ == "__main__":
