@@ -49,7 +49,7 @@ def extract_data(action_filter, file_name):
         if total % 100 == 0:
             print("Extracted: %d" % (len(data)))
 
-    print("Total: %d, extracted: %d (%0.2f%%)" % (total, len(data), len(data)/total))
+    print("Total: %d, extracted: %d (%0.2f%%)" % (total, len(data), len(data)/total*100))
     print("Single input size: %d" % len(data[0][0]))
 
     pickle.dump(data, open(file_name, "wb"))
