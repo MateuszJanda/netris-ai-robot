@@ -17,10 +17,8 @@ import numpy as np
 import tensorflow as tf
 
 
+# Debug terminal, useful when main terminal is occpied by netris
 DEBUG_OUT = "/dev/pts/1"
-# DEBUG_OUT = None
-
-LOG_FILE = None
 
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
@@ -30,6 +28,8 @@ SCREEN_ID = 0
 TOP_LINE = 19
 EMPTY_BLOCK = 0
 FULL_BLOCK = 1
+
+LOG_FILE = None
 
 # Disable TensorFlow info logs
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
@@ -195,7 +195,7 @@ def main():
     if log_name:
         LOG_FILE = open(log_name, "w")
         sys.stderr = LOG_FILE
-    elif DEBUG_OUT:
+    elif 'DEBUG_OUT' in globals() and DEBUG_OUT:
         LOG_FILE = open(DEBUG_OUT, "w")
         sys.stderr = LOG_FILE
 
