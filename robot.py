@@ -17,7 +17,7 @@ import numpy as np
 import tensorflow as tf
 
 
-# Debug terminal, useful when main terminal is occpied by netris
+# Debug terminal, useful when main terminal is occupied by netris
 DEBUG_OUT = "/dev/pts/1"
 
 BOARD_WIDTH = 10
