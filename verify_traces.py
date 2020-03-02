@@ -11,6 +11,11 @@ import trace_parser as t
 
 
 def main():
+    """
+    Verify how many actions can be reproduced. for some actions there is not
+    enough data to reproduce board state like exact time when piece should be
+    shifted.
+    """
     total_actions = 0
 
     for file_name in trace_files(path='data/'):
