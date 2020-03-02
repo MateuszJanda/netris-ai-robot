@@ -9,7 +9,6 @@ Ad maiorem Dei gloriam
 from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import sys
-import traceback
 import time
 import datetime
 import nn_model
