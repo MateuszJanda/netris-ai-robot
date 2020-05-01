@@ -53,7 +53,7 @@ def extract_data(action_filter, file_name):
     print("Single input size: %d" % len(data[0][0]))
 
     pickle.dump(data, open(file_name, "wb"))
-    print("Data saved to %s" % file_name)
+    print("Data saved to: %s" % file_name)
 
 
 if __name__ == "__main__":

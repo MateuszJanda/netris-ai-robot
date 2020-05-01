@@ -6,6 +6,10 @@ Site: github.com/MateuszJanda
 Ad maiorem Dei gloriam
 """
 
+"""
+Supervised Learning
+"""
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import pickle
