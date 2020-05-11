@@ -38,7 +38,13 @@ class Agent:
 
     def create_model(self):
         # Input layer
-        inputs = tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3), input_shape=(BOARD_WIDTH, BOARD_HEIGHT))
+
+        # https://missinglink.ai/guides/tensorflow/tensorflow-conv2d-layers-practical-guide/
+        # https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D#arguments
+        #
+        # Tensor input become 4-D: [batch_size, in_height, in_width, in_channels]
+        # Filters: Integer, the dimensionality of the output space
+        inputs = tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3), input_shape=(1, BOARD_HEIGHT, BOARD_WIDTH, 1))
 
         # Hidden layers
         hidden_1 = tf.keras.layers.Activation(activation='relu')(inputs)
