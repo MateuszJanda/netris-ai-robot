@@ -30,7 +30,6 @@ import tensorflow as tf
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 20
 
-
 ACTION_SPACE_SIZE = 4*10
 
 
@@ -38,30 +37,31 @@ class Agent:
     """DQN agent."""
 
     def create_model(self):
+        # Input layer
         inputs = tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3), input_shape=(BOARD_WIDTH, BOARD_HEIGHT))
 
         # Hidden layers
         hidden_1 = tf.keras.layers.Activation(activation='relu')(inputs)
-        hidden_2 = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(hidden_2)
+        hidden_2 = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(hidden_1)
         hidden_3 = tf.keras.layers.Dropout(rate=0.2)(hidden_2)
-
 
         hidden_4 = tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3))(hidden_3)
         hidden_5 = tf.keras.layers.Activation(activation='relu')(hidden_4)
         hidden_6 = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(hidden_5)
-        hidden_7 = tf.keras.layers.Dropout(rate=0.2)(hidden_1)(hidden_6)
+        hidden_7 = tf.keras.layers.Dropout(rate=0.2)(hidden_6)
 
         hidden_8 = tf.keras.layers.Flatten()(hidden_7)
         hidden_9 = tf.keras.layers.Dense(units=64)(hidden_8)
 
+        # Output layer
         outputs = tf.keras.layers.Dense(units=ACTION_SPACE_SIZE, activation='linear')(hidden_9)
 
         # All layers together in model
         model = tf.keras.models.Model(inputs=inputs, outputs=[outputs])
 
         # Compile model
-        loss_fn_1 = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-        model.compile(optimizer='adam', loss=[loss_fn_1], metrics=['accuracy'])
+        loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        model.compile(optimizer='adam', loss=[loss_fn], metrics=['accuracy'])
 
         return model
 
