@@ -37,37 +37,31 @@ class Agent:
     """DQN agent."""
 
     def create_model(self):
-        # Input layer
+         model = tf.keras.models.Sequential()
 
         # https://missinglink.ai/guides/tensorflow/tensorflow-conv2d-layers-practical-guide/
         # https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D#arguments
         #
-        # Tensor input become 4D - input_shape: [batch_size, in_height, in_width, in_channels]
-        # Filters: Integer, the dimensionality of the output space
-        inputs = tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3), input_shape=(1, BOARD_HEIGHT, BOARD_WIDTH, 1))
+        # input_shape: tensor input become 4D: [batch_size, in_height, in_width, in_channels]
+        # filters: Integer, the dimensionality of the output space
+        #   for each pixel there will be generated 256 features.
+        model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3), input_shape=(1, BOARD_HEIGHT, BOARD_WIDTH, 1)))
+        model.add(tf.keras.layers.Activation(activation='relu'))
+        model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+        model.add(tf.keras.layers.Dropout(rate=0.2))
 
-        # Hidden layers
-        hidden_1 = tf.keras.layers.Activation(activation='relu')(inputs)
-        hidden_2 = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(hidden_1)
-        hidden_3 = tf.keras.layers.Dropout(rate=0.2)(hidden_2)
+        model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3)))
+        model.add(tf.keras.layers.Activation(activation='relu'))
+        model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
+        model.add(tf.keras.layers.Dropout(rate=0.2))
 
-        hidden_4 = tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3))(hidden_3)
-        hidden_5 = tf.keras.layers.Activation(activation='relu')(hidden_4)
-        hidden_6 = tf.keras.layers.MaxPooling2D(pool_size=(2, 2))(hidden_5)
-        hidden_7 = tf.keras.layers.Dropout(rate=0.2)(hidden_6)
+        model.add(tf.keras.layers.Flatten())
+        model.add(tf.keras.layers.Dense(units=64))
 
-        hidden_8 = tf.keras.layers.Flatten()(hidden_7)
-        hidden_9 = tf.keras.layers.Dense(units=64)(hidden_8)
-
-        # Output layer
-        outputs = tf.keras.layers.Dense(units=ACTION_SPACE_SIZE, activation='linear')(hidden_9)
-
-        # All layers together in model
-        model = tf.keras.models.Model(inputs=inputs, outputs=[outputs])
+        model.add(tf.keras.layers.Dense(units=ACTION_SPACE_SIZE, activation='linear'))
 
         # Compile model
-        loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-        model.compile(optimizer='adam', loss=[loss_fn], metrics=['accuracy'])
+        model.compile(optimizer=Adam(lr=0.001), loss='mse', metrics=['accuracy'])
 
         return model
 
