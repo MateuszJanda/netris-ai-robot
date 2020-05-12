@@ -42,7 +42,7 @@ class Agent:
         # https://missinglink.ai/guides/tensorflow/tensorflow-conv2d-layers-practical-guide/
         # https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D#arguments
         #
-        # input_shape: tensor input become 4D: [batch_size, in_height, in_width, in_channels]
+        # input_shape: tensor input become 4D: [batch_size, input_height, input_width, input_channels]
         # filters: Integer, the dimensionality of the output space
         #   for each pixel there will be generated 256 features.
         model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3), input_shape=(1, BOARD_HEIGHT, BOARD_WIDTH, 1)))
