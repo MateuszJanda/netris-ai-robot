@@ -23,9 +23,10 @@ Useful links:
     https://www.youtube.com/watch?v=A5eihauRQvo
 """
 
-from collections import deque
-import numpy as np
 import tensorflow as tf
+import numpy as np
+from collections import deque
+
 
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 20
@@ -40,7 +41,7 @@ def main():
     agent = Agent()
 
     for episodes in range(1, EPISODES + 1):
-        # Restarting episode - reset episode reward and step number
+        # Reset episode reward and step number
         episode_reward = 0
         step = 1
 
@@ -48,8 +49,8 @@ def main():
         current_state = env.reset()
 
         # Reset flag and start iterating until episode ends
-        done = False
-        while not done:
+        done_status = False
+        while not done_status:
 
             # This part stays mostly the same, the change is to query a model for Q values
             if np.random.random() > epsilon:
@@ -59,7 +60,7 @@ def main():
                 # Get random action
                 action = np.random.randint(0, env.ACTION_SPACE_SIZE)
 
-            new_state, reward, done = env.step(action)
+            new_state, reward, done_status = env.step(action)
 
             # Transform new continous state to new discrete state and count reward
             episode_reward += reward
@@ -68,8 +69,9 @@ def main():
                 env.render()
 
             # Every step we update replay memory and train main network
-            agent.update_replay_memory((current_state, action, reward, new_state, done))
-            agent.train(done, step)
+            transition = Transition(current_state, action, reward, new_state, done_status)
+            agent.update_replay_memory(transition)
+            agent.train(done_status)
 
             current_state = new_state
             step += 1
@@ -95,17 +97,17 @@ def main():
 class Agent:
     """DQN agent."""
     def __init__(self):
-        # Main model
+        # Main NN model
         self.model = self.create_model()
 
-        # Target network
+        # Target NN network
         self.target_model = self.create_model()
         self.target_model.set_weights(self.model.get_weights())
 
         # An array with last n steps for training
         self.replay_memory = deque(maxlen=REPLAY_MEMORY_SIZE)
 
-        # Used to count when to update target network with main network's weights
+        # Used to count when to update target NN with main NN weights
         self.target_update_counter = 0
 
     def create_model(self):
@@ -174,7 +176,7 @@ class Agent:
         for index, transition in enumerate(minibatch):
             # If not a terminal state, get new q from future states,
             # otherwise set it to reward
-            if not done:
+            if not transition.done_status:
                 max_future_q = np.max(future_qs_list[index])
                 new_q = transition.reward + DISCOUNT * max_future_q
             else:
@@ -209,10 +211,6 @@ class Transition:
         self.reward = reward
         self.new_state = new_state
         self.done_status = done_status
-
-
-def main():
-    pass
 
 
 if __name__ == '__main__':
