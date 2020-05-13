@@ -32,9 +32,25 @@ BOARD_HEIGHT = 20
 
 ACTION_SPACE_SIZE = 4*10
 
+REPLAY_MEMORY_SIZE = 50_000
+MIN_REPLAY_MEMORY_SIZE = 1_000
+
 
 class Agent:
     """DQN agent."""
+    def __init__(self):
+        # Main model
+        self.model = self.create_model()
+
+        # Target network
+        self.target_model = self.create_model()
+        self.target_model.set_weights(self.model.get_weights())
+
+        # An array with last n steps for training
+        self.replay_memory = deque(maxlen=REPLAY_MEMORY_SIZE)
+
+        # Used to count when to update target network with main network's weights
+        self.target_update_counter = 0
 
     def create_model(self):
          model = tf.keras.models.Sequential()
@@ -42,9 +58,11 @@ class Agent:
         # https://missinglink.ai/guides/tensorflow/tensorflow-conv2d-layers-practical-guide/
         # https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D#arguments
         #
-        # input_shape: tensor input become 4D: [batch_size, input_height, input_width, input_channels]
-        # filters: Integer, the dimensionality of the output space
-        #   for each pixel there will be generated 256 features.
+        # input_shape: tensor input become 4D:
+        # [batch_size, input_height, input_width, input_channels]
+        #
+        # filters: (integer) the dimensionality of the output space. Here for
+        # each pixel there will be generated 256 features.
         model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3), input_shape=(1, BOARD_HEIGHT, BOARD_WIDTH, 1)))
         model.add(tf.keras.layers.Activation(activation='relu'))
         model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
@@ -64,6 +82,23 @@ class Agent:
         model.compile(optimizer=Adam(lr=0.001), loss='mse', metrics=['accuracy'])
 
         return model
+
+    def update_replay_memory(self, transition):
+        """Adds step's data to a memory replay array."""
+        self.replay_memory.append(transition)
+
+    def get_qs(self, state):
+        """Queries main model for Q values given current observation (state)."""
+        return self.model.predict(np.array(state).reshape(-1, *state.shape)/255)[0]
+
+
+class Transition:
+    def __init__(self, state, action, reward, new_state, done_status):
+        self.state = state
+        self.action = action
+        self.reward = reward
+        self.new_state = new_state
+        self.done_status = done_status
 
 
 def main():
