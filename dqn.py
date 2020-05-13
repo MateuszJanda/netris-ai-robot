@@ -23,7 +23,7 @@ Useful links:
     https://www.youtube.com/watch?v=A5eihauRQvo
 """
 
-
+from collections import deque
 import numpy as np
 import tensorflow as tf
 
@@ -84,17 +84,71 @@ class Agent:
         return model
 
     def update_replay_memory(self, transition):
-        """Adds step's data to a memory replay array."""
+        """Adds transition (step's data) to a replay memory."""
         self.replay_memory.append(transition)
 
     def get_qs(self, state):
-        """Queries main model for Q values given current observation (state)."""
-        return self.model.predict(np.array(state).reshape(-1, *state.shape)/255)[0]
+        """
+        Queries main NN model for Q values given current observation (state)."""
+        return self.model.predict(np.array(state))[0]
+
+    def train(self, terminal_state):
+        """Trains main NN model every step during episode."""
+
+        # Start training only if certain number of samples is already saved in
+        # replay memory
+        if len(self.replay_memory) < MIN_REPLAY_MEMORY_SIZE:
+            return
+
+        # Get a minibatch of random samples from replay memory
+        minibatch = random.sample(self.replay_memory, MINIBATCH_SIZE)
+
+        # Get current states from minibatch, then query NN model for Q values
+        current_states = np.array([transition.current_state for transition in minibatch])
+        current_qs_list = self.model.predict(current_states)
+
+        # Get future states from minibatch, then query NN model for Q values
+        # When using target NN, query it, otherwise main network should be queried
+        new_states = np.array([transition.new_state for transition in minibatch])
+        future_qs_list = self.target_model.predict(new_states)
+
+        X = []
+        y = []
+
+        for index, transition in enumerate(minibatch):
+            # If not a terminal state, get new q from future states,
+            # otherwise set it to reward
+            if not done:
+                max_future_q = np.max(future_qs_list[index])
+                new_q = transition.reward + DISCOUNT * max_future_q
+            else:
+                new_q = transition.reward
+
+            # Update Q value for given state
+            current_qs = current_qs_list[index]
+            current_qs[action] = new_q
+
+            # Append to our training data
+            X.append(current_state)
+            y.append(current_qs)
+
+        # Fit on all samples as one batch
+        self.model.fit(np.array(X), np.array(y), batch_size=MINIBATCH_SIZE, verbose=0, shuffle=False)
+
+        # Update target network counter every episode
+        if terminal_state:
+            self.target_update_counter += 1
+
+        # If counter reaches set value, update target NN with weights of
+        # main NN
+        if self.target_update_counter > UPDATE_TARGET_EVERY:
+            self.target_model.set_weights(self.model.get_weights())
+            self.target_update_counter = 0
 
 
 class Transition:
-    def __init__(self, state, action, reward, new_state, done_status):
-        self.state = state
+    def __init__(self, current_state, action, reward, new_state, done_status):
+        self.current_state = current_state
         self.action = action
         self.reward = reward
         self.new_state = new_state
