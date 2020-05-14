@@ -40,7 +40,7 @@ MIN_REPLAY_MEMORY_SIZE = 1_000
 def main():
     agent = Agent()
 
-    for episodes in range(1, EPISODES + 1):
+    for _ in range(EPISODES):
         # Reset episode reward and step number
         episode_reward = 0
         step = 1
@@ -121,7 +121,8 @@ class Agent:
         #
         # filters: (integer) the dimensionality of the output space. Here for
         # each pixel there will be generated 256 features.
-        model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3), input_shape=(1, BOARD_HEIGHT, BOARD_WIDTH, 1)))
+        model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3),
+            input_shape=(BOARD_HEIGHT, BOARD_WIDTH, 1)))
         model.add(tf.keras.layers.Activation(activation='relu'))
         model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
         model.add(tf.keras.layers.Dropout(rate=0.2))
@@ -137,7 +138,8 @@ class Agent:
         model.add(tf.keras.layers.Dense(units=ACTION_SPACE_SIZE, activation='linear'))
 
         # Compile model
-        model.compile(optimizer=Adam(lr=0.001), loss='mse', metrics=['accuracy'])
+        model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.001), loss='mse',
+            metrics=['accuracy'])
 
         return model
 
@@ -147,7 +149,9 @@ class Agent:
 
     def get_qs(self, state):
         """
-        Queries main NN model for Q values given current observation (state)."""
+        Queries main NN model for Q values given current observation (state).
+        Also change shape from (1, ACTION_SPACE_SIZE) to (ACTION_SPACE_SIZE).
+        """
         return self.model.predict(np.array(state))[0]
 
     def train(self, terminal_state):
@@ -191,7 +195,7 @@ class Agent:
             y.append(current_qs)
 
         # Fit on all samples as one batch
-        self.model.fit(np.array(X), np.array(y), batch_size=MINIBATCH_SIZE, verbose=0, shuffle=False)
+        self.model.fit(x=np.array(X), y=np.array(y), batch_size=MINIBATCH_SIZE, verbose=0, shuffle=False)
 
         # Update target network counter every episode
         if terminal_state:
