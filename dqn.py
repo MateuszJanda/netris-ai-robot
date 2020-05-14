@@ -25,6 +25,7 @@ Useful links:
 
 import tensorflow as tf
 import numpy as np
+import random
 from collections import deque
 
 
@@ -68,7 +69,7 @@ def main():
             if SHOW_PREVIEW and not episode % AGGREGATE_STATS_EVERY:
                 env.render()
 
-            # Every step we update replay memory and train main network
+            # Every step update replay memory and train main NN model
             transition = Transition(current_state, action, reward, new_state, done_status)
             agent.update_replay_memory(transition)
             agent.train(done_status)
@@ -82,7 +83,6 @@ def main():
             average_reward = sum(ep_rewards[-AGGREGATE_STATS_EVERY:])/len(ep_rewards[-AGGREGATE_STATS_EVERY:])
             min_reward = min(ep_rewards[-AGGREGATE_STATS_EVERY:])
             max_reward = max(ep_rewards[-AGGREGATE_STATS_EVERY:])
-            agent.tensorboard.update_stats(reward_avg=average_reward, reward_min=min_reward, reward_max=max_reward, epsilon=epsilon)
 
             # Save model, but only when min reward is greater or equal a set value
             if min_reward >= MIN_REWARD:
@@ -100,7 +100,7 @@ class Agent:
         # Main NN model
         self.model = self.create_model()
 
-        # Target NN network
+        # Target NN model
         self.target_model = self.create_model()
         self.target_model.set_weights(self.model.get_weights())
 
@@ -113,14 +113,15 @@ class Agent:
     def create_model(self):
          model = tf.keras.models.Sequential()
 
-        # https://missinglink.ai/guides/tensorflow/tensorflow-conv2d-layers-practical-guide/
-        # https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D#arguments
+        # Conv2D:
+        # - https://missinglink.ai/guides/tensorflow/tensorflow-conv2d-layers-practical-guide/
+        # - https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D#arguments
         #
-        # input_shape: tensor input become 4D:
-        # [batch_size, input_height, input_width, input_channels]
+        # input_shape: tensor input become 4D: [batch_size, input_height, input_width, input_channels]
+        #   when layer is added to model batch_size is not needed.
         #
         # filters: (integer) the dimensionality of the output space. Here for
-        # each pixel there will be generated 256 features.
+        #   each pixel there will be generated 256 features.
         model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3),
             input_shape=(BOARD_HEIGHT, BOARD_WIDTH, 1)))
         model.add(tf.keras.layers.Activation(activation='relu'))
@@ -150,11 +151,12 @@ class Agent:
     def get_qs(self, state):
         """
         Queries main NN model for Q values given current observation (state).
-        Also change shape from (1, ACTION_SPACE_SIZE) to (ACTION_SPACE_SIZE).
+        Also flatten output - from (1, ACTION_SPACE_SIZE) shape to
+        (ACTION_SPACE_SIZE,)
         """
         return self.model.predict(np.array(state))[0]
 
-    def train(self, terminal_state):
+    def train(self, done_status):
         """Trains main NN model every step during episode."""
 
         # Start training only if certain number of samples is already saved in
@@ -174,15 +176,16 @@ class Agent:
         new_states = np.array([transition.new_state for transition in minibatch])
         future_qs_list = self.target_model.predict(new_states)
 
-        X = []
-        y = []
+        # Input (x), and output (y) for traning
+        states = []
+        qs = []
 
         for index, transition in enumerate(minibatch):
-            # If not a terminal state, get new q from future states,
-            # otherwise set it to reward
+            # If not a terminal state then get new Q from future states
             if not transition.done_status:
                 max_future_q = np.max(future_qs_list[index])
                 new_q = transition.reward + DISCOUNT * max_future_q
+            # Otherwise set to new Q reward
             else:
                 new_q = transition.reward
 
@@ -190,20 +193,20 @@ class Agent:
             current_qs = current_qs_list[index]
             current_qs[action] = new_q
 
-            # Append to our training data
-            X.append(current_state)
-            y.append(current_qs)
+            # Append to training data
+            states.append(current_state)
+            qs.append(current_qs)
 
         # Fit on all samples as one batch
-        self.model.fit(x=np.array(X), y=np.array(y), batch_size=MINIBATCH_SIZE, verbose=0, shuffle=False)
+        self.model.fit(x=np.array(states), y=np.array(qs), batch_size=MINIBATCH_SIZE,
+            verbose=0, shuffle=False)
 
-        # Update target network counter every episode
-        if terminal_state:
+        # Update target NN counter every episode
+        if done_status:
             self.target_update_counter += 1
 
-        # If counter reaches set value, update target NN with weights of
-        # main NN
-        if self.target_update_counter > UPDATE_TARGET_EVERY:
+        # Update weights every UPDATE_TARGET end games
+        if self.target_update_counter > UPDATE_TARGET:
             self.target_model.set_weights(self.model.get_weights())
             self.target_update_counter = 0
 
