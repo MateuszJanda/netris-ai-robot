@@ -15,6 +15,12 @@ Useful links:
     Volodymyr Mnih, Koray Kavukcuoglu, David Silver, Alex Graves,
     Ioannis Antonoglou, Daan Wierstra, Martin Riedmiller; DeepMind Technologies
     https://arxiv.org/pdf/1312.5602.pdf
+- "Human-level control through deep reinforcement learning" by
+    Volodymyr Mnih, Koray Kavukcuoglu, David Silver, Andrei A. Rusu, Joel Veness,
+    Marc G. Bellemare, Alex Graves, Martin Riedmiller, Andreas K. Fidjeland,
+    Georg Ostrovski, Stig Petersen, Charles Beattie, Amir Sadik, Ioannis Antonoglou,
+    Helen King, Dharshan Kumaran, Daan Wierstra, Shane Legg & Demis Hassabis
+    https://web.stanford.edu/class/psych209/Readings/MnihEtAlHassibis15NatureControlDeepRL.pdf
 - "Training Deep Q Learning and Deep Q Networks (DQN) Intro and Agent -
     Reinforcement Learning w/ Python Tutorial" by Harrison Kinsley
     https://pythonprogramming.net/training-deep-q-learning-dqn-reinforcement-learning-python-tutorial/
@@ -104,7 +110,7 @@ class Agent:
         self.target_model = self.create_model()
         self.target_model.set_weights(self.model.get_weights())
 
-        # An array with last n steps for training
+        # An array with last REPLAY_MEMORY_SIZE steps for training
         self.replay_memory = deque(maxlen=REPLAY_MEMORY_SIZE)
 
         # Used to count when to update target NN with main NN weights
