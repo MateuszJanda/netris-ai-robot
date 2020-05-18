@@ -59,12 +59,10 @@ def main():
         done_status = False
         while not done_status:
 
-            # This part stays mostly the same, the change is to query a model for Q values
+            # Explore other actions with probability epsilon
             if np.random.random() > epsilon:
-                # Get action from Q table
                 action = np.argmax(agent.get_qs(current_state))
             else:
-                # Get random action
                 action = np.random.randint(0, env.ACTION_SPACE_SIZE)
 
             new_state, reward, done_status = env.step(action)
