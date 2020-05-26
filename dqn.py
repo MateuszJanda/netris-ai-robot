@@ -49,12 +49,12 @@ REPLAY_MEMORY_SIZE = 50_000     # Last steps kept for model training
 MIN_REPLAY_MEMORY_SIZE = 1_000  # Minimum number of steps in a memory to start training
 
 MINIBATCH_SIZE = 64             # How many steps (samples) to use for training
-UPDATE_TARGET = 5               # Copy weights, when counter reaches this value
+UPDATE_TARGET = 5               # Copy weights every UPDATE_TARGET finished games
 
 EPISODES = 20_000               # Episodes == full games
 
 # Exploration settings
-EPSILON_DECAY = 0.99975         # Try/explore other actions to escape local minimum
+EPSILON_DECAY = 0.999           # Try/explore other actions to escape local minimum
 MIN_EPSILON = 0.001
 
 
@@ -71,8 +71,8 @@ def main():
 
         # Reset flag and start iterating until episode ends
         done_status = False
-        while not done_status:
 
+        while not done_status:
             # Explore other actions with probability epsilon
             if np.random.random() > epsilon:
                 action = np.argmax(agent.get_qs(current_state))
