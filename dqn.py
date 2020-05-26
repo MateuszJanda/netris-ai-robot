@@ -34,14 +34,24 @@ import numpy as np
 import random
 from collections import deque
 
-
+# Netris/environment parameters
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 20
-
 ACTION_SPACE_SIZE = 4*10
 
-REPLAY_MEMORY_SIZE = 50_000
-MIN_REPLAY_MEMORY_SIZE = 1_000
+# DQN parameters
+DISCOUNT = 0.99                 # Gamma (𝛾) parameter from Bellman equation
+REPLAY_MEMORY_SIZE = 50_000     # Last steps kept for model training
+MIN_REPLAY_MEMORY_SIZE = 1_000  # Minimum number of steps in a memory to start training
+
+MINIBATCH_SIZE = 64             # How many steps (samples) to use for training
+UPDATE_TARGET = 5               # Copy weights, when counter reaches this value
+
+EPISODES = 20_000               # Episodes == full games
+
+# Exploration settings
+EPSILON_DECAY = 0.99975         # Try/explore other actions to escape local minimum
+MIN_EPSILON = 0.001
 
 
 def main():
@@ -50,6 +60,7 @@ def main():
     for _ in range(EPISODES):
         # Reset episode reward
         episode_reward = 0
+        epsilon = 1
 
         # Reset environment and get initial state
         current_state = env.reset()
@@ -68,9 +79,6 @@ def main():
 
             # Transform new continuous state to new discrete state and count reward
             episode_reward += reward
-
-            if SHOW_PREVIEW and not episode % AGGREGATE_STATS_EVERY:
-                env.render()
 
             # Every step update replay memory and train main NN model
             transition = Transition(current_state, action, reward, new_state, done_status)
@@ -109,7 +117,7 @@ class Agent:
         self.target_update_counter = 0
 
     def create_model(self):
-         model = tf.keras.models.Sequential()
+        model = tf.keras.models.Sequential()
 
         # Conv2D:
         # - https://missinglink.ai/guides/tensorflow/tensorflow-conv2d-layers-practical-guide/
@@ -203,7 +211,7 @@ class Agent:
 
 
     def update_weights(self, done_status):
-        """Update weights when counter reach certain value."""
+        """Update weights when counter reaches certain value."""
         # Update target NN counter every episode
         if done_status:
             self.target_update_counter += 1
