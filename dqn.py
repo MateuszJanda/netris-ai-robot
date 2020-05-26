@@ -48,9 +48,8 @@ def main():
     agent = Agent()
 
     for _ in range(EPISODES):
-        # Reset episode reward and step number
+        # Reset episode reward
         episode_reward = 0
-        step = 1
 
         # Reset environment and get initial state
         current_state = env.reset()
@@ -67,7 +66,7 @@ def main():
 
             new_state, reward, done_status = env.step(action)
 
-            # Transform new continous state to new discrete state and count reward
+            # Transform new continuous state to new discrete state and count reward
             episode_reward += reward
 
             if SHOW_PREVIEW and not episode % AGGREGATE_STATS_EVERY:
@@ -79,32 +78,27 @@ def main():
             agent.train(done_status)
 
             current_state = new_state
-            step += 1
 
-        # Append episode reward to a list and log stats (every given number of episodes)
-        ep_rewards.append(episode_reward)
-        if not episode % AGGREGATE_STATS_EVERY or episode == 1:
-            average_reward = sum(ep_rewards[-AGGREGATE_STATS_EVERY:])/len(ep_rewards[-AGGREGATE_STATS_EVERY:])
-            min_reward = min(ep_rewards[-AGGREGATE_STATS_EVERY:])
-            max_reward = max(ep_rewards[-AGGREGATE_STATS_EVERY:])
+            epsilon = adjust_epsilon(epsilon)
 
-            # Save model, but only when min reward is greater or equal a set value
-            if min_reward >= MIN_REWARD:
-                agent.model.save(f'models/{MODEL_NAME}__{max_reward:_>7.2f}max_{average_reward:_>7.2f}avg_{min_reward:_>7.2f}min__{int(time.time())}.model')
 
-        # Decay epsilon
-        if epsilon > MIN_EPSILON:
-            epsilon *= EPSILON_DECAY
-            epsilon = max(MIN_EPSILON, epsilon)
+def adjust_epsilon(epsilon):
+    """Decay epsilon."""
+    if epsilon > MIN_EPSILON:
+        epsilon *= EPSILON_DECAY
+        epsilon = max(MIN_EPSILON, epsilon)
+
+    return epsilon
 
 
 class Agent:
     """DQN agent."""
+
     def __init__(self):
-        # Main NN model
+        # Build main NN model
         self.model = self.create_model()
 
-        # Target NN model
+        # Build target NN model
         self.target_model = self.create_model()
         self.target_model.set_weights(self.model.get_weights())
 
@@ -168,19 +162,19 @@ class Agent:
         if len(self.replay_memory) < MIN_REPLAY_MEMORY_SIZE:
             return
 
-        # Get a minibatch of random samples from replay memory
+        # Get a mini-batch of random samples from replay memory
         minibatch = random.sample(self.replay_memory, MINIBATCH_SIZE)
 
-        # Get current states from minibatch, then query NN model for Q values
+        # Get current states from mini-batch, then query NN model for Q values
         current_states = np.array([transition.current_state for transition in minibatch])
         current_qs_list = self.model.predict(current_states)
 
-        # Get future states from minibatch, then query NN model for Q values
+        # Get future states from mini-batch, then query NN model for Q values
         # When using target NN, query it, otherwise main network should be queried
         new_states = np.array([transition.new_state for transition in minibatch])
         future_qs_list = self.target_model.predict(new_states)
 
-        # Input (x), and output (y) for traning
+        # Input (x), and output (y) for training
         states = []
         qs = []
 
@@ -205,6 +199,11 @@ class Agent:
         self.model.fit(x=np.array(states), y=np.array(qs), batch_size=MINIBATCH_SIZE,
             verbose=0, shuffle=False)
 
+        self.update_weights(done_status)
+
+
+    def update_weights(self, done_status):
+        """Update weights when counter reach certain value."""
         # Update target NN counter every episode
         if done_status:
             self.target_update_counter += 1
