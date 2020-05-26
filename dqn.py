@@ -27,6 +27,10 @@ Useful links:
 - https://www.quora.com/Artificial-Intelligence-What-is-an-intuitive-explanation-of-how-deep-Q-networks-DQN-work
 - "How to use Q Learning in Video Games Easily" by Siraj Raval
     https://www.youtube.com/watch?v=A5eihauRQvo
+- Q-learning
+    https://en.wikipedia.org/wiki/Q-learning#Algorithm
+- Bellman equation
+    https://en.wikipedia.org/wiki/Bellman_equation
 """
 
 import tensorflow as tf
@@ -187,7 +191,7 @@ class Agent:
         qs = []
 
         for index, transition in enumerate(minibatch):
-            # If not a terminal state then get new Q from future states
+            # If not a terminal state then get new Q from future states (Bellman equation)
             if not transition.done_status:
                 max_future_q = np.max(future_qs_list[index])
                 new_q = transition.reward + DISCOUNT * max_future_q
