@@ -10,12 +10,12 @@ Ad maiorem Dei gloriam
 Supervised Learning
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import pickle
 import random
 import numpy as np
 import tensorflow as tf
+import datetime
 
 
 BOARD_SIZE = 20*10
@@ -36,8 +36,12 @@ def main():
     x_train, y_shift_train, y_rotate_train, \
         x_test, y_shift_test, y_rotate_test = load_data()
 
+    # TensorBoard settings
+    log_dir = "tf_logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+
     # Fit model
-    model.fit(x=x_train, y=[y_shift_train, y_rotate_train], epochs=45)
+    model.fit(x=x_train, y=[y_shift_train, y_rotate_train], epochs=45, callbacks=[tensorboard_callback])
 
     # Evaluate model with test data
     print("\nEvaluate:")
