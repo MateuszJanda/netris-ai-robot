@@ -201,7 +201,7 @@ def main():
     try:
         command_loop(robot)
     finally:
-        if log_name:
+        if args.log_name:
             LOG_FILE.close()
 
 
@@ -259,7 +259,7 @@ def parse_args():
     args = parser.parse_args()
     if args.log_file:
         args.log_name = create_log_name()
-    elif largs.log_terminal:
+    elif args.log_terminal:
         args.log_name = args.log_terminal
     else:
         args.log_name = None
