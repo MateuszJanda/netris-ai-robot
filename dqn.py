@@ -10,7 +10,7 @@ Ad maiorem Dei gloriam
 """
 Reinforcement learning - Deep Q-Network/Learning.
 
-Useful links:
+Credits:
 - "Playing Atari with Deep Reinforcement Learning" by
     Volodymyr Mnih, Koray Kavukcuoglu, David Silver, Alex Graves,
     Ioannis Antonoglou, Daan Wierstra, Martin Riedmiller; DeepMind Technologies
