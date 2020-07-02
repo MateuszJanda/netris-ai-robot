@@ -11,7 +11,7 @@ import sys
 import time
 import datetime
 import argparse
-import supervised_learning
+import supervised_learning as sl
 import numpy as np
 import tensorflow as tf
 
@@ -66,7 +66,7 @@ class Robot:
     }
 
     def __init__(self):
-        self.model = nn_model.create_model()
+        self.model = sl.create_model()
 
         # checkpoint_path = "checkpoints/only_wins/cp.cpkt"
         checkpoint_path = "checkpoints/no_gaps/cp.cpkt"
@@ -191,8 +191,8 @@ def main():
 
     global LOG_FILE
 
-    if log_name:
-        LOG_FILE = open(log_name, "w")
+    if args.log_name:
+        LOG_FILE = open(args.log_name, "w")
         sys.stderr = LOG_FILE
     elif 'DEBUG_OUT' in globals() and DEBUG_OUT:
         LOG_FILE = open(DEBUG_OUT, "w")
@@ -242,17 +242,18 @@ def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
         description='Netris robot using neural network model from supervisedlearning\n'
-              'Please try to use -h, --help for more informations',
+                'Mateusz Janda (c) <mateusz janda at gmail com>\n'
+                'netris-ai-robot project github.com/MateuszJanda/sloper\n',
+        usage='Please try to use -h, --help for more informations',
         epilog='',
         formatter_class=CustomFormatter)
 
-
-    group = parser.add_mutually_exclusive_group()
+    group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument('-l', '--log-to-file', required=False, action='store_true', dest='log_file',
-                       help='Log to file - robot_%Y%m%d%H%M%S.txt')
+                       help='Log to file - robot_%%Y%%m%%d%%H%%M%%S.txt')
 
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-t', '--log-in-terminal', required=False, metavar='/dev/pts/1', dest='log_terminal',
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument('-t', '--log-in-terminal', required=False, metavar='<pts>', dest='log_terminal',
                        help='Log in terminal - e.g. /dev/pts/1')
 
     args = parser.parse_args()
