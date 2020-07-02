@@ -6,12 +6,12 @@ Site: github.com/MateuszJanda
 Ad maiorem Dei gloriam
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 import sys
 import time
 import datetime
-import nn_model
+import argparse
+import supervised_learning
 import numpy as np
 import tensorflow as tf
 
@@ -186,7 +186,7 @@ class Robot:
 
 
 def main():
-    log_name = parse_args()
+    args = parse_args()
     robot = Robot()
 
     global LOG_FILE
@@ -234,14 +234,36 @@ def command_loop(robot):
             break
 
 
+class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
+    pass
+
+
 def parse_args():
     """Parse command line arguments."""
-    if len(sys.argv) == 2 and sys.argv[1] == "-l":
-        return create_log_name()
-    elif len(sys.argv) == 3 and sys.argv[1] == "-t":
-        return sys.argv[2]
+    parser = argparse.ArgumentParser(
+        description='Netris robot using neural network model from supervisedlearning\n'
+              'Please try to use -h, --help for more informations',
+        epilog='',
+        formatter_class=CustomFormatter)
 
-    return None
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-l', '--log-to-file', required=False, action='store_true', dest='log_file',
+                       help='Log to file - robot_%Y%m%d%H%M%S.txt')
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-t', '--log-in-terminal', required=False, metavar='/dev/pts/1', dest='log_terminal',
+                       help='Log in terminal - e.g. /dev/pts/1')
+
+    args = parser.parse_args()
+    if args.log_file:
+        args.log_name = create_log_name()
+    elif largs.log_terminal:
+        args.log_name = args.log_terminal
+    else:
+        args.log_name = None
+
+    return args
 
 
 def create_log_name():

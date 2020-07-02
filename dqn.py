@@ -73,11 +73,11 @@ def main():
         done_status = False
 
         while not done_status:
-            # Explore other actions with probability epsilon
+            # Explore other actions with probability 1 - epsilon
             if np.random.random() > epsilon:
                 action = np.argmax(agent.get_qs(current_state))
             else:
-                action = np.random.randint(0, env.ACTION_SPACE_SIZE)
+                action = np.random.randint(0, ACTION_SPACE_SIZE)
 
             new_state, reward, done_status = env.step(action)
 
