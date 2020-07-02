@@ -1,11 +1,10 @@
 
 ## Example
-Run server
+Run game and wait for **robot**
 ```bash
 netris -w
 ```
-
-Run **robot** client
+Connect **robot** to server as second player
 ```bash
 netris -c localhost -r './robot.py --log-to-file'
 ```
