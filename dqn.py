@@ -38,6 +38,7 @@ import numpy as np
 import random
 from collections import deque
 
+
 # Netris/environment parameters
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 20

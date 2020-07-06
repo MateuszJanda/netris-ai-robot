@@ -150,7 +150,7 @@ class RobotProxy(asyncio.Protocol):
         log('Connection from DQN agent')
         self.transport = transport
 
-        # Init game, send firt command - version
+        # Init game, send firt command (version)
         self._send_netris_cmd("Version 1")
         self.loop.create_task(self._wait_for_netrs_cmd())
 
@@ -243,20 +243,45 @@ class RobotProxy(asyncio.Protocol):
         # Send board to agent if this is new piece
         cmd_out = []
         if self.fresh_piece and y == TOP_LINE:
-            piece = self._extract_piece(params)
-            self._send_board_to_agent(piece)
+            self.send_update_to_agent(params[2:])
             self.fresh_piece = False
             # self._print_board()
 
         return True, []
 
-    def _extract_piece(self, params):
+    def send_update_to_agent(self, top_row):
+        norm_board = self._normalized_board(top_row)
+
+        score = ""
+        game_is_over = ""
+        board = "".join([("%0.2f " % val) for val in norm_board])
+
+        report = score + " " game_is_over + " " + board
+
+        self.transport.write(report.encode())
+
+    def _normalized_board(self, top_row):
+        norm_piece = self._normalized_piece(top_row)
+
+        # Combine board with normalized piece
+        norm_board = np.copy(self.board)
+        for x, color_type in enumerate(top_row):
+            if color_type < 0:
+                norm_board[0][x] = norm_piece
+
+        return norm_board.flatten()
+
+    def _normalized_piece(self, top_row):
         """Extract new piece (order number) from row."""
-        for color_type in params[2:]:
+        for color_type in top_row:
             # Block of moving piece have negative values
             if color_type < 0:
                 log("Extracted piece:", self._piece_name_by_color(color_type))
-                return self.COLOR_TO_PIECE[color_type]
+                piece = self.COLOR_TO_PIECE[color_type]
+                # All pieces with full block
+                all_pieces = len(self.PIECE_TO_PIECE_ID) + 1
+                # Piece +1 because 0 is for "empty block"
+                return (piece + 1) / all_pieces
 
         raise Exception("Missing new piece.")
         return None
@@ -266,11 +291,7 @@ class RobotProxy(asyncio.Protocol):
         piece_id = self.PIECE_TO_PIECE_ID[piece]
         return self.PIECE_ID_TO_NAME[piece_id]
 
-    def _send_board_to_agent(self, piece):
-        piece += 1
 
-
-        self.transport.write(reply.encode())
 
     # def _action_commands(self, piece):
     #     """Determine next robot move."""
