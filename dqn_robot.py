@@ -165,6 +165,7 @@ class RobotProxy(asyncio.Protocol):
         """Send command to server."""
         log("[<] " + cmd)
         sys.stdout.write(cmd + "\n")
+        sys.stdout.flush()
 
     def data_received(self, data):
         """Data received from DQN agent, determine next robot move."""
