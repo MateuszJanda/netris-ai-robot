@@ -66,6 +66,8 @@ def parse_args():
         description='Netris proxy robot for reinforcement learning (DQN)\n'
                 'Mateusz Janda (c) <mateusz janda at gmail com>\n'
                 'netris-ai-robot project github.com/MateuszJanda/sloper\n',
+                '\n'
+                'Robot is waiting for connection from Agent at 127.0.0.1:9898\n',
         usage='Please try to use -h, --help for more informations',
         epilog='',
         formatter_class=CustomFormatter)
@@ -162,9 +164,26 @@ class RobotProxy(asyncio.Protocol):
         sys.stdout.write(cmd + "\n")
 
     def data_received(self, data):
-        """Data received from DQN agent."""
-        message = data.decode()
-        log('Data received: {!r}'.format(message))
+        """Data received from DQN agent, determine next robot move."""
+        shift, rotate = [int(d) for d in data.decode().split()]
+        log('Data received: shift %d, rotate %d', shift, rotate)
+
+        cmd_out = []
+        if shift < 0:
+            while shift != 0:
+                cmd_out.append("Left " + self.sequence_num)
+                shift += 1
+        elif shift > 0:
+            while shift != 0:
+                cmd_out.append("Right " + self.sequence_num)
+                shift -= 1
+
+        while rotate != 0:
+            cmd_out.append("Rotate " + self.sequence_num)
+            rotate -= 1
+
+        cmd_out.append("Drop " + self.sequence_num)
+        return cmd_out
 
     async def _wait_for_robot_cmd(self):
         """Wait for command from stdin."""
@@ -172,6 +191,7 @@ class RobotProxy(asyncio.Protocol):
         self._handle_command(command)
 
     def _handle_command(self, command):
+        """Handle Netris (RobotCmd) commands."""
         handlers = {
             "Ext:LinesCleared" : self._handle_cmd_lines_cleared,
             "Exit" : self._handle_cmd_exit,
@@ -263,6 +283,7 @@ class RobotProxy(asyncio.Protocol):
         return True, []
 
     def _send_update_to_agent(self, top_row, game_is_over):
+        """Send update to DQN agent."""
         norm_board = self._normalized_board(top_row)
         board = "".join([("%0.2f " % val) for val in norm_board])
 
@@ -273,6 +294,7 @@ class RobotProxy(asyncio.Protocol):
         self.transport.write(report.encode())
 
     def _normalized_board(self, top_row):
+        """Create flat board with normalized values."""
         norm_piece = self._normalized_piece(top_row)
 
         # Combine board with normalized piece
@@ -298,43 +320,10 @@ class RobotProxy(asyncio.Protocol):
         return None
 
     def _piece_name_by_color(color_type):
+        """Convert color id to piece name."""
         piece = self.COLOR_TO_PIECE[color_type]
         piece_id = self.PIECE_TO_PIECE_ID[piece]
         return self.PIECE_ID_TO_NAME[piece_id]
-
-
-
-    # def _action_commands(self, piece):
-    #     """Determine next robot move."""
-    #     shift, rotate = self._predict_action(piece)
-
-    #     cmd_out = []
-    #     if shift < 0:
-    #         while shift != 0:
-    #             cmd_out.append("Left " + self.sequence_num)
-    #             shift += 1
-    #     elif shift > 0:
-    #         while shift != 0:
-    #             cmd_out.append("Right " + self.sequence_num)
-    #             shift -= 1
-
-    #     while rotate != 0:
-    #         cmd_out.append("Rotate " + self.sequence_num)
-    #         rotate -= 1
-
-    #     cmd_out.append("Drop " + self.sequence_num)
-    #     return cmd_out
-
-    # def _predict_action(self, piece):
-    #     """Prediction action by piece and current board state."""
-    #     normalized_piece = piece / (len(self.COLOR_TO_PIECE) - 1)
-    #     x_data = np.array([np.concatenate(([normalized_piece], self.board.flatten()))])
-
-    #     y_shift, y_rotate = self.model.predict(x_data)
-    #     shift = np.argmax(y_shift) - SHFIT_OFFSET
-    #     rotate = np.argmax(y_rotate)
-
-    #     return shift, rotate
 
     def _print_board(self):
         """Print current board state. For debug only."""
