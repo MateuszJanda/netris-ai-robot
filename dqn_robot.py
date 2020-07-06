@@ -170,7 +170,7 @@ class RobotProxy(asyncio.Protocol):
     def data_received(self, data):
         """Data received from DQN agent, determine next robot move."""
         shift, rotate = [int(d) for d in data.decode().split()]
-        log('Data received: shift %d, rotate %d', shift, rotate)
+        log('Data received: shift: %d, rotate: %d' % (shift, rotate))
 
         cmd_out = []
         if shift < 0:
@@ -187,7 +187,8 @@ class RobotProxy(asyncio.Protocol):
             rotate -= 1
 
         cmd_out.append("Drop " + self.sequence_num)
-        return cmd_out
+        for c in cmd_reponses:
+            self._send_robot_cmd(c)
 
     async def _wait_for_robot_cmd(self):
         """Wait for command from stdin."""
@@ -298,7 +299,6 @@ class RobotProxy(asyncio.Protocol):
 
         report = str(game_is_over) + " " + score + " " + board + "\n"
         self.transport.write(report.encode())
-        log('Write')
 
     def _normalized_board(self, top_row):
         """Create flat board with normalized values."""
