@@ -61,6 +61,7 @@ MIN_EPSILON = 0.001
 
 def main():
     agent = Agent()
+    env = Environment()
 
     for _ in range(EPISODES):
         # Reset episode reward
@@ -102,6 +103,20 @@ def adjust_epsilon(epsilon):
         epsilon = max(MIN_EPSILON, epsilon)
 
     return epsilon
+
+
+class Environment:
+    def reset(self):
+        pass
+
+    def step(self, action):
+        if action >= ACTION_SPACE_SIZE:
+            raise Exception("Action not in action space")
+
+        shift = action % BOARD_WIDTH - SHFIT_OFFSET
+        rotate = action // BOARD_WIDTH
+
+        return None
 
 
 class Agent:
