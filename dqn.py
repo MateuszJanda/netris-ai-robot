@@ -73,7 +73,7 @@ def main():
         learn(env, agent)
 
 
-def learn(evn, agent):
+def learn(env, agent):
     """Learn though episodes."""
     for _ in range(EPISODES):
         play_one_game(env, agent)
@@ -148,7 +148,7 @@ class Environment:
     def _recevie_data(self):
         data = bytes()
         while True:
-            data += conn.recv(1024)
+            data += self.sock.recv(1024)
 
             if b'\n' in data:
                 break

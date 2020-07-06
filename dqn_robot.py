@@ -203,12 +203,12 @@ class RobotProxy(asyncio.Protocol):
             "RowUpdate" : self._handle_cmd_row_update,
         }
 
-        name = cmd.split(" ")[0]
+        name = command.split(" ")[0]
         if name not in handlers:
             self.loop.create_task(self._wait_for_robot_cmd())
             return
 
-        params = cmd.split(" ")[1:]
+        params = command.split(" ")[1:]
         continue_loop, cmd_reponses = handlers[name](params)
 
         for c in cmd_reponses:
