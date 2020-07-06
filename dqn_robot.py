@@ -37,7 +37,7 @@ def main():
 
     # Start monitoring the fd file descriptor for read availability and invoke
     # callback with the specified arguments once fd is available for reading
-    loop.add_reader(sys.stdin, got_netris_data, loop, queue)
+    loop.add_reader(sys.stdin, got_robot_cmd, loop, queue)
 
     coroutine = loop.create_server(lambda: RobotProxy(loop, queue), '127.0.0.1', 9898)
     server = loop.run_until_complete(coroutine)
@@ -99,8 +99,8 @@ def setup_logging(args):
         sys.stderr = LOG_FILE
 
 
-def got_netris_data(loop, queue):
-    """Setup task waiting for Netris commands."""
+def got_robot_cmd(loop, queue):
+    """Setup task waiting for Netris/Robot commands."""
     loop.create_task(queue.put(sys.stdin.readline()))
 
 
@@ -152,11 +152,11 @@ class RobotProxy(asyncio.Protocol):
         log('Connection from DQN agent')
         self.transport = transport
 
-        # Init game, send firt command (version)
-        self._send_netris_cmd("Version 1")
-        self.loop.create_task(self._wait_for_netrs_cmd())
+        # Init game, send first command (version)
+        self._send_robot_cmd("Version 1")
+        self.loop.create_task(self._wait_for_robot_cmd())
 
-    def _send_netris_cmd(self, cmd):
+    def _send_robot_cmd(self, cmd):
         """Send command to server."""
         # log("[<] " + cmd)
         sys.stdout.write(cmd + "\n")
@@ -166,7 +166,7 @@ class RobotProxy(asyncio.Protocol):
         message = data.decode()
         log('Data received: {!r}'.format(message))
 
-    async def _wait_for_netrs_cmd(self):
+    async def _wait_for_robot_cmd(self):
         """Wait for command from stdin."""
         command = await self.queue.get()
         self._handle_command(command)
@@ -182,19 +182,19 @@ class RobotProxy(asyncio.Protocol):
 
         name = cmd.split(" ")[0]
         if name not in handlers:
-            self.loop.create_task(self._wait_for_netrs_cmd())
+            self.loop.create_task(self._wait_for_robot_cmd())
             return
 
         params = cmd.split(" ")[1:]
         continue_loop, cmd_reponses = handlers[name](params)
 
         for c in cmd_reponses:
-            self._send_netris_cmd(c)
+            self._send_robot_cmd(c)
 
         if not continue_loop:
             return
 
-        self.loop.create_task(self._wait_for_netrs_cmd())
+        self.loop.create_task(self._wait_for_robot_cmd())
 
     def _handle_cmd_lines_cleared(self, params):
         """Handle Ext:LinesCleared - available only in modified Netris."""
