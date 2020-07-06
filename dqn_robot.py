@@ -65,11 +65,11 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='Netris proxy robot for reinforcement learning (DQN)\n'
                 'Mateusz Janda (c) <mateusz janda at gmail com>\n'
-                'netris-ai-robot project github.com/MateuszJanda/sloper\n',
+                'netris-ai-robot project github.com/MateuszJanda/sloper\n'
                 '\n'
                 'Robot is waiting for connection from Agent at 127.0.0.1:9898\n',
         usage='Please try to use -h, --help for more informations',
-        epilog='',
+        epilog=' \n',
         formatter_class=CustomFormatter)
 
     group = parser.add_mutually_exclusive_group(required=False)
