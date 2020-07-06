@@ -325,7 +325,7 @@ class RobotProxy(asyncio.Protocol):
 
         return None
 
-    def _piece_name_by_color(color_type):
+    def _piece_name_by_color(self, color_type):
         """Convert color id to piece name."""
         piece = self.COLOR_TO_PIECE[color_type]
         piece_id = self.PIECE_TO_PIECE_ID[piece]
