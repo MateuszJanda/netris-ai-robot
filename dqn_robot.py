@@ -196,7 +196,7 @@ class RobotProxy(asyncio.Protocol):
 
     def _handle_command(self, command):
         """Handle Netris (RobotCmd) commands."""
-        log("[>] " + command)
+        # log("[>] " + command)
 
         handlers = {
             "Ext:LinesCleared" : self._handle_cmd_lines_cleared,
