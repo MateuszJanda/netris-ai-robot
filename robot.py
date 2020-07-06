@@ -212,7 +212,7 @@ def command_loop(robot):
 
     while True:
         cmd = input()
-        # log("[>] " + cmd)
+        log("[>] " + cmd)
 
         name = cmd.split(" ")[0]
         if name not in handler:
@@ -269,8 +269,9 @@ def create_log_name():
 
 def send_command(cmd):
     """Send command to server."""
-    # log("[<] " + cmd)
-    print(cmd)
+    log("[<] " + cmd)
+    # print(cmd)
+    sys.stdout.write(cmd + '\n')
 
 
 def log(*args, **kwargs):

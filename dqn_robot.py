@@ -163,7 +163,7 @@ class RobotProxy(asyncio.Protocol):
 
     def _send_robot_cmd(self, cmd):
         """Send command to server."""
-        # log("[<] " + cmd)
+        log("[<] " + cmd)
         sys.stdout.write(cmd + "\n")
 
     def data_received(self, data):
@@ -195,6 +195,8 @@ class RobotProxy(asyncio.Protocol):
 
     def _handle_command(self, command):
         """Handle Netris (RobotCmd) commands."""
+        log("[>] " + command)
+
         handlers = {
             "Ext:LinesCleared" : self._handle_cmd_lines_cleared,
             "Exit" : self._handle_cmd_exit,
