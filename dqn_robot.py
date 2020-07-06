@@ -38,7 +38,7 @@ def main():
     # callback with the specified arguments once fd is available for reading
     loop.add_reader(sys.stdin, got_stdin_data, loop, queue)
 
-    coroutine = loop.create_server(lambda: RobotProxy(queue), '127.0.0.1', 9898)
+    coroutine = loop.create_server(lambda: RobotProxy(loop, queue), '127.0.0.1', 9898)
     server = loop.run_until_complete(coroutine)
 
     # CTRL+C to quit
@@ -134,7 +134,8 @@ class RobotProxy(asyncio.Protocol):
     #     17: "red Z",
     # }
 
-    def __init__(self, queue):
+    def __init__(self, loop, queue):
+        self.loop = loop
         self.queue = queue
 
         self.board = np.zeros(shape=(BORAD_HEIGHT, BOARD_WIDTH), dtype=int)
@@ -151,7 +152,7 @@ class RobotProxy(asyncio.Protocol):
 
         # Init game, send firt command - version
         self._send_command("Version 1")
-        loop.create_task(self._wait_for_command())
+        self.loop.create_task(self._wait_for_command())
 
     def _send_command(self, cmd):
         """Send command to server."""
@@ -165,11 +166,11 @@ class RobotProxy(asyncio.Protocol):
 
     async def _wait_for_command(self):
         """Wait for command from stdin."""
-        command = await q.get()
+        command = await self.queue.get()
         self._handle_command(command)
 
     def _handle_command(self, command):
-        handler = {
+        handlers = {
             "Exit" : self._handle_cmd_exit,
             "NewPiece" : self._hanle_cmd_new_pice,
             "BoardSize" : self._handle_cmd_board_size,
@@ -177,8 +178,8 @@ class RobotProxy(asyncio.Protocol):
         }
 
         name = cmd.split(" ")[0]
-        if name not in handler:
-            loop.create_task(self._wait_for_command())
+        if name not in handlers:
+            self.loop.create_task(self._wait_for_command())
             return
 
         params = cmd.split(" ")[1:]
@@ -190,7 +191,7 @@ class RobotProxy(asyncio.Protocol):
         if not continue_loop:
             return
 
-        loop.create_task(self._wait_for_command())
+        self.loop.create_task(self._wait_for_command())
 
 
     def _handle_cmd_exit(self, params):
