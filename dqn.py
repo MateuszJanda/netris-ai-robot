@@ -37,12 +37,16 @@ import tensorflow as tf
 import numpy as np
 import random
 from collections import deque
+import socket
+
 
 
 # Netris/environment parameters
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 20
 ACTION_SPACE_SIZE = 4*10
+HOST = "127.0.0.1"
+PORT = 9898
 
 # DQN parameters
 DISCOUNT = 0.99                 # Gamma (𝛾) parameter from Bellman equation
@@ -60,40 +64,53 @@ MIN_EPSILON = 0.001
 
 
 def main():
-    agent = Agent()
-    env = Environment()
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.connect((HOST, PORT))
 
+        env = Environment(sock)
+        agent = Agent()
+
+        learn(env, agent)
+
+
+def learn(evn, agent):
+    """Learn though episodes."""
     for _ in range(EPISODES):
-        # Reset episode reward
-        episode_reward = 0
-        epsilon = 1
+        play_one_game(env, agent)
 
-        # Reset environment and get initial state
-        current_state = env.reset()
 
-        # Reset flag and start iterating until episode ends
-        done_status = False
+def play_one_game(env, agent):
+    """Play one game."""
+    # Reset episode reward
+    episode_reward = 0
+    epsilon = 1
 
-        while not done_status:
-            # Explore other actions with probability 1 - epsilon
-            if np.random.random() > epsilon:
-                action = np.argmax(agent.get_qs(current_state))
-            else:
-                action = np.random.randint(0, ACTION_SPACE_SIZE)
+    # Reset environment and get initial state
+    current_state = env.reset()
 
-            new_state, reward, done_status = env.step(action)
+    # Reset flag and start iterating until episode ends
+    done_status = False
 
-            # Transform new continuous state to new discrete state and count reward
-            episode_reward += reward
+    while not done_status:
+        # Explore other actions with probability 1 - epsilon
+        if np.random.random() > epsilon:
+            action = np.argmax(agent.get_qs(current_state))
+        else:
+            action = np.random.randint(0, ACTION_SPACE_SIZE)
 
-            # Every step update replay memory and train main NN model
-            transition = Transition(current_state, action, reward, new_state, done_status)
-            agent.update_replay_memory(transition)
-            agent.train(done_status)
+        done_status, reward, new_state = env.step(action)
 
-            current_state = new_state
+        # Transform new continuous state to new discrete state and count reward
+        episode_reward += reward
 
-            epsilon = adjust_epsilon(epsilon)
+        # Every step update replay memory and train main NN model
+        transition = Transition(current_state, action, reward, new_state, done_status)
+        agent.update_replay_memory(transition)
+        agent.train(done_status)
+
+        current_state = new_state
+
+        epsilon = adjust_epsilon(epsilon)
 
 
 def adjust_epsilon(epsilon):
@@ -106,8 +123,13 @@ def adjust_epsilon(epsilon):
 
 
 class Environment:
+    def __init__(self, sock):
+        self.sock = sock
+
     def reset(self):
-        pass
+        done_status, reward, state = self._recevie_data()
+
+        return state
 
     def step(self, action):
         if action >= ACTION_SPACE_SIZE:
@@ -116,7 +138,28 @@ class Environment:
         shift = action % BOARD_WIDTH - SHFIT_OFFSET
         rotate = action // BOARD_WIDTH
 
-        return None
+        message = str(shift) + ' ' + str(rotate) + '\n'
+        self.sock.sendall(message.encode())
+
+        done_status, reward, state = self._recevie_data()
+
+        return done_status, reward, state
+
+    def _recevie_data(self):
+        data = bytes()
+        while True:
+            data += conn.recv(1024)
+
+            if b'\n' in data:
+                break
+
+        done_status, reward, *state = data.decode().split()
+
+        done_status = True if done_status == 'True' else False
+        reward = int(reward)
+        state = np.array([float(val) for val in state])
+
+        return done_status, reward, states
 
 
 class Agent:

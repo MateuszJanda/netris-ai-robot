@@ -15,6 +15,9 @@ import argparse
 import numpy as np
 
 
+HOST = "127.0.0.1"
+PORT = 9898
+
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
 SHFIT_OFFSET = 5
@@ -39,7 +42,7 @@ def main():
     # callback with the specified arguments once fd is available for reading
     loop.add_reader(sys.stdin, got_robot_cmd, loop, queue)
 
-    coroutine = loop.create_server(lambda: RobotProxy(loop, queue), '127.0.0.1', 9898)
+    coroutine = loop.create_server(lambda: RobotProxy(loop, queue), HOST, PORT)
     server = loop.run_until_complete(coroutine)
 
     # CTRL+C to quit
