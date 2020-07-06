@@ -36,7 +36,7 @@ def main():
 
     # Start monitoring the fd file descriptor for read availability and invoke
     # callback with the specified arguments once fd is available for reading
-    loop.add_reader(sys.stdin, got_stdin_data, loop, queue)
+    loop.add_reader(sys.stdin, got_netris_data, loop, queue)
 
     coroutine = loop.create_server(lambda: RobotProxy(loop, queue), '127.0.0.1', 9898)
     server = loop.run_until_complete(coroutine)
@@ -98,41 +98,41 @@ def setup_logging(args):
         sys.stderr = LOG_FILE
 
 
-def got_stdin_data(loop, queue):
+def got_netris_data(loop, queue):
     """Setup task waiting for Netris commands."""
     loop.create_task(queue.put(sys.stdin.readline()))
 
 
 class RobotProxy(asyncio.Protocol):
-    # COLOR_TO_PIECE = {
-    #     1: 4,      # 11
-    #     2: 0,      # 0
-    #     3: 1,      # 2
-    #     4: 2,      # 3
-    #     5: 3,      # 7
-    #     6: 5,      # 15
-    #     7: 6,      # 17
-    # }
+    COLOR_TO_PIECE = {
+        -1: 4,      # Piece Id: 11
+        -2: 0,      # Piece Id: 0
+        -3: 1,      # Piece Id: 2
+        -4: 2,      # Piece Id: 3
+        -5: 3,      # Piece Id: 7
+        -6: 5,      # Piece Id: 15
+        -7: 6,      # Piece Id: 17
+    }
 
-    # PIECE_TO_PIECE_ID = {
-    #     4: 11,
-    #     0: 0,
-    #     1: 2,
-    #     2: 3,
-    #     3: 7,
-    #     5: 15,
-    #     6: 17,
-    # }
+    PIECE_TO_PIECE_ID = {
+        4: 11,
+        0: 0,
+        1: 2,
+        2: 3,
+        3: 7,
+        5: 15,
+        6: 17,
+    }
 
-    # PIECE_ID_TO_NAME = {
-    #     11: "white pyramid",
-    #     0 : "blue log",
-    #     2 : "violet square",
-    #     3 : "azure L",
-    #     7 : "yellow mirror L",
-    #     15: "green S",
-    #     17: "red Z",
-    # }
+    PIECE_ID_TO_NAME = {
+        11: "white pyramid",
+        0 : "blue log",
+        2 : "violet square",
+        3 : "azure L",
+        7 : "yellow mirror L",
+        15: "green S",
+        17: "red Z",
+    }
 
     def __init__(self, loop, queue):
         self.loop = loop
@@ -151,10 +151,10 @@ class RobotProxy(asyncio.Protocol):
         self.transport = transport
 
         # Init game, send firt command - version
-        self._send_command("Version 1")
-        self.loop.create_task(self._wait_for_command())
+        self._send_netris_cmd("Version 1")
+        self.loop.create_task(self._wait_for_netrs_cmd())
 
-    def _send_command(self, cmd):
+    def _send_netris_cmd(self, cmd):
         """Send command to server."""
         # log("[<] " + cmd)
         sys.stdout.write(cmd + "\n")
@@ -164,7 +164,7 @@ class RobotProxy(asyncio.Protocol):
         message = data.decode()
         log('Data received: {!r}'.format(message))
 
-    async def _wait_for_command(self):
+    async def _wait_for_netrs_cmd(self):
         """Wait for command from stdin."""
         command = await self.queue.get()
         self._handle_command(command)
@@ -179,19 +179,19 @@ class RobotProxy(asyncio.Protocol):
 
         name = cmd.split(" ")[0]
         if name not in handlers:
-            self.loop.create_task(self._wait_for_command())
+            self.loop.create_task(self._wait_for_netrs_cmd())
             return
 
         params = cmd.split(" ")[1:]
-        continue_loop, cmd_reponses = handler[name](params)
+        continue_loop, cmd_reponses = handlers[name](params)
 
         for c in cmd_reponses:
-            self._send_command(c)
+            self._send_netris_cmd(c)
 
         if not continue_loop:
             return
 
-        self.loop.create_task(self._wait_for_command())
+        self.loop.create_task(self._wait_for_netrs_cmd())
 
 
     def _handle_cmd_exit(self, params):
@@ -223,7 +223,7 @@ class RobotProxy(asyncio.Protocol):
 
     def _handle_cmd_row_update(self, params):
         """
-        Handle RowUpdate command from server. Update board, this is the moment
+        Handle RowUpdate command from server. Update board. This is the moment
         when action can be taken for new piece.
         """
         params = [int(p) for p in params]
@@ -233,67 +233,76 @@ class RobotProxy(asyncio.Protocol):
             return True, []
 
         y = params[1]
-        # Server inform about switch from piece block to fixed block starting
+        # Server inform about switch from "piece block" to "fixed block" starting
         # from second RowUpdate command after NewPiece command. This is to late,
         # for prediction, so better is assume that first line is always empty.
         if y != TOP_LINE:
             for x, val in enumerate(params[2:]):
                 self.board[BORAD_HEIGHT - 1 - y][x] = FULL_BLOCK if val else EMPTY_BLOCK
 
-        # Take action if this is new piece
+        # Send board to agent if this is new piece
         cmd_out = []
         if self.fresh_piece and y == TOP_LINE:
             piece = self._extract_piece(params)
-            cmd_out = self._action_commands(piece)
+            self._send_board_to_agent(piece)
             self.fresh_piece = False
             # self._print_board()
 
-        return True, cmd_out
+        return True, []
 
     def _extract_piece(self, params):
-        """Extract new piece order number from row."""
+        """Extract new piece (order number) from row."""
         for color_type in params[2:]:
             # Block of moving piece have negative values
             if color_type < 0:
-                color_type = -color_type
-                log("Extracted piece:", Robot.PIECE_ID_TO_NAME[Robot.PIECE_TO_PIECE_ID[Robot.COLOR_TO_PIECE[color_type]]])
-                return Robot.COLOR_TO_PIECE[color_type]
+                log("Extracted piece:", self._piece_name_by_color(color_type))
+                return self.COLOR_TO_PIECE[color_type]
 
-        log("Missing new piece")
         raise Exception("Missing new piece.")
         return None
 
-    def _action_commands(self, piece):
-        """Determine next robot move."""
-        shift, rotate = self._predict_action(piece)
+    def _piece_name_by_color(color_type):
+        piece = self.COLOR_TO_PIECE[color_type]
+        piece_id = self.PIECE_TO_PIECE_ID[piece]
+        return self.PIECE_ID_TO_NAME[piece_id]
 
-        cmd_out = []
-        if shift < 0:
-            while shift != 0:
-                cmd_out.append("Left " + self.sequence_num)
-                shift += 1
-        elif shift > 0:
-            while shift != 0:
-                cmd_out.append("Right " + self.sequence_num)
-                shift -= 1
+    def _send_board_to_agent(self, piece):
+        piece += 1
 
-        while rotate != 0:
-            cmd_out.append("Rotate " + self.sequence_num)
-            rotate -= 1
 
-        cmd_out.append("Drop " + self.sequence_num)
-        return cmd_out
+        self.transport.write(reply.encode())
 
-    def _predict_action(self, piece):
-        """Prediction action by piece and current board state."""
-        normalized_piece = piece / (len(Robot.COLOR_TO_PIECE) - 1)
-        x_data = np.array([np.concatenate(([normalized_piece], self.board.flatten()))])
+    # def _action_commands(self, piece):
+    #     """Determine next robot move."""
+    #     shift, rotate = self._predict_action(piece)
 
-        y_shift, y_rotate = self.model.predict(x_data)
-        shift = np.argmax(y_shift) - SHFIT_OFFSET
-        rotate = np.argmax(y_rotate)
+    #     cmd_out = []
+    #     if shift < 0:
+    #         while shift != 0:
+    #             cmd_out.append("Left " + self.sequence_num)
+    #             shift += 1
+    #     elif shift > 0:
+    #         while shift != 0:
+    #             cmd_out.append("Right " + self.sequence_num)
+    #             shift -= 1
 
-        return shift, rotate
+    #     while rotate != 0:
+    #         cmd_out.append("Rotate " + self.sequence_num)
+    #         rotate -= 1
+
+    #     cmd_out.append("Drop " + self.sequence_num)
+    #     return cmd_out
+
+    # def _predict_action(self, piece):
+    #     """Prediction action by piece and current board state."""
+    #     normalized_piece = piece / (len(self.COLOR_TO_PIECE) - 1)
+    #     x_data = np.array([np.concatenate(([normalized_piece], self.board.flatten()))])
+
+    #     y_shift, y_rotate = self.model.predict(x_data)
+    #     shift = np.argmax(y_shift) - SHFIT_OFFSET
+    #     rotate = np.argmax(y_rotate)
+
+    #     return shift, rotate
 
     def _print_board(self):
         """Print current board state. For debug only."""
