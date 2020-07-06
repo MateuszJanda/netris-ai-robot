@@ -23,6 +23,7 @@ SCREEN_ID = 0
 TOP_LINE = 19
 EMPTY_BLOCK = 0
 FULL_BLOCK = 1
+EMPTY_LINE = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 LOG_FILE = None
 
@@ -142,6 +143,7 @@ class RobotProxy(asyncio.Protocol):
         self.sequence_num = None
         self.fresh_piece = False
         self.piece = None
+        self.lines_cleared = 0
 
         self.transport = None
 
@@ -171,6 +173,7 @@ class RobotProxy(asyncio.Protocol):
 
     def _handle_command(self, command):
         handlers = {
+            "Ext:LinesCleared" : self._handle_cmd_lines_cleared,
             "Exit" : self._handle_cmd_exit,
             "NewPiece" : self._hanle_cmd_new_pice,
             "BoardSize" : self._handle_cmd_board_size,
@@ -193,9 +196,19 @@ class RobotProxy(asyncio.Protocol):
 
         self.loop.create_task(self._wait_for_netrs_cmd())
 
+    def _handle_cmd_lines_cleared(self, params):
+        """Handle Ext:LinesCleared - available only in modified Netris."""
+        scr, lines_cleared = [int(p) for p in params]
+
+        # Check if data belongs to this robot
+        if params[0] != SCREEN_ID:
+            return True, []
+
+        self.lines_cleared = lines_cleared
 
     def _handle_cmd_exit(self, params):
         """Handle Exit command."""
+        self._send_update_to_agent(top_row=EMPTY_LINE, game_is_over=True)
         return True, []
 
     def _hanle_cmd_new_pice(self, params):
@@ -243,21 +256,20 @@ class RobotProxy(asyncio.Protocol):
         # Send board to agent if this is new piece
         cmd_out = []
         if self.fresh_piece and y == TOP_LINE:
-            self.send_update_to_agent(params[2:])
+            self._send_update_to_agent(top_row=params[2:], game_is_over=False)
             self.fresh_piece = False
             # self._print_board()
 
         return True, []
 
-    def send_update_to_agent(self, top_row):
+    def _send_update_to_agent(self, top_row, game_is_over):
         norm_board = self._normalized_board(top_row)
-
-        score = ""
-        game_is_over = ""
         board = "".join([("%0.2f " % val) for val in norm_board])
 
-        report = score + " " game_is_over + " " + board
+        score = str(self.lines_cleared)
+        self.lines_cleared = 0
 
+        report = str(game_is_over) + " " + score + " " + board
         self.transport.write(report.encode())
 
     def _normalized_board(self, top_row):
@@ -283,7 +295,6 @@ class RobotProxy(asyncio.Protocol):
                 # Piece +1 because 0 is for "empty block"
                 return (piece + 1) / all_pieces
 
-        raise Exception("Missing new piece.")
         return None
 
     def _piece_name_by_color(color_type):

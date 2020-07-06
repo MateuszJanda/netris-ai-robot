@@ -16,9 +16,6 @@ import numpy as np
 import tensorflow as tf
 
 
-# Debug terminal, useful when main terminal is occupied by netris
-DEBUG_OUT = "/dev/pts/1"
-
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
 SHFIT_OFFSET = 5
@@ -193,9 +190,6 @@ def main():
 
     if args.log_name:
         LOG_FILE = open(args.log_name, "w")
-        sys.stderr = LOG_FILE
-    elif 'DEBUG_OUT' in globals() and DEBUG_OUT:
-        LOG_FILE = open(DEBUG_OUT, "w")
         sys.stderr = LOG_FILE
 
     try:
