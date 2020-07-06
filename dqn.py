@@ -45,6 +45,7 @@ import socket
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 20
 ACTION_SPACE_SIZE = 4*10
+SHFIT_OFFSET = 5
 HOST = "127.0.0.1"
 PORT = 9898
 
@@ -127,6 +128,8 @@ class Environment:
         self.sock = sock
 
     def reset(self):
+        """Reset game."""
+        print("Reset game")
         done_status, reward, state = self._recevie_data()
 
         return state
@@ -159,7 +162,7 @@ class Environment:
         reward = int(reward)
         state = np.array([float(val) for val in state])
 
-        return done_status, reward, states
+        return done_status, reward, state
 
 
 class Agent:
