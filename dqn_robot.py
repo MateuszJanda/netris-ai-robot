@@ -187,7 +187,7 @@ class RobotProxy(asyncio.Protocol):
             rotate -= 1
 
         cmd_out.append("Drop " + self.sequence_num)
-        for c in cmd_reponses:
+        for c in cmd_out:
             self._send_robot_cmd(c)
 
     async def _wait_for_robot_cmd(self):
