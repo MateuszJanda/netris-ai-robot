@@ -38,7 +38,7 @@ import numpy as np
 import random
 from collections import deque
 import socket
-
+import time
 
 
 # Netris/environment parameters
@@ -135,6 +135,7 @@ class Environment:
         return state
 
     def step(self, action):
+        tic = time.time()
         if action >= ACTION_SPACE_SIZE:
             raise Exception("Action not in action space")
 
@@ -146,6 +147,8 @@ class Environment:
 
         done_status, reward, state = self._recevie_data()
 
+        delay = time.time() - tic
+        print("Step delay", delay)
         return done_status, reward, state
 
     def _recevie_data(self):

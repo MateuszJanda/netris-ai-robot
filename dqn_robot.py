@@ -50,13 +50,14 @@ def main():
         loop.run_forever()
     except KeyboardInterrupt:
         pass
+    finally:
+        log("cleanup")
+        # Close the server
+        server.close()
+        loop.run_until_complete(server.wait_closed())
+        loop.close()
 
-    # Close the server
-    server.close()
-    loop.run_until_complete(server.wait_closed())
-    loop.close()
-
-    LOG_FILE.close()
+        LOG_FILE.close()
 
 
 class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
@@ -163,7 +164,7 @@ class RobotProxy(asyncio.Protocol):
 
     def _send_robot_cmd(self, cmd):
         """Send command to server."""
-        log("[<] " + cmd.strip())
+        # log("[<] " + cmd.strip())
         sys.stdout.write(cmd + "\n")
         sys.stdout.flush()
 
@@ -197,7 +198,7 @@ class RobotProxy(asyncio.Protocol):
 
     def _handle_command(self, command):
         """Handle Netris (RobotCmd) commands."""
-        # log("[>] " + command.strip())
+        log("[>] " + command.strip())
 
         handlers = {
             "Ext:LinesCleared" : self._handle_cmd_lines_cleared,
@@ -228,9 +229,10 @@ class RobotProxy(asyncio.Protocol):
         scr, lines_cleared = [int(p) for p in params]
 
         # Check if data belongs to this robot
-        if params[0] != SCREEN_ID:
+        if scr != SCREEN_ID:
             return True, []
 
+        log("LinesCleared:", lines_cleared)
         self.lines_cleared = lines_cleared
 
     def _handle_cmd_exit(self, params):
@@ -266,24 +268,23 @@ class RobotProxy(asyncio.Protocol):
         Handle RowUpdate command from server. Update board. This is the moment
         when action can be taken for new piece.
         """
-        params = [int(p) for p in params]
+        scr, y, *row = [int(p) for p in params]
 
         # Analyze data (board) that belongs only to this robot
-        if params[0] != SCREEN_ID:
+        if scr != SCREEN_ID:
             return True, []
 
-        y = params[1]
         # Server inform about switch from "piece block" to "fixed block" starting
         # from second RowUpdate command after NewPiece command. This is to late,
         # for prediction, so better is assume that first line is always empty.
         if y != TOP_LINE:
-            for x, val in enumerate(params[2:]):
+            for x, val in enumerate(row):
                 self.board[BORAD_HEIGHT - 1 - y][x] = FULL_BLOCK if val else EMPTY_BLOCK
 
         # Send board to agent if this is new piece
         cmd_out = []
         if self.fresh_piece and y == TOP_LINE:
-            self._send_update_to_agent(top_row=params[2:], game_is_over=False)
+            self._send_update_to_agent(top_row=row, game_is_over=False)
             self.fresh_piece = False
             # self._print_board()
 
