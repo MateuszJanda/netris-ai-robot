@@ -155,6 +155,8 @@ class RobotProxy(asyncio.Protocol):
 
         self.transport = None
 
+        self.tic = time.time()
+
     def connection_made(self, transport):
         """DQN agent established connection with robot."""
         log('Connection from DQN agent')
@@ -211,7 +213,13 @@ class RobotProxy(asyncio.Protocol):
         }
 
         name = command.split(" ")[0]
-        if name not in handlers:
+        log("Current name: '%s' %d" % (name, name == ""))
+        if name == "":
+            # self.transport.close()
+            self.loop.stop()
+            # raise Exception("Robot terminated")
+            return
+        elif name not in handlers:
             self.loop.create_task(self._wait_for_robot_cmd())
             return
 
@@ -235,6 +243,7 @@ class RobotProxy(asyncio.Protocol):
             return True, []
 
         log("LinesCleared:", lines_cleared)
+        self.tic = time.time()
         self.lines_cleared = lines_cleared
         return True, []
 
@@ -303,6 +312,7 @@ class RobotProxy(asyncio.Protocol):
 
         report = str(game_is_over) + " " + score + " " + board + "\n"
         self.transport.write(report.encode())
+        log("[!!!] Handling time", time.time() - self.tic)
 
     def _normalized_board(self, top_row):
         """Create flat board with normalized values."""

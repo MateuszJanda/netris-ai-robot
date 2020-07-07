@@ -229,7 +229,9 @@ class Agent:
         Also flatten output - from (1, ACTION_SPACE_SIZE) shape to
         (ACTION_SPACE_SIZE,)
         """
-        return self.model.predict(np.array(state))[0]
+        aaa = np.array(state)
+        print("Array shape:", state.shape, aaa.shape)
+        return self.model.predict(aaa)[0]
 
     def train(self, done_status):
         """Trains main NN model every step during episode."""
