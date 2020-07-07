@@ -59,7 +59,8 @@ def main():
         loop.run_until_complete(server.wait_closed())
         loop.close()
 
-        LOG_FILE.close()
+        if LOG_FILE:
+            LOG_FILE.close()
 
 
 class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
