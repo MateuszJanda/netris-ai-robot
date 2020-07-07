@@ -213,8 +213,9 @@ class RobotProxy(asyncio.Protocol):
         }
 
         name = command.split(" ")[0]
-        log("Current name: '%s' %d" % (name, name == ""))
+        # log("Current name: '%s' %d" % (name, name == ""))
         if name == "":
+            log("Empty command")
             # self.transport.close()
             self.loop.stop()
             # raise Exception("Robot terminated")
@@ -249,6 +250,7 @@ class RobotProxy(asyncio.Protocol):
 
     def _handle_cmd_exit(self, params):
         """Handle Exit command."""
+        log("Exit")
         self._send_update_to_agent(top_row=EMPTY_LINE, game_is_over=True)
         return True, []
 
@@ -259,6 +261,7 @@ class RobotProxy(asyncio.Protocol):
         """
         self.sequence_num = params[0]
         self.fresh_piece = True
+        log("[!!!] Handling time", time.time() - self.tic)
 
         return True, []
 
@@ -312,7 +315,7 @@ class RobotProxy(asyncio.Protocol):
 
         report = str(game_is_over) + " " + score + " " + board + "\n"
         self.transport.write(report.encode())
-        log("[!!!] Handling time", time.time() - self.tic)
+        # log("[!!!] Handling time", time.time() - self.tic)
 
     def _normalized_board(self, top_row):
         """Create flat board with normalized values."""

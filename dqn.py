@@ -93,6 +93,7 @@ def play_one_game(env, agent):
     done_status = False
 
     while not done_status:
+        tic = time.time()
         # Explore other actions with probability 1 - epsilon
         if np.random.random() > epsilon:
             action = np.argmax(agent.get_qs(current_state))
@@ -112,6 +113,8 @@ def play_one_game(env, agent):
         current_state = new_state
 
         epsilon = adjust_epsilon(epsilon)
+
+        log("One round", time.time() - tic)
 
 
 def adjust_epsilon(epsilon):
@@ -301,6 +304,9 @@ class Transition:
         self.new_state = new_state
         self.done_status = done_status
 
+def log(*args, **kwargs):
+    """Print log to other terminal or file."""
+    print(*args, **kwargs)
 
 if __name__ == '__main__':
     main()
