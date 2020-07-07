@@ -32,35 +32,38 @@ LOG_FILE = None
 
 
 def main():
-    args = parse_args()
-    setup_logging(args)
-
-    queue = asyncio.Queue()
-    loop = asyncio.get_event_loop()
-
-    # Start monitoring the fd file descriptor for read availability and invoke
-    # callback with the specified arguments once fd is available for reading
-    loop.add_reader(sys.stdin, got_robot_cmd, loop, queue)
-
-    coroutine = loop.create_server(lambda: RobotProxy(loop, queue), HOST, PORT)
-    server = loop.run_until_complete(coroutine)
-
-    log("Server taken")
-
-    # CTRL+C to quit
     try:
-        loop.run_forever()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        log("cleanup")
-        # Close the server
-        server.close()
-        loop.run_until_complete(server.wait_closed())
-        loop.close()
+        args = parse_args()
+        setup_logging(args)
 
-        if LOG_FILE:
-            LOG_FILE.close()
+        queue = asyncio.Queue()
+        loop = asyncio.get_event_loop()
+
+        # Start monitoring the fd file descriptor for read availability and invoke
+        # callback with the specified arguments once fd is available for reading
+        loop.add_reader(sys.stdin, got_robot_cmd, loop, queue)
+
+        coroutine = loop.create_server(lambda: RobotProxy(loop, queue), HOST, PORT)
+        server = loop.run_until_complete(coroutine)
+
+        log("Server taken")
+
+        # CTRL+C to quit
+        try:
+            loop.run_forever()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            log("cleanup")
+            # Close the server
+            server.close()
+            loop.run_until_complete(server.wait_closed())
+            loop.close()
+
+            if LOG_FILE:
+                LOG_FILE.close()
+    except:
+        pass
 
 
 class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):

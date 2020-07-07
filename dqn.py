@@ -304,9 +304,11 @@ class Transition:
         self.new_state = new_state
         self.done_status = done_status
 
+
 def log(*args, **kwargs):
     """Print log to other terminal or file."""
     print(*args, **kwargs)
+
 
 if __name__ == '__main__':
     main()
