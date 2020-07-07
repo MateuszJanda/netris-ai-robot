@@ -45,6 +45,8 @@ def main():
     coroutine = loop.create_server(lambda: RobotProxy(loop, queue), HOST, PORT)
     server = loop.run_until_complete(coroutine)
 
+    log("Server taken")
+
     # CTRL+C to quit
     try:
         loop.run_forever()
@@ -234,6 +236,7 @@ class RobotProxy(asyncio.Protocol):
 
         log("LinesCleared:", lines_cleared)
         self.lines_cleared = lines_cleared
+        return True, []
 
     def _handle_cmd_exit(self, params):
         """Handle Exit command."""
