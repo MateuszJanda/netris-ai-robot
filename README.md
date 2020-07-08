@@ -1,12 +1,12 @@
 ## DQN learning setup
-Setup server
+Setup Netris server
 ```bash
 ./netris -w -u -i 1
 ```
 
-Setup client operating robot (proxy robot)
+Setup proxy robot
 ```bash
-./netris -n -c localhost -i 1 -r './dqn_robot.py --log-in-terminal /dev/pts/3'
+./netris -n -m -c localhost -i 1 -r './dqn_robot.py --log-in-terminal /dev/pts/3'
 ```
 
 Setup DQN agent
