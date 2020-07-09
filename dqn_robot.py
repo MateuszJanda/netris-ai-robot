@@ -35,7 +35,7 @@ def main():
     args = parse_args()
     setup_logging(args)
     log("New instance PID:", os.getpid())
-    time.sleep(2)
+    # time.sleep(2)
     log("New instance GO PID:", os.getpid())
 
     queue = asyncio.Queue()
@@ -64,7 +64,8 @@ def main():
     server.close()
     loop.run_until_complete(server.wait_closed())
 
-    loop.close()
+    log("cleanup before loop close PID:", os.getpid())
+    # loop.close()
 
     if LOG_FILE:
         LOG_FILE.close()
