@@ -67,9 +67,9 @@ def main():
     log("cleanup before loop close PID:", os.getpid())
     # loop.close()
 
+    log("cleanup end PID:", os.getpid())
     if LOG_FILE:
         LOG_FILE.close()
-    log("cleanup end PID:", os.getpid())
 
 
 class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
