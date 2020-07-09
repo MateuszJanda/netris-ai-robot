@@ -32,38 +32,43 @@ LOG_FILE = None
 
 
 def main():
+    args = parse_args()
+    setup_logging(args)
+    log("New instance PID:", os.getpid())
+    time.sleep(2)
+    log("New instance GO PID:", os.getpid())
+
+    queue = asyncio.Queue()
+    loop = asyncio.get_event_loop()
+
+    # Start monitoring the fd file descriptor for read availability and invoke
+    # callback with the specified arguments once fd is available for reading
+    loop.add_reader(sys.stdin, got_robot_cmd, queue)
+
+    future_stop = loop.create_future()
+    future_stop.add_done_callback(cancel_all_task)
+
+    coroutine = loop.create_server(lambda: RobotProxy(loop, future_stop, queue), HOST, PORT)
+    server = loop.run_until_complete(coroutine)
+
+    log("Server taken, PID:", os.getpid())
+
+    # CTRL+C to quit
     try:
-        args = parse_args()
-        setup_logging(args)
+        loop.run_forever()
+    except KeyboardInterrupt:
+        cancel_all_task()
 
-        queue = asyncio.Queue()
-        loop = asyncio.get_event_loop()
+    log("cleanup PID:", os.getpid())
+    # Close the server
+    server.close()
+    loop.run_until_complete(server.wait_closed())
 
-        # Start monitoring the fd file descriptor for read availability and invoke
-        # callback with the specified arguments once fd is available for reading
-        loop.add_reader(sys.stdin, got_robot_cmd, loop, queue)
+    loop.close()
 
-        coroutine = loop.create_server(lambda: RobotProxy(loop, queue), HOST, PORT)
-        server = loop.run_until_complete(coroutine)
-
-        log("Server taken")
-
-        # CTRL+C to quit
-        try:
-            loop.run_forever()
-        except KeyboardInterrupt:
-            pass
-        finally:
-            log("cleanup")
-            # Close the server
-            server.close()
-            loop.run_until_complete(server.wait_closed())
-            loop.close()
-
-            if LOG_FILE:
-                LOG_FILE.close()
-    except:
-        pass
+    if LOG_FILE:
+        LOG_FILE.close()
+    log("cleanup end PID:", os.getpid())
 
 
 class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
@@ -111,9 +116,24 @@ def setup_logging(args):
         sys.stderr = LOG_FILE
 
 
-def got_robot_cmd(loop, queue):
+def got_robot_cmd(queue):
     """Setup task waiting for Netris/Robot commands."""
+    loop = asyncio.get_event_loop()
     loop.create_task(queue.put(sys.stdin.readline()))
+
+
+def cancel_all_task(result=None):
+    log('[+] Cancel all tasks')
+    loop = asyncio.get_event_loop()
+    for task in asyncio.Task.all_tasks():
+        task.cancel()
+    loop.create_task(stop_loop())
+
+
+async def stop_loop():
+    log('[+] Stop loop')
+    loop = asyncio.get_event_loop()
+    loop.stop()
 
 
 class RobotProxy(asyncio.Protocol):
@@ -147,8 +167,9 @@ class RobotProxy(asyncio.Protocol):
         17: "red Z",
     }
 
-    def __init__(self, loop, queue):
+    def __init__(self, loop, future_stop, queue):
         self.loop = loop
+        self.future_stop = future_stop
         self.queue = queue
 
         self.board = np.zeros(shape=(BORAD_HEIGHT, BOARD_WIDTH), dtype=int)
@@ -206,7 +227,7 @@ class RobotProxy(asyncio.Protocol):
 
     def _handle_command(self, command):
         """Handle Netris (RobotCmd) commands."""
-        log("[>] " + command.strip())
+        # log("[>] " + command.strip())
 
         handlers = {
             "Ext:LinesCleared" : self._handle_cmd_lines_cleared,
@@ -220,9 +241,6 @@ class RobotProxy(asyncio.Protocol):
         # log("Current name: '%s' %d" % (name, name == ""))
         if name == "":
             log("Empty command")
-            # self.transport.close()
-            self.loop.stop()
-            # raise Exception("Robot terminated")
             return
         elif name not in handlers:
             self.loop.create_task(self._wait_for_robot_cmd())
@@ -235,6 +253,7 @@ class RobotProxy(asyncio.Protocol):
             self._send_robot_cmd(c)
 
         if not continue_loop:
+            log("Exit loop")
             return
 
         self.loop.create_task(self._wait_for_robot_cmd())
@@ -256,7 +275,9 @@ class RobotProxy(asyncio.Protocol):
         """Handle Exit command."""
         log("Exit")
         self._send_update_to_agent(top_row=EMPTY_LINE, game_is_over=True)
-        return True, []
+        self.future_stop.set_result(True)
+        # time.sleep(0.5)
+        return False, []
 
     def _hanle_cmd_new_pice(self, params):
         """
