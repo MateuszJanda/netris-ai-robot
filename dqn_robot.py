@@ -8,6 +8,7 @@ Ad maiorem Dei gloriam
 
 import os
 import sys
+import signal
 import time
 import asyncio
 import datetime
@@ -32,6 +33,9 @@ LOG_FILE = None
 
 
 def main():
+    sigpipe_old = signal.getsignal(signal.SIGPIPE)
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
     args = parse_args()
     setup_logging(args)
     log("New instance PID:", os.getpid())
@@ -191,16 +195,25 @@ class RobotProxy(asyncio.Protocol):
         self.transport = transport
 
         # Init game, send first command (version)
-        self._send_robot_cmd("Version 1")
+        # self._send_robot_cmd("Version 1")
         self.loop.create_task(self._wait_for_robot_cmd())
+
+    def connection_lost(self, exc):
+        log("Connection lost")
 
     def _send_robot_cmd(self, cmd):
         """Send command to server."""
         # log("[<] " + cmd.strip())
         try:
-            sys.stdout.write(cmd + "\n")
+            # sys.stdout.write(cmd + "\n")
+            # print(cmd + "\n")
+            print(cmd + "\n", file=sys.stdout)
+            # sys.stdout.writelines([cmd + "\n"])
+            # asyncio.subprocess.Process.stdout.write(cmd + "\n")
+
             sys.stdout.flush()
         except (BrokenPipeError, IOError):
+            log('[!] BrokenPipeError')
             pass
 
     def data_received(self, data):
@@ -233,11 +246,12 @@ class RobotProxy(asyncio.Protocol):
 
     def _handle_command(self, command):
         """Handle Netris (RobotCmd) commands."""
-        log("[>] " + command.strip())
+        # log("[>] " + command.strip())
 
         handlers = {
             "Ext:LinesCleared" : self._handle_cmd_lines_cleared,
             "Exit" : self._handle_cmd_exit,
+            "Version" : self._handle_cmd_version,
             "NewPiece" : self._hanle_cmd_new_pice,
             "BoardSize" : self._handle_cmd_board_size,
             "RowUpdate" : self._handle_cmd_row_update,
@@ -285,6 +299,10 @@ class RobotProxy(asyncio.Protocol):
         # time.sleep(0.5)
         return False, []
 
+    def _handle_cmd_version(self, params):
+        """Handle Version command."""
+        return True, ["Version 1"]
+
     def _hanle_cmd_new_pice(self, params):
         """
         Handle NewPiece from server. Unfortunately server provide here only
@@ -292,7 +310,7 @@ class RobotProxy(asyncio.Protocol):
         """
         self.sequence_num = params[0]
         self.fresh_piece = True
-        log("[!!!] Handling time", time.time() - self.tic)
+        # log("[!!!] Handling time", time.time() - self.tic)
 
         return True, []
 

@@ -60,7 +60,7 @@ UPDATE_TARGET = 5               # Copy weights every UPDATE_TARGET finished game
 EPISODES = 20_000               # Episodes == full games
 
 # Exploration settings
-EPSILON_DECAY = 0.009           # Try/explore other actions to escape local minimum
+EPSILON_DECAY = 0.999           # Try/explore other actions to escape local minimum
 MIN_EPSILON = 0.001
 
 
@@ -156,7 +156,7 @@ class Environment:
         done_status, reward, state = self._recevie_data()
 
         delay = time.time() - tic
-        print("Step delay", delay)
+        # print("Step delay", delay)
         return done_status, reward, state
 
     def close(self):
@@ -182,6 +182,9 @@ class Environment:
         state = np.array([float(val) for val in state])
         # log(done_status, reward, state)
         # log("receive state.shape", state.shape)
+
+        if done_status:
+            log("Game is over")
 
         return done_status, reward, state
 
