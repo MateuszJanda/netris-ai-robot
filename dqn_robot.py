@@ -338,12 +338,15 @@ class RobotProxy(asyncio.Protocol):
         norm_board = self._normalized_board(top_row)
         board = "".join([("%0.2f " % val) for val in norm_board])
 
-        score = str(self.lines_cleared)
+
+        game_is_over = str(int(game_is_over))
+        lines_cleared = str(self.lines_cleared)
         self.lines_cleared = 0
 
-        report = str(game_is_over) + " " + score + " " + board + "\n"
+        report = str(game_is_over) + " " + lines_cleared + " " + board + "\n"
         self.transport.write(report.encode())
         # log("[!!!] Handling time", time.time() - self.tic)
+        # log("Report", report)
 
     def _normalized_board(self, top_row):
         """Create flat board with normalized values."""

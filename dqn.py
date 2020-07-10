@@ -159,6 +159,10 @@ class Environment:
         print("Step delay", delay)
         return done_status, reward, state
 
+    def close(self):
+        if self.conn:
+            self.conn.close()
+
     def _recevie_data(self):
         if not self.conn:
             raise Exception('Connection not established')
@@ -170,11 +174,13 @@ class Environment:
             if b'\n' in data:
                 break
 
+        # log('data decode', data.decode())
         done_status, reward, *state = data.decode().split()
 
-        done_status = True if done_status == 'True' else False
+        done_status = True if int(done_status) else False
         reward = int(reward)
         state = np.array([float(val) for val in state])
+        # log(done_status, reward, state)
 
         return done_status, reward, state
 
