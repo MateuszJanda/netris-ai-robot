@@ -48,21 +48,23 @@ def main():
     future_stop = loop.create_future()
     future_stop.add_done_callback(cancel_all_task)
 
-    coroutine = loop.create_server(lambda: RobotProxy(loop, future_stop, queue), HOST, PORT)
-    server = loop.run_until_complete(coroutine)
+    coroutine = loop.create_connection(lambda: RobotProxy(loop, future_stop, queue), HOST, PORT)
+    # server = loop.run_until_complete(coroutine)
+    client = loop.run_until_complete(coroutine)
 
     log("Server taken, PID:", os.getpid())
 
     # CTRL+C to quit
     try:
         loop.run_forever()
+        # loop.run_until_complete(coroutine)
     except KeyboardInterrupt:
         cancel_all_task()
 
     log("cleanup PID:", os.getpid())
     # Close the server
-    server.close()
-    loop.run_until_complete(server.wait_closed())
+    # server.close()
+    # loop.run_until_complete(server.wait_closed())
 
     log("cleanup before loop close PID:", os.getpid())
     # loop.close()

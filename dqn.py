@@ -66,12 +66,15 @@ MIN_EPSILON = 0.001
 
 def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.connect((HOST, PORT))
+        sock.bind((HOST, PORT))
+        sock.listen()
 
         env = Environment(sock)
         agent = Agent()
 
         learn(env, agent)
+
+        env.close()
 
 
 def learn(env, agent):
@@ -129,10 +132,12 @@ def adjust_epsilon(epsilon):
 class Environment:
     def __init__(self, sock):
         self.sock = sock
+        self.conn = None
 
     def reset(self):
         """Reset game."""
         print("Reset game")
+        self.conn, addr = self.sock.accept()
         done_status, reward, state = self._recevie_data()
 
         return state
@@ -146,7 +151,7 @@ class Environment:
         rotate = action // BOARD_WIDTH
 
         message = str(shift) + ' ' + str(rotate) + '\n'
-        self.sock.sendall(message.encode())
+        self.conn.sendall(message.encode())
 
         done_status, reward, state = self._recevie_data()
 
@@ -155,9 +160,12 @@ class Environment:
         return done_status, reward, state
 
     def _recevie_data(self):
+        if not self.conn:
+            raise Exception('Connection not established')
+
         data = bytes()
         while True:
-            data += self.sock.recv(1024)
+            data += self.conn.recv(1024)
 
             if b'\n' in data:
                 break
