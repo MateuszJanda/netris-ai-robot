@@ -197,8 +197,11 @@ class RobotProxy(asyncio.Protocol):
     def _send_robot_cmd(self, cmd):
         """Send command to server."""
         # log("[<] " + cmd.strip())
-        sys.stdout.write(cmd + "\n")
-        sys.stdout.flush()
+        try:
+            sys.stdout.write(cmd + "\n")
+            sys.stdout.flush()
+        except (BrokenPipeError, IOError):
+            pass
 
     def data_received(self, data):
         """Data received from DQN agent, determine next robot move."""
@@ -230,7 +233,7 @@ class RobotProxy(asyncio.Protocol):
 
     def _handle_command(self, command):
         """Handle Netris (RobotCmd) commands."""
-        # log("[>] " + command.strip())
+        log("[>] " + command.strip())
 
         handlers = {
             "Ext:LinesCleared" : self._handle_cmd_lines_cleared,

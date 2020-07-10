@@ -60,7 +60,7 @@ UPDATE_TARGET = 5               # Copy weights every UPDATE_TARGET finished game
 EPISODES = 20_000               # Episodes == full games
 
 # Exploration settings
-EPSILON_DECAY = 0.999           # Try/explore other actions to escape local minimum
+EPSILON_DECAY = 0.009           # Try/explore other actions to escape local minimum
 MIN_EPSILON = 0.001
 
 
@@ -181,6 +181,7 @@ class Environment:
         reward = int(reward)
         state = np.array([float(val) for val in state])
         # log(done_status, reward, state)
+        # log("receive state.shape", state.shape)
 
         return done_status, reward, state
 
@@ -246,8 +247,8 @@ class Agent:
         Also flatten output - from (1, ACTION_SPACE_SIZE) shape to
         (ACTION_SPACE_SIZE,)
         """
-        aaa = np.array(state)
-        print("Array shape:", state.shape, aaa.shape)
+        aaa = np.array(state).reshape(1, BOARD_HEIGHT, BOARD_WIDTH, 1)
+        # log("Array shape:", state.shape, aaa.shape)
         return self.model.predict(aaa)[0]
 
     def train(self, done_status):
