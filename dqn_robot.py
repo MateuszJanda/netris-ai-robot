@@ -205,9 +205,9 @@ class RobotProxy(asyncio.Protocol):
         """Send command to server."""
         # log("[<] " + cmd.strip())
         try:
-            # sys.stdout.write(cmd + "\n")
+            sys.stdout.write(cmd + "\n")
             # print(cmd + "\n")
-            print(cmd + "\n", file=sys.stdout)
+            # print(cmd + "\n", file=sys.stdout)
             # sys.stdout.writelines([cmd + "\n"])
             # asyncio.subprocess.Process.stdout.write(cmd + "\n")
 
@@ -286,7 +286,8 @@ class RobotProxy(asyncio.Protocol):
         if scr != SCREEN_ID:
             return True, []
 
-        log("LinesCleared:", lines_cleared)
+        if lines_cleared:
+            log("LinesCleared:", lines_cleared)
         self.tic = time.time()
         self.lines_cleared = lines_cleared
         return True, []
@@ -301,6 +302,7 @@ class RobotProxy(asyncio.Protocol):
 
     def _handle_cmd_version(self, params):
         """Handle Version command."""
+        log("Version handling")
         return True, ["Version 1"]
 
     def _hanle_cmd_new_pice(self, params):
