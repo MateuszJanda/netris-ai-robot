@@ -363,6 +363,14 @@ class Transition:
         self.done_status = done_status
 
 
+def print_board(board):
+    """Print board state. For debug only."""
+    log("Board")
+    for line in board:
+        l = "".join(["1" if b else " " for b in line])
+        log(l)
+
+
 def log(*args, **kwargs):
     """Print log to other terminal or file."""
     print(*args, **kwargs)
