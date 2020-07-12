@@ -344,22 +344,21 @@ class RobotProxy(asyncio.Protocol):
     def _send_update_to_agent(self, top_row, game_is_over):
         """Send update to DQN agent."""
         norm_board = self._normalized_board(top_row)
-        board = "".join([("%0.2f " % val) for val in norm_board])
+        flat_board = "".join([("%0.2f " % val) for val in norm_board])
 
         game_is_over = str(int(game_is_over))
         lines_cleared = str(self.lines_cleared)
         self.lines_cleared = 0
 
-        report = str(game_is_over) + " " + lines_cleared + " " + board + "\n"
+        report = str(game_is_over) + " " + lines_cleared + " " + flat_board + "\n"
         self.transport.write(report.encode())
-        # log("Report", report)
 
     def _normalized_board(self, top_row):
         """Create flat board with normalized values."""
         norm_piece = self._normalized_piece(top_row)
 
         # Combine board with normalized piece
-        norm_board = np.copy(self.board)
+        norm_board = np.copy(self.board).astype('float')
         for x, color_type in enumerate(top_row):
             if color_type < 0:
                 norm_board[0][x] = norm_piece
@@ -386,12 +385,13 @@ class RobotProxy(asyncio.Protocol):
         piece_id = self.PIECE_TO_PIECE_ID[piece]
         return self.PIECE_ID_TO_NAME[piece_id]
 
-    def _print_board(self):
-        """Print current board state. For debug only."""
-        log("Board")
-        for line in self.board:
-            l = "".join(["1" if b else " " for b in line])
-            log(l)
+
+def print_board(board):
+    """Print board state. For debug only."""
+    log("Board")
+    for line in board:
+        l = "".join(["1" if b else " " for b in line])
+        log(l)
 
 
 def log(*args, **kwargs):
