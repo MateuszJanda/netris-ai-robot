@@ -323,10 +323,10 @@ class Agent:
 
             # Update Q value for given state
             current_qs = current_qs_list[index]
-            current_qs[action] = new_q
+            current_qs[transition.action] = new_q
 
             # Append to training data
-            states.append(current_state)
+            states.append(transition.current_state)
             qs.append(current_qs)
 
         # Fit on all samples as one batch
