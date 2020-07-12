@@ -121,6 +121,9 @@ def play_one_game(env, agent):
     # Reset environment and get initial state
     current_state = env.reset()
 
+    if len(agent.replay_memory) >= MIN_REPLAY_MEMORY_SIZE:
+        log("Enought data in replay memory. Learning started.")
+
     # Reset flag and start iterating until episode ends
     done_status = False
 
