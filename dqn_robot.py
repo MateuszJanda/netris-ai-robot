@@ -50,7 +50,7 @@ def main():
     future_stop = loop.create_future()
     future_stop.add_done_callback(cancel_all_task)
 
-    coroutine = loop.create_connection(lambda: RobotProxy(loop, future_stop, queue), HOST, PORT)
+    coroutine = loop.create_connection(lambda: RobotProxy(loop, future_stop, queue), HOST, args.port)
     client = loop.run_until_complete(coroutine)
 
     try:
@@ -74,10 +74,13 @@ def parse_args():
                 'Mateusz Janda (c) <mateusz janda at gmail com>\n'
                 'netris-ai-robot project github.com/MateuszJanda/sloper\n'
                 '\n'
-                'Robot is waiting for connection from Agent at 127.0.0.1:9898\n',
+                'Robot will try to connect with DQN agent at 127.0.0.1:9898\n',
         usage='Please try to use -h, --help for more informations',
         epilog=' \n',
         formatter_class=CustomFormatter)
+
+    parser.add_argument('-p', '--port', required=False, action='store', default=PORT, dest='port',
+                        help='Connect to DQN server port')
 
     group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument('-l', '--log-to-file', required=False, action='store_true', dest='log_file',
@@ -379,6 +382,7 @@ class RobotProxy(asyncio.Protocol):
         for line in self.board:
             l = "".join(["1" if b else " " for b in line])
             log(l)
+
 
 def log(*args, **kwargs):
     """Print log to other terminal or file."""

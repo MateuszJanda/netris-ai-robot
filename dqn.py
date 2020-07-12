@@ -39,6 +39,7 @@ import random
 from collections import deque
 import socket
 import time
+import argparse
 
 
 # Netris/environment parameters
@@ -65,8 +66,10 @@ MIN_EPSILON = 0.001
 
 
 def main():
+    args = parse_args()
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.bind((HOST, PORT))
+        sock.bind((HOST, args.port))
         sock.listen()
 
         env = Environment(sock)
@@ -75,6 +78,24 @@ def main():
         learn(env, agent)
 
         env.close()
+
+
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description='Netris proxy robot for reinforcement learning (DQN)\n'
+                'Mateusz Janda (c) <mateusz janda at gmail com>\n'
+                'netris-ai-robot project github.com/MateuszJanda/sloper\n'
+                '\n'
+                'Robot is waiting for connection from Agent at 127.0.0.1:9898\n',
+        usage='Please try to use -h, --help for more informations',
+        epilog=' \n',
+        formatter_class=CustomFormatter)
+
+    parser.add_argument('-p', '--port', required=False, action='store', default=PORT, dest='port',
+                        help='Listen at port')
+
+    return args
 
 
 def learn(env, agent):
