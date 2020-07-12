@@ -305,6 +305,7 @@ class Agent:
         # Get future states from mini-batch, then query NN model for Q values
         # When using target NN, query it, otherwise main network should be queried
         new_states = np.array([transition.new_state for transition in minibatch])
+        new_states = new_states.reshape(MINIBATCH_SIZE, BOARD_HEIGHT, BOARD_WIDTH, 1)
         future_qs_list = self.target_model.predict(new_states)
 
         # Input (x), and output (y) for training
