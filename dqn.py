@@ -165,6 +165,7 @@ class Environment:
     def __init__(self, sock):
         self.sock = sock
         self.conn = None
+        self.buffer = bytes()
 
     def reset(self):
         """
@@ -203,17 +204,18 @@ class Environment:
         if not self.conn:
             raise Exception('Connection not established')
 
-        data = bytes()
-
         # Ensure that new full data is received (single line with \n at the end)
         while True:
-            data += self.conn.recv(1024)
+            self.buffer += self.conn.recv(1024)
 
-            if b'\n' in data:
+            if b'\n' in self.buffer:
                 break
 
-        # Parse data from robot
-        done_status, reward, *state = data.decode().split()
+        msg = self.buffer[:self.buffer.find(b'\n')]
+        self.buffer = self.buffer[self.buffer.find(b'\n') + 1:]
+
+        # Parse msg from robot
+        done_status, reward, *state = msg.decode().split()
 
         done_status = True if int(done_status) else False
         reward = int(reward)

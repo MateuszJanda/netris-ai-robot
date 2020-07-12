@@ -176,6 +176,7 @@ class RobotProxy(asyncio.Protocol):
         self.lines_cleared = 0
 
         self.transport = None
+        self.buffer = bytes()
 
     def connection_made(self, transport):
         """DQN agent established connection with robot."""
@@ -200,7 +201,14 @@ class RobotProxy(asyncio.Protocol):
 
     def data_received(self, data):
         """Data received from DQN agent, determine next robot move."""
-        shift, rotate = [int(d) for d in data.decode().split()]
+        self.buffer += data
+
+        if b'\n' not in self.buffer:
+            return
+
+        msg = self.buffer[:self.buffer.find(b'\n')]
+        self.buffer = self.buffer[self.buffer.find(b'\n') + 1:]
+        shift, rotate = [int(d) for d in msg.decode().split()]
         log("Data received: shift: %d, rotate: %d" % (shift, rotate))
 
         cmd_out = []
