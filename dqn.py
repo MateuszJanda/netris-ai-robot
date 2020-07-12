@@ -67,6 +67,7 @@ MIN_EPSILON = 0.001
 
 def main():
     args = parse_args()
+    log("Starting server at %s:%d" % (HOST, args.port))
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.bind((HOST, args.port))
@@ -78,6 +79,10 @@ def main():
         learn(env, agent)
 
         env.close()
+
+
+class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
+    pass
 
 
 def parse_args():
@@ -94,6 +99,9 @@ def parse_args():
 
     parser.add_argument('-p', '--port', required=False, action='store', default=PORT, dest='port',
                         help='Listen at port')
+
+    args = parser.parse_args()
+    args.port = int(args.port)
 
     return args
 

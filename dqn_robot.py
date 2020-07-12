@@ -38,7 +38,7 @@ def main():
 
     args = parse_args()
     setup_logging(args)
-    log("Start robot, PID:", os.getpid())
+    log("Start robot, PID: %d. Connection to agent at %s:%d" % (os.getpid(), HOST, args.port))
 
     queue = asyncio.Queue()
     loop = asyncio.get_event_loop()
@@ -98,6 +98,8 @@ def parse_args():
         args.log_name = args.log_terminal
     else:
         args.log_name = None
+
+    args.port = int(args.port)
 
     return args
 
@@ -246,7 +248,7 @@ class RobotProxy(asyncio.Protocol):
             return
 
         params = command.split(" ")[1:]
-        continue_loop, cmd_reponses = handlers[name](params)
+        continue_loop = handlers[name](params)
 
         if not continue_loop:
             return
