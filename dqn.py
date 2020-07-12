@@ -333,7 +333,8 @@ class Agent:
             qs.append(current_qs)
 
         # Fit on all samples as one batch
-        self.model.fit(x=np.array(states), y=np.array(qs), batch_size=MINIBATCH_SIZE,
+        states = np.array(states).reshape(MINIBATCH_SIZE, BOARD_HEIGHT, BOARD_WIDTH, 1)
+        self.model.fit(x=states, y=np.array(qs), batch_size=MINIBATCH_SIZE,
             verbose=0, shuffle=False)
 
         self.update_weights(done_status)
