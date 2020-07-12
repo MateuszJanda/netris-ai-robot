@@ -38,9 +38,7 @@ def main():
 
     args = parse_args()
     setup_logging(args)
-    log("New instance PID:", os.getpid())
-    # time.sleep(2)
-    log("New instance GO PID:", os.getpid())
+    log("Start robot, PID:", os.getpid())
 
     queue = asyncio.Queue()
     loop = asyncio.get_event_loop()
@@ -53,27 +51,14 @@ def main():
     future_stop.add_done_callback(cancel_all_task)
 
     coroutine = loop.create_connection(lambda: RobotProxy(loop, future_stop, queue), HOST, PORT)
-    # server = loop.run_until_complete(coroutine)
     client = loop.run_until_complete(coroutine)
 
-    log("Server taken, PID:", os.getpid())
-
-    # CTRL+C to quit
     try:
         loop.run_forever()
-        # loop.run_until_complete(coroutine)
     except KeyboardInterrupt:
         cancel_all_task()
 
-    log("cleanup PID:", os.getpid())
-    # Close the server
-    # server.close()
-    # loop.run_until_complete(server.wait_closed())
-
-    log("cleanup before loop close PID:", os.getpid())
-    # loop.close()
-
-    log("cleanup end PID:", os.getpid())
+    log("Stop robot, PID:", os.getpid())
     if LOG_FILE:
         LOG_FILE.close()
 
@@ -130,7 +115,7 @@ def got_robot_cmd(queue):
 
 
 def cancel_all_task(result=None):
-    log('[+] Cancel all tasks')
+    log("Cancel all tasks")
     loop = asyncio.get_event_loop()
     for task in asyncio.Task.all_tasks():
         task.cancel()
@@ -138,7 +123,7 @@ def cancel_all_task(result=None):
 
 
 async def stop_loop():
-    log('[+] Stop loop')
+    log("Stop loop")
     loop = asyncio.get_event_loop()
     loop.stop()
 
@@ -187,39 +172,31 @@ class RobotProxy(asyncio.Protocol):
 
         self.transport = None
 
-        self.tic = time.time()
-
     def connection_made(self, transport):
         """DQN agent established connection with robot."""
-        log('Connection from DQN agent')
+        log("Connection from DQN agent")
         self.transport = transport
 
-        # Init game, send first command (version)
+        # Initialize game, send first command (version)
         # self._send_robot_cmd("Version 1")
         self.loop.create_task(self._wait_for_robot_cmd())
 
     def connection_lost(self, exc):
-        log("Connection lost")
+        log("[!] Connection lost. Should be handled?")
 
     def _send_robot_cmd(self, cmd):
         """Send command to server."""
         # log("[<] " + cmd.strip())
         try:
             sys.stdout.write(cmd + "\n")
-            # print(cmd + "\n")
-            # print(cmd + "\n", file=sys.stdout)
-            # sys.stdout.writelines([cmd + "\n"])
-            # asyncio.subprocess.Process.stdout.write(cmd + "\n")
-
             sys.stdout.flush()
         except (BrokenPipeError, IOError):
-            log('[!] BrokenPipeError')
-            pass
+            log("[!] BrokenPipeError. Probably command was not sent.")
 
     def data_received(self, data):
         """Data received from DQN agent, determine next robot move."""
         shift, rotate = [int(d) for d in data.decode().split()]
-        log('Data received: shift: %d, rotate: %d' % (shift, rotate))
+        log("Data received: shift: %d, rotate: %d" % (shift, rotate))
 
         cmd_out = []
         if shift < 0:
@@ -258,9 +235,8 @@ class RobotProxy(asyncio.Protocol):
         }
 
         name = command.split(" ")[0]
-        # log("Current name: '%s' %d" % (name, name == ""))
         if name == "":
-            log("Empty command")
+            log("[!] Empty command. Should not happen.")
             return
         elif name not in handlers:
             self.loop.create_task(self._wait_for_robot_cmd())
@@ -269,11 +245,7 @@ class RobotProxy(asyncio.Protocol):
         params = command.split(" ")[1:]
         continue_loop, cmd_reponses = handlers[name](params)
 
-        for c in cmd_reponses:
-            self._send_robot_cmd(c)
-
         if not continue_loop:
-            log("Exit loop")
             return
 
         self.loop.create_task(self._wait_for_robot_cmd())
@@ -284,26 +256,28 @@ class RobotProxy(asyncio.Protocol):
 
         # Check if data belongs to this robot
         if scr != SCREEN_ID:
-            return True, []
+            return True
 
         if lines_cleared:
             log("LinesCleared:", lines_cleared)
-        self.tic = time.time()
+
         self.lines_cleared = lines_cleared
-        return True, []
+        return True
 
     def _handle_cmd_exit(self, params):
         """Handle Exit command."""
-        log("Exit")
+        log("Exit command received")
         self._send_update_to_agent(top_row=EMPTY_LINE, game_is_over=True)
         self.future_stop.set_result(True)
-        # time.sleep(0.5)
-        return False, []
+
+        return False
 
     def _handle_cmd_version(self, params):
-        """Handle Version command."""
-        log("Version handling")
-        return True, ["Version 1"]
+        """Handle Version command. Send to Netris same command to start game."""
+        log("Version command received")
+        self._send_robot_cmd("Version 1")
+
+        return True
 
     def _hanle_cmd_new_pice(self, params):
         """
@@ -312,9 +286,8 @@ class RobotProxy(asyncio.Protocol):
         """
         self.sequence_num = params[0]
         self.fresh_piece = True
-        # log("[!!!] Handling time", time.time() - self.tic)
 
-        return True, []
+        return True
 
     def _handle_cmd_board_size(self, params):
         """
@@ -325,9 +298,10 @@ class RobotProxy(asyncio.Protocol):
 
         if width != BOARD_WIDTH and height != BORAD_HEIGHT:
             log("[!] Validation board size fail %d %d %d %d" % (width, BOARD_WIDTH, height, BORAD_HEIGHT))
-            return False, ["Exit"]
+            self._send_robot_cmd("Exit")
+            return False
 
-        return True, []
+        return True
 
     def _handle_cmd_row_update(self, params):
         """
@@ -338,7 +312,7 @@ class RobotProxy(asyncio.Protocol):
 
         # Analyze data (board) that belongs only to this robot
         if scr != SCREEN_ID:
-            return True, []
+            return True
 
         # Server inform about switch from "piece block" to "fixed block" starting
         # from second RowUpdate command after NewPiece command. This is to late,
@@ -348,19 +322,16 @@ class RobotProxy(asyncio.Protocol):
                 self.board[BORAD_HEIGHT - 1 - y][x] = FULL_BLOCK if val else EMPTY_BLOCK
 
         # Send board to agent if this is new piece
-        cmd_out = []
         if self.fresh_piece and y == TOP_LINE:
             self._send_update_to_agent(top_row=row, game_is_over=False)
             self.fresh_piece = False
-            # self._print_board()
 
-        return True, []
+        return True
 
     def _send_update_to_agent(self, top_row, game_is_over):
         """Send update to DQN agent."""
         norm_board = self._normalized_board(top_row)
         board = "".join([("%0.2f " % val) for val in norm_board])
-
 
         game_is_over = str(int(game_is_over))
         lines_cleared = str(self.lines_cleared)
@@ -368,7 +339,6 @@ class RobotProxy(asyncio.Protocol):
 
         report = str(game_is_over) + " " + lines_cleared + " " + board + "\n"
         self.transport.write(report.encode())
-        # log("[!!!] Handling time", time.time() - self.tic)
         # log("Report", report)
 
     def _normalized_board(self, top_row):
