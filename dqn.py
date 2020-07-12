@@ -117,7 +117,7 @@ def play_one_game(env, agent):
 
         epsilon = adjust_epsilon(epsilon)
 
-        log("One round", time.time() - tic)
+        log("One round:", time.time() - tic)
 
 
 def adjust_epsilon(epsilon):
@@ -135,7 +135,10 @@ class Environment:
         self.conn = None
 
     def reset(self):
-        """Reset game."""
+        """
+        Reset game. Close connection with old robot and establish
+        connection with new one.
+        """
         print("Reset game")
         self.conn, addr = self.sock.accept()
         done_status, reward, state = self._recevie_data()
@@ -143,6 +146,7 @@ class Environment:
         return state
 
     def step(self, action):
+        """Send action to robot and receive new feedback."""
         tic = time.time()
         if action >= ACTION_SPACE_SIZE:
             raise Exception("Action not in action space")
@@ -155,33 +159,33 @@ class Environment:
 
         done_status, reward, state = self._recevie_data()
 
-        delay = time.time() - tic
-        # print("Step delay", delay)
         return done_status, reward, state
 
     def close(self):
+        """Close connection with robot."""
         if self.conn:
             self.conn.close()
 
     def _recevie_data(self):
+        """Receive data from robot."""
         if not self.conn:
             raise Exception('Connection not established')
 
         data = bytes()
+
+        # Ensure that new full data is received (single line with \n at the end)
         while True:
             data += self.conn.recv(1024)
 
             if b'\n' in data:
                 break
 
-        # log('data decode', data.decode())
+        # Parse data from robot
         done_status, reward, *state = data.decode().split()
 
         done_status = True if int(done_status) else False
         reward = int(reward)
         state = np.array([float(val) for val in state])
-        # log(done_status, reward, state)
-        # log("receive state.shape", state.shape)
 
         if done_status:
             log("Game is over")
@@ -250,9 +254,8 @@ class Agent:
         Also flatten output - from (1, ACTION_SPACE_SIZE) shape to
         (ACTION_SPACE_SIZE,)
         """
-        aaa = np.array(state).reshape(1, BOARD_HEIGHT, BOARD_WIDTH, 1)
-        # log("Array shape:", state.shape, aaa.shape)
-        return self.model.predict(aaa)[0]
+        state = state.reshape(1, BOARD_HEIGHT, BOARD_WIDTH, 1)
+        return self.model.predict(state)[0]
 
     def train(self, done_status):
         """Trains main NN model every step during episode."""
@@ -267,6 +270,7 @@ class Agent:
 
         # Get current states from mini-batch, then query NN model for Q values
         current_states = np.array([transition.current_state for transition in minibatch])
+        current_states = current_states.reshape(MINIBATCH_SIZE, BOARD_HEIGHT, BOARD_WIDTH, 1)
         current_qs_list = self.model.predict(current_states)
 
         # Get future states from mini-batch, then query NN model for Q values
