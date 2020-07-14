@@ -76,9 +76,7 @@ def main():
     args = parse_args()
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        env = Environment(sock)
         agent = Agent()
-
         start_episode = 0
         if args.episode:
             load(agent, args.episode)
@@ -87,6 +85,7 @@ def main():
         sock.bind((HOST, args.port))
         sock.listen()
         log("Starting server at %s:%d" % (HOST, args.port))
+        env = Environment(sock)
 
         learn(env, agent, start_episode)
 
