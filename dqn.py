@@ -66,10 +66,10 @@ EPSILON_DECAY = 0.999           # Try/explore other actions to escape local mini
 MIN_EPSILON = 0.001
 
 
-SNAPSHOT = 10
-MODEL_SNAPSHOT = "dqn_model_%05d.h5"
-TARGET_MODEL_SNAPSHOT = "dqn_target_model_%05d.h5"
-DATA_SNAPSHOT = "dqn_data_%05d.pickle"
+SNAPSHOT = 100
+MODEL_SNAPSHOT = "%05d_model.h5"
+TARGET_MODEL_SNAPSHOT = "%05d_target_model.h5"
+DATA_SNAPSHOT = "%05d_data.pickle"
 
 
 def main():
@@ -384,19 +384,19 @@ class Transition:
 
 def save(agent, episode):
     """Save shapshot."""
-    agent.model.save_weights(MODEL_SNAPSHOT % num, save_format="h5")
-    agent.target_model.save_weights(TARGET_MODEL_PATH % num, save_format="h5")
+    agent.model.save_weights(MODEL_SNAPSHOT % episode, save_format="h5")
+    agent.target_model.save_weights(TARGET_MODEL_SNAPSHOT % episode, save_format="h5")
 
-    with open(DATA_SNAPSHOT % num , "wb") as f
+    with open(DATA_SNAPSHOT % episode, "wb") as f:
         pickle.dump((agent.target_update_counter, agent.replay_memory), f)
 
 
 def load(agent, episode):
     """Load shapshot."""
-    agent.model.load_weights(MODEL_SNAPSHOT % num)
-    agent.target_model.load_weights(TARGET_MODEL_SNAPSHOT % num)
+    agent.model.load_weights(MODEL_SNAPSHOT % episode)
+    agent.target_model.load_weights(TARGET_MODEL_SNAPSHOT % episode)
 
-    with open(DATA_SNAPSHOT % num, "rb") as f:
+    with open(DATA_SNAPSHOT % episode, "rb") as f:
         agent.target_update_counter, agent.replay_memory = pickle.load(f)
 
 
