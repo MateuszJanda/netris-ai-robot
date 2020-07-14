@@ -40,6 +40,7 @@ from collections import deque
 import socket
 import time
 import argparse
+import pickle
 
 
 # Netris/environment parameters
@@ -65,18 +66,29 @@ EPSILON_DECAY = 0.999           # Try/explore other actions to escape local mini
 MIN_EPSILON = 0.001
 
 
+SNAPSHOT = 10
+MODEL_SNAPSHOT = "dqn_model_%05d.h5"
+TARGET_MODEL_SNAPSHOT = "dqn_target_model_%05d.h5"
+DATA_SNAPSHOT = "dqn_data_%05d.pickle"
+
+
 def main():
     args = parse_args()
-    log("Starting server at %s:%d" % (HOST, args.port))
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.bind((HOST, args.port))
-        sock.listen()
-
         env = Environment(sock)
         agent = Agent()
 
-        learn(env, agent)
+        start_episode = 0
+        if args.episode:
+            load(agent, args.episode)
+            start_episode = args.episode + 1
+
+        sock.bind((HOST, args.port))
+        sock.listen()
+        log("Starting server at %s:%d" % (HOST, args.port))
+
+        learn(env, agent, start_episode)
 
         env.close()
 
@@ -97,19 +109,27 @@ def parse_args():
         epilog=' \n',
         formatter_class=CustomFormatter)
 
+    parser.add_argument('-l', '--load_episode', required=False, action='store', dest='episode',
+                        help='Load data from idicated episode')
     parser.add_argument('-p', '--port', required=False, action='store', default=PORT, dest='port',
                         help='Listen at port')
 
     args = parser.parse_args()
     args.port = int(args.port)
 
+    if args.episode:
+        args.episode = int(args.episode)
+
     return args
 
 
-def learn(env, agent):
+def learn(env, agent, start_episode):
     """Learn though episodes."""
-    for _ in range(EPISODES):
+    for episode in range(start_episode, EPISODES):
         play_one_game(env, agent)
+
+        if episode > 0 and episode % SNAPSHOT == 0:
+            save(agent, episode)
 
 
 def play_one_game(env, agent):
@@ -361,6 +381,24 @@ class Transition:
         self.reward = reward
         self.new_state = new_state
         self.done_status = done_status
+
+
+def save(agent, episode):
+    """Save shapshot."""
+    agent.model.save_weights(MODEL_SNAPSHOT % num, save_format="h5")
+    agent.target_model.save_weights(TARGET_MODEL_PATH % num, save_format="h5")
+
+    with open(DATA_SNAPSHOT % num , "wb") as f
+        pickle.dump((agent.target_update_counter, agent.replay_memory), f)
+
+
+def load(agent, episode):
+    """Load shapshot."""
+    agent.model.load_weights(MODEL_SNAPSHOT % num)
+    agent.target_model.load_weights(TARGET_MODEL_SNAPSHOT % num)
+
+    with open(DATA_SNAPSHOT % num, "rb") as f:
+        agent.target_update_counter, agent.replay_memory = pickle.load(f)
 
 
 def print_board(board):

@@ -52,7 +52,8 @@ def extract_data(action_filter, file_name):
     print("Total: %d, extracted: %d (%0.2f%%)" % (total, len(data), len(data)/total*100))
     print("Single input size: %d" % len(data[0][0]))
 
-    pickle.dump(data, open(file_name, "wb"))
+    with open(file_name, "wb") as f
+        pickle.dump(data, f)
     print("Data saved to: %s" % file_name)
 
 
