@@ -33,7 +33,8 @@ LOG_FILE = None
 
 
 def main():
-    sigpipe_old = signal.getsignal(signal.SIGPIPE)
+    # Should prevent BrokenPipeError
+    signal.getsignal(signal.SIGPIPE)
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
     args = parse_args()
