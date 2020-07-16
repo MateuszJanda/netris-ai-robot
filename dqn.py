@@ -308,6 +308,7 @@ class Agent:
         (ACTION_SPACE_SIZE,)
         """
         state = state.reshape(1, BOARD_HEIGHT, BOARD_WIDTH, 1)
+        log("[+] Tutaj")
         return self.model.predict(state)[0]
 
     def train(self, done_status):
