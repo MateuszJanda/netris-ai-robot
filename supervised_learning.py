@@ -37,7 +37,7 @@ def main():
         x_test, y_shift_test, y_rotate_test = load_data()
 
     # TensorBoard settings
-    log_dir = "tf_logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_dir = "tb_logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
     # Fit model
