@@ -1,17 +1,22 @@
 ## DQN learning setup
-Setup Netris server
+Run Netris server at host
 ```bash
-./netris -w -u -i 1
+./netris -w -u -i 2
 ```
 
-Setup proxy robot
+Run proxy robot at host
 ```bash
-./netris -n -m -c localhost -i 1 -r './dqn_robot.py --log-in-terminal /dev/pts/3'
+./netris -n -m -c localhost -i 2 -r './dqn_robot.py -t /dev/pts/3'
+```
+
+Create docker container
+```bash
+docker run -v $PWD:/tmp -w /tmp --gpus all -it --name tf_netris --network host tensorflow/tensorflow:latest-gpu-py3
 ```
 
 Setup DQN agent
 ```bash
-python dqn.py
+docker exec -it tf_netris python dqn.py
 ```
 
 ## Example
