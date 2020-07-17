@@ -66,7 +66,7 @@ EPSILON_DECAY = 0.999           # Try/explore other actions to escape local mini
 MIN_EPSILON = 0.001
 
 
-SNAPSHOT = 100
+SNAPSHOT = 50
 MODEL_SNAPSHOT = "%05d_model.h5"
 TARGET_MODEL_SNAPSHOT = "%05d_target_model.h5"
 DATA_SNAPSHOT = "%05d_data.pickle"
@@ -75,14 +75,11 @@ DATA_SNAPSHOT = "%05d_data.pickle"
 def main():
     args = parse_args()
 
+    # Fixed memory limit to prevent crash
     gpus = tf.config.experimental.list_physical_devices('GPU')
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
     tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
-
-    # config = tf.ConfigProto()
-    # config.gpu_options.per_process_gpu_memory_fraction = 0.5
-    # tf.keras.backend.set_session(tf.Session(config=config));
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         agent = Agent()
