@@ -123,7 +123,7 @@ def got_robot_cmd(queue):
 def cancel_all_task(result=None):
     log("Cancel all tasks")
     loop = asyncio.get_event_loop()
-    for task in asyncio.Task.all_tasks():
+    for task in asyncio.all_tasks():
         task.cancel()
     loop.create_task(stop_loop())
 
@@ -179,6 +179,8 @@ class RobotProxy(asyncio.Protocol):
         self.transport = None
         self.buffer = bytes()
 
+        self.tic = time.time()
+
     def connection_made(self, transport):
         """DQN agent established connection with robot."""
         log("Connection from DQN agent")
@@ -229,6 +231,7 @@ class RobotProxy(asyncio.Protocol):
         cmd_out.append("Drop " + self.sequence_num)
         for c in cmd_out:
             self._send_robot_cmd(c)
+        self.tic = time.time()
 
     async def _wait_for_robot_cmd(self):
         """Wait for command from stdin."""
@@ -248,15 +251,17 @@ class RobotProxy(asyncio.Protocol):
             "RowUpdate" : self._handle_cmd_row_update,
         }
 
-        name = command.split(" ")[0]
+        name = command.strip().split(" ")[0]
         if name == "":
             log("[!] Empty command. Should not happen.")
             return
-        elif name not in handlers:
+        if name not in handlers:
             self.loop.create_task(self._wait_for_robot_cmd())
             return
 
-        params = command.split(" ")[1:]
+        # log("Time:", time.time() - self.tic, name)
+
+        params = command.strip().split(" ")[1:]
         continue_loop = handlers[name](params)
 
         if not continue_loop:

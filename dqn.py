@@ -136,18 +136,23 @@ def learn(env, agent, start_episode):
         if episode > 0 and episode % SNAPSHOT == 0:
             save(agent, episode)
 
+        log("Episode %d, moves %d, avg handling time: %0.4f, game time: %0.4f"
+            % (episode,
+                len(env.handling_time),
+                sum(env.handling_time) / len(env.handling_time),
+                time.time() - env.game_tic))
+
 
 def play_one_game(env, agent):
     """Play one game."""
-    # Reset episode reward
     episode_reward = 0
     epsilon = 1
 
     # Reset environment and get initial state
     current_state = env.reset()
 
-    if len(agent.replay_memory) >= MIN_REPLAY_MEMORY_SIZE:
-        log("Enought data in replay memory. Learning started.")
+    # if len(agent.replay_memory) >= MIN_REPLAY_MEMORY_SIZE:
+    #     log("Enought data in replay memory. Learning started.")
 
     # Reset flag and start iterating until episode ends
     done_status = False
@@ -174,8 +179,6 @@ def play_one_game(env, agent):
 
         epsilon = adjust_epsilon(epsilon)
 
-        log("One round:", time.time() - tic)
-
 
 def adjust_epsilon(epsilon):
     """Decay epsilon."""
@@ -192,12 +195,17 @@ class Environment:
         self.conn = None
         self.buffer = bytes()
 
+        self.step_tic = time.time()
+        self.game_tic = time.time()
+        self.handling_time = []
+
     def reset(self):
         """
         Reset game. Close connection with old robot and establish
         connection with new one.
         """
-        print("Reset game")
+        self.game_tic = time.time()
+        self.handling_time = []
         self.conn, addr = self.sock.accept()
         done_status, reward, state = self._recevie_data()
 
@@ -205,10 +213,10 @@ class Environment:
 
     def step(self, action):
         """Send action to robot and receive new feedback."""
-        tic = time.time()
         if action >= ACTION_SPACE_SIZE:
             raise Exception("Action not in action space")
 
+        self.handling_time.append(time.time() - self.step_tic)
         shift = action % BOARD_WIDTH - SHFIT_OFFSET
         rotate = action // BOARD_WIDTH
 
@@ -236,6 +244,8 @@ class Environment:
             if b'\n' in self.buffer:
                 break
 
+        self.step_tic = time.time()
+
         msg = self.buffer[:self.buffer.find(b'\n')]
         self.buffer = self.buffer[self.buffer.find(b'\n') + 1:]
 
@@ -246,8 +256,8 @@ class Environment:
         reward = int(reward)
         state = np.array([float(val) for val in state])
 
-        if done_status:
-            log("Game is over")
+        # if done_status:
+        #     log("Game is over")
 
         return done_status, reward, state
 
@@ -314,7 +324,6 @@ class Agent:
         (ACTION_SPACE_SIZE,)
         """
         state = state.reshape(1, BOARD_HEIGHT, BOARD_WIDTH, 1)
-        log("[+] Tutaj")
         return self.model.predict(state)[0]
 
     def train(self, done_status):
