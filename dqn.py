@@ -114,7 +114,7 @@ def parse_args():
         epilog=' \n',
         formatter_class=CustomFormatter)
 
-    parser.add_argument('-l', '--load_episode', required=False, action='store', dest='episode',
+    parser.add_argument('-e', '--load_episode', required=False, action='store', dest='episode',
                         help='Load data from idicated episode')
     parser.add_argument('-p', '--port', required=False, action='store', default=PORT, dest='port',
                         help='Listen at port')

@@ -246,7 +246,7 @@ class RobotProxy(asyncio.Protocol):
             "Ext:LinesCleared" : self._handle_cmd_lines_cleared,
             "Exit" : self._handle_cmd_exit,
             "Version" : self._handle_cmd_version,
-            "NewPiece" : self._hanle_cmd_new_pice,
+            "NewPiece" : self._handle_cmd_new_piece,
             "BoardSize" : self._handle_cmd_board_size,
             "RowUpdate" : self._handle_cmd_row_update,
         }
@@ -298,7 +298,7 @@ class RobotProxy(asyncio.Protocol):
 
         return True
 
-    def _hanle_cmd_new_pice(self, params):
+    def _handle_cmd_new_piece(self, params):
         """
         Handle NewPiece from server. Unfortunately server provide here only
         sequence number not real piece id.

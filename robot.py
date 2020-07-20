@@ -31,157 +31,6 @@ LOG_FILE = None
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
 
 
-class Robot:
-    COLOR_TO_PIECE = {
-        1: 4,      # 11
-        2: 0,      # 0
-        3: 1,      # 2
-        4: 2,      # 3
-        5: 3,      # 7
-        6: 5,      # 15
-        7: 6,      # 17
-    }
-
-    PIECE_TO_PIECE_ID = {
-        4: 11,
-        0: 0,
-        1: 2,
-        2: 3,
-        3: 7,
-        5: 15,
-        6: 17,
-    }
-
-    PIECE_ID_TO_NAME = {
-        11: "white pyramid",
-        0 : "blue log",
-        2 : "violet square",
-        3 : "azure L",
-        7 : "yellow mirror L",
-        15: "green S",
-        17: "red Z",
-    }
-
-    def __init__(self):
-        self.model = sl.create_model()
-
-        # checkpoint_path = "checkpoints/only_wins/cp.cpkt"
-        checkpoint_path = "checkpoints/no_gaps/cp.cpkt"
-        if not os.path.isfile(checkpoint_path + ".index"):
-            raise Exception("Missing checkpoint " + checkpoint_path + ". Can't initialize model.")
-        self.model.load_weights(checkpoint_path)
-
-        self.board = np.zeros(shape=(BORAD_HEIGHT, BOARD_WIDTH), dtype=int)
-        self.sequence_num = None
-        self.fresh_piece = False
-        self.piece = None
-
-    def exit(self, params):
-        """Handle Exit command."""
-        return True, []
-
-    def new_pice(self, params):
-        """
-        Handle NewPiece from server. Unfortunately server provide here only
-        sequence number not real piece id.
-        """
-        self.sequence_num = params[0]
-        self.fresh_piece = True
-
-        return True, []
-
-    def board_size(self, params):
-        """Handle BoardSize command from server. Validate height and width."""
-        scr_id, height, width = [int(p) for p in params]
-
-        if width != BOARD_WIDTH and height != BORAD_HEIGHT:
-            log("[!] Validation board size fail %d %d %d %d" % (width, BOARD_WIDTH, height, BORAD_HEIGHT))
-            return False, ["Exit"]
-
-        return True, []
-
-    def row_update(self, params):
-        """
-        Handle RowUpdate command from server. Update board and take action for
-        new piece.
-        """
-        params = [int(p) for p in params]
-
-        # Analyze data (board) that belongs only to this robot
-        if params[0] != SCREEN_ID:
-            return True, []
-
-        y = params[1]
-        # Server inform about switch from piece block to fixed block starting
-        # from second RowUpdate command after NewPiece command. This is to late,
-        # for prediction, so better is assume that first line is always empty.
-        if y != TOP_LINE:
-            for x, val in enumerate(params[2:]):
-                self.board[BORAD_HEIGHT - 1 - y][x] = FULL_BLOCK if val else EMPTY_BLOCK
-
-        # Take action if this is new piece
-        cmd_out = []
-        if self.fresh_piece and y == TOP_LINE:
-            piece = self._extract_piece(params)
-            cmd_out = self._action_commands(piece)
-            self.fresh_piece = False
-            # self._print_board()
-
-        return True, cmd_out
-
-    def _extract_piece(self, params):
-        """Extract new piece order number from row."""
-        for color_type in params[2:]:
-            # Block of moving piece have negative values
-            if color_type < 0:
-                color_type = -color_type
-                log("Extracted piece:", Robot.PIECE_ID_TO_NAME[Robot.PIECE_TO_PIECE_ID[Robot.COLOR_TO_PIECE[color_type]]])
-                return Robot.COLOR_TO_PIECE[color_type]
-
-        log("Missing new piece")
-        raise Exception("Missing new piece.")
-        return None
-
-    def _action_commands(self, piece):
-        """Determine next robot move."""
-        shift, rotate = self._predict_action(piece)
-
-        cmd_out = []
-        if shift < 0:
-            while shift != 0:
-                cmd_out.append("Left " + self.sequence_num)
-                shift += 1
-        elif shift > 0:
-            while shift != 0:
-                cmd_out.append("Right " + self.sequence_num)
-                shift -= 1
-
-        while rotate != 0:
-            cmd_out.append("Rotate " + self.sequence_num)
-            rotate -= 1
-
-        cmd_out.append("Drop " + self.sequence_num)
-        return cmd_out
-
-    def _predict_action(self, piece):
-        """Prediction action by piece and current board state."""
-        normalized_piece = piece / (len(Robot.COLOR_TO_PIECE) - 1)
-        x_data = np.array([np.concatenate(([normalized_piece], self.board.flatten()))])
-
-        y_shift, y_rotate = self.model.predict(x_data)
-        shift = np.argmax(y_shift) - SHFIT_OFFSET
-        rotate = np.argmax(y_rotate)
-
-        return shift, rotate
-
-    def _print_board(self):
-        """Print current board state. For debug purpose."""
-        log("Board")
-        for line in self.board:
-            l = "".join(["1" if b else " " for b in line])
-            log(l)
-
-
 def main():
     args = parse_args()
     robot = Robot()
@@ -200,14 +49,14 @@ def main():
 
 
 def command_loop(robot):
-    """Handle command from server."""
+    """Handle commands from server."""
     send_command("Version 1")
 
     handler = {
-        "Exit" : robot.exit,
-        "NewPiece" : robot.new_pice,
-        "BoardSize" : robot.board_size,
-        "RowUpdate" : robot.row_update,
+        "Exit" : robot.handle_cmd_exit,
+        "NewPiece" : robot.handle_cmd_new_piece,
+        "BoardSize" : robot.handle_cmd_board_size,
+        "RowUpdate" : robot.handle_cmd_row_update,
     }
 
     while True:
@@ -259,6 +108,155 @@ def parse_args():
         args.log_name = None
 
     return args
+
+
+class Robot:
+    COLOR_TO_PIECE = {
+        -1: 4,      # Piece Id: 11
+        -2: 0,      # Piece Id: 0
+        -3: 1,      # Piece Id: 2
+        -4: 2,      # Piece Id: 3
+        -5: 3,      # Piece Id: 7
+        -6: 5,      # Piece Id: 15
+        -7: 6,      # Piece Id: 17
+    }
+
+    PIECE_TO_PIECE_ID = {
+        4: 11,
+        0: 0,
+        1: 2,
+        2: 3,
+        3: 7,
+        5: 15,
+        6: 17,
+    }
+
+    PIECE_ID_TO_NAME = {
+        11: "white pyramid",
+        0 : "blue log",
+        2 : "violet square",
+        3 : "azure L",
+        7 : "yellow mirror L",
+        15: "green S",
+        17: "red Z",
+    }
+
+    def __init__(self):
+        self.model = sl.create_model()
+
+        # checkpoint_path = "checkpoints/only_wins/cp.cpkt"
+        checkpoint_path = "checkpoints/no_gaps/cp.cpkt"
+        if not os.path.isfile(checkpoint_path + ".index"):
+            raise Exception("Missing checkpoint " + checkpoint_path + ". Can't initialize model.")
+        self.model.load_weights(checkpoint_path)
+
+        self.board = np.zeros(shape=(BORAD_HEIGHT, BOARD_WIDTH), dtype=int)
+        self.sequence_num = None
+        self.fresh_piece = False
+        self.piece = None
+
+    def handle_cmd_exit(self, params):
+        """Handle Exit command."""
+        return True, []
+
+    def handle_cmd_new_piece(self, params):
+        """
+        Handle NewPiece from server. Unfortunately server provide here only
+        sequence number not real piece id.
+        """
+        self.sequence_num = params[0]
+        self.fresh_piece = True
+
+        return True, []
+
+    def handle_cmd_board_size(self, params):
+        """Handle BoardSize command from server. Validate height and width."""
+        scr, height, width = [int(p) for p in params]
+
+        if width != BOARD_WIDTH and height != BORAD_HEIGHT:
+            log("[!] Validation board size fail %d %d %d %d" % (width, BOARD_WIDTH, height, BORAD_HEIGHT))
+            return False, ["Exit"]
+
+        return True, []
+
+    def handle_cmd_row_update(self, params):
+        """
+        Handle RowUpdate command from server. Update board and take action for
+        new piece.
+        """
+        scr, y, *row = [int(p) for p in params]
+
+        # Analyze data (board) that belongs only to this robot
+        if scr != SCREEN_ID:
+            return True, []
+
+        # Server inform about switch from piece block to fixed block starting
+        # from second RowUpdate command after NewPiece command. This is to late,
+        # for prediction, so better is assume that first line is always empty.
+        if y != TOP_LINE:
+            for x, val in enumerate(row):
+                self.board[BORAD_HEIGHT - 1 - y][x] = FULL_BLOCK if val else EMPTY_BLOCK
+
+        # Take action if this is new piece
+        cmd_out = []
+        if self.fresh_piece and y == TOP_LINE:
+            piece = self._extract_piece(row)
+            cmd_out = self._action_commands(piece)
+            self.fresh_piece = False
+            # self._print_board()
+
+        return True, cmd_out
+
+    def _extract_piece(self, row):
+        """Extract new piece order number from row."""
+        for color_type in row:
+            # Block of moving piece have negative values
+            if color_type < 0:
+                log("Extracted piece:", Robot.PIECE_ID_TO_NAME[Robot.PIECE_TO_PIECE_ID[Robot.COLOR_TO_PIECE[color_type]]])
+                return Robot.COLOR_TO_PIECE[color_type]
+
+        log("Missing new piece")
+        raise Exception("Missing new piece.")
+        return None
+
+    def _action_commands(self, piece):
+        """Determine next robot move."""
+        shift, rotate = self._predict_action(piece)
+
+        cmd_out = []
+        if shift < 0:
+            while shift != 0:
+                cmd_out.append("Left " + self.sequence_num)
+                shift += 1
+        elif shift > 0:
+            while shift != 0:
+                cmd_out.append("Right " + self.sequence_num)
+                shift -= 1
+
+        while rotate != 0:
+            cmd_out.append("Rotate " + self.sequence_num)
+            rotate -= 1
+
+        cmd_out.append("Drop " + self.sequence_num)
+        return cmd_out
+
+    def _predict_action(self, piece):
+        """Prediction action by piece and current board state."""
+        normalized_piece = piece / (len(Robot.COLOR_TO_PIECE) - 1)
+        x_data = np.array([np.concatenate(([normalized_piece], self.board.flatten()))])
+
+        y_shift, y_rotate = self.model.predict(x_data)
+        shift = np.argmax(y_shift) - SHFIT_OFFSET
+        rotate = np.argmax(y_rotate)
+
+        return shift, rotate
+
+    def _print_board(self):
+        """Print current board state. For debug purpose."""
+        log("Board")
+        for line in self.board:
+            l = "".join(["1" if b else " " for b in line])
+            log(l)
 
 
 def create_log_name():
