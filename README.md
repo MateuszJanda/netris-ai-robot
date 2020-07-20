@@ -6,7 +6,7 @@ Run Netris server at host
 
 Run proxy robot at host
 ```bash
-./netris -n -m -c localhost -i 2 -r './dqn_robot.py -t /dev/pts/3'
+./netris -n -m -c localhost -i 2 -r 'python dqn_proxy.py -t /dev/pts/3'
 ```
 
 Create docker container
@@ -26,7 +26,7 @@ netris -w
 ```
 Connect **robot** to server as second player
 ```bash
-netris -c localhost -r './robot.py --log-to-file'
+netris -c localhost -r 'python robot_sl.py -f'
 ```
 
 ## Setup
