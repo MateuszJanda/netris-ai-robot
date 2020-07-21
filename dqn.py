@@ -253,7 +253,7 @@ class Environment:
         done_status, reward, *state = msg.decode().split()
 
         done_status = True if int(done_status) else False
-        reward = int(reward)
+        reward = float(reward)
         state = np.array([float(val) for val in state])
 
         # if done_status:
@@ -304,6 +304,7 @@ class Agent:
 
         model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(units=64))
+        model.add(tf.keras.layers.Activation(activation='relu'))
 
         model.add(tf.keras.layers.Dense(units=ACTION_SPACE_SIZE, activation='linear'))
 

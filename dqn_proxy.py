@@ -174,6 +174,7 @@ class RobotProxy(asyncio.Protocol):
         self.sequence_num = None
         self.fresh_piece = False
         self.piece = None
+        self.round = 0
         self.lines_cleared = 0
 
         self.transport = None
@@ -305,6 +306,7 @@ class RobotProxy(asyncio.Protocol):
         """
         self.sequence_num = params[0]
         self.fresh_piece = True
+        self.round += 1
 
         return True
 
@@ -353,10 +355,10 @@ class RobotProxy(asyncio.Protocol):
         flat_board = "".join([("%0.2f " % val) for val in norm_board])
 
         game_is_over = str(int(game_is_over))
-        lines_cleared = str(self.lines_cleared)
+        score = str(self.lines_cleared * 100 + self.round * 0.5)
         self.lines_cleared = 0
 
-        report = str(game_is_over) + " " + lines_cleared + " " + flat_board + "\n"
+        report = str(game_is_over) + " " + score + " " + flat_board + "\n"
         self.transport.write(report.encode())
 
     def _normalized_board(self, top_row):
