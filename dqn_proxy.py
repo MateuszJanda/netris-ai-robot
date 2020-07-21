@@ -201,6 +201,8 @@ class RobotProxy(asyncio.Protocol):
             sys.stdout.write(cmd + "\n")
             sys.stdout.flush()
         except (BrokenPipeError, IOError):
+            # Reading process terminates and closes its end of the pipe while
+            # script still tries to write.
             log("[!] BrokenPipeError. Probably command was not sent.")
 
     def data_received(self, data):
