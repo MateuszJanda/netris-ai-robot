@@ -49,7 +49,7 @@ BOARD_HEIGHT = 20
 ACTION_SPACE_SIZE = 4*10
 SHFIT_OFFSET = 5
 HOST = "127.0.0.1"
-PORT = 9898
+PORT = 9800
 
 # DQN parameters
 DISCOUNT = 0.99                 # Gamma (𝛾) parameter from Bellman equation
@@ -109,7 +109,7 @@ def parse_args():
                 'Mateusz Janda (c) <mateusz janda at gmail com>\n'
                 'netris-ai-robot project github.com/MateuszJanda/sloper\n'
                 '\n'
-                'Robot is waiting for connection from Agent at 127.0.0.1:9898\n',
+                'Robot is waiting for connection from Agent at ' + HOST + ':' + str(PORT) + '\n',
         usage='Please try to use -h, --help for more informations',
         epilog=' \n',
         formatter_class=CustomFormatter)

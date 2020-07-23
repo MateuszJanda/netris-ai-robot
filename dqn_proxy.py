@@ -17,7 +17,7 @@ import numpy as np
 
 
 HOST = "127.0.0.1"
-PORT = 9898
+PORT = 9800
 
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
@@ -75,7 +75,7 @@ def parse_args():
                 'Mateusz Janda (c) <mateusz janda at gmail com>\n'
                 'netris-ai-robot project github.com/MateuszJanda/sloper\n'
                 '\n'
-                'Robot will try to connect with DQN agent at 127.0.0.1:9898\n',
+                'Robot will try to connect with DQN agent at ' + HOST + ':' + str(PORT) + '\n',
         usage='Please try to use -h, --help for more informations',
         epilog=' \n',
         formatter_class=CustomFormatter)
