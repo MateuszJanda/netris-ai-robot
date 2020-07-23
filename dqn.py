@@ -131,13 +131,14 @@ def parse_args():
 def learn(env, agent, start_episode):
     """Learn though episodes."""
     for episode in range(start_episode, EPISODES):
-        play_one_game(env, agent)
+        episode_reward = play_one_game(env, agent)
 
         if episode > 0 and episode % SNAPSHOT == 0:
             save(agent, episode)
 
-        log("Episode %d, moves %d, avg handling time: %0.4f, game time: %0.4f"
+        log("Episode %d, reward %0.2f, moves %d, avg handling time: %0.4f, game time: %0.4f"
             % (episode,
+                episode_reward,
                 len(env.handling_time),
                 sum(env.handling_time) / len(env.handling_time),
                 time.time() - env.game_tic))
@@ -178,6 +179,8 @@ def play_one_game(env, agent):
         current_state = new_state
 
         epsilon = adjust_epsilon(epsilon)
+
+    return episode_reward
 
 
 def adjust_epsilon(epsilon):
