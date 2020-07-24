@@ -1,12 +1,12 @@
 ## DQN learning setup
 Run Netris server at host
 ```bash
-./netris -w -u -i 0.1
+./netris-env -w -u -i 0.1
 ```
 
 Run proxy robot at host
 ```bash
-./netris -n -m -c localhost -i 0.1 -r 'python dqn_proxy.py -t /dev/pts/3'
+./netris-env -n -m -c localhost -i 0.1 -r 'python dqn_proxy.py -t /dev/pts/3'
 ```
 
 Create docker container
