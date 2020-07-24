@@ -285,8 +285,8 @@ class Agent:
     def create_simple_model(self):
         model = tf.keras.models.Sequential()
 
-        model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Dense(units=64, activation='relu'))
+        model.add(tf.keras.layers.Flatten(input_shape=(BOARD_HEIGHT, BOARD_WIDTH, 1)))
+        model.add(tf.keras.layers.Dense(units=128, activation='relu'))
 
         model.add(tf.keras.layers.Dense(units=64, activation='relu'))
 
