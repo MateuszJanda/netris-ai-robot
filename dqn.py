@@ -59,7 +59,7 @@ MIN_REPLAY_MEMORY_SIZE = 1_000  # Minimum number of steps in a memory to start t
 MINIBATCH_SIZE = 64             # How many steps (samples) to use for training
 UPDATE_TARGET = 5               # Copy weights every UPDATE_TARGET finished games
 
-EPISODES = 20_000               # Episodes == full games
+EPISODES = 2_000                # Episodes == full games
 
 # Exploration settings
 EPSILON_DECAY = 0.999           # Try/explore other actions to escape local minimum
@@ -295,19 +295,16 @@ class Agent:
         # filters: (integer) the dimensionality of the output space. Here for
         #   each pixel there will be generated 256 features.
         model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3),
-            input_shape=(BOARD_HEIGHT, BOARD_WIDTH, 1)))
-        model.add(tf.keras.layers.Activation(activation='relu'))
+            input_shape=(BOARD_HEIGHT, BOARD_WIDTH, 1), activation='relu'))
         model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
         model.add(tf.keras.layers.Dropout(rate=0.2))
 
-        model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3)))
-        model.add(tf.keras.layers.Activation(activation='relu'))
+        model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3), activation='relu'))
         model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
         model.add(tf.keras.layers.Dropout(rate=0.2))
 
         model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Dense(units=64))
-        model.add(tf.keras.layers.Activation(activation='relu'))
+        model.add(tf.keras.layers.Dense(units=64, activation='relu'))
 
         model.add(tf.keras.layers.Dense(units=ACTION_SPACE_SIZE, activation='linear'))
 
