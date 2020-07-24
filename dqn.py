@@ -134,7 +134,7 @@ def learn(env, agent, start_episode):
         episode_reward = play_one_game(env, agent)
 
         if episode > 0 and episode % SNAPSHOT == 0:
-            save(agent, episode)
+            save(agent, episode, episode_reward)
 
         log("Episode %d, reward %0.2f, moves %d, avg handling time: %0.4f, game time: %0.4f"
             % (episode,
@@ -415,13 +415,13 @@ class Transition:
         self.done_status = done_status
 
 
-def save(agent, episode):
+def save(agent, episode, episode_reward):
     """Save shapshot."""
     agent.model.save_weights(MODEL_SNAPSHOT % episode, save_format="h5")
     agent.target_model.save_weights(TARGET_MODEL_SNAPSHOT % episode, save_format="h5")
 
     with open(DATA_SNAPSHOT % episode, "wb") as f:
-        pickle.dump((agent.target_update_counter, agent.replay_memory), f)
+        pickle.dump((agent.target_update_counter, agent.replay_memory, episode_reward), f)
 
 
 def load(agent, episode):
@@ -430,7 +430,7 @@ def load(agent, episode):
     agent.target_model.load_weights(TARGET_MODEL_SNAPSHOT % episode)
 
     with open(DATA_SNAPSHOT % episode, "rb") as f:
-        agent.target_update_counter, agent.replay_memory = pickle.load(f)
+        agent.target_update_counter, agent.replay_memory, _ = pickle.load(f)
 
 
 def print_board(board):
