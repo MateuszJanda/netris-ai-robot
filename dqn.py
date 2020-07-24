@@ -270,10 +270,10 @@ class Agent:
 
     def __init__(self):
         # Build main NN model
-        self.model = self.create_model()
+        self.model = self.create_simple_model()
 
         # Build target NN model
-        self.target_model = self.create_model()
+        self.target_model = self.create_simple_model()
         self.target_model.set_weights(self.model.get_weights())
 
         # An array with last REPLAY_MEMORY_SIZE steps for training
@@ -281,6 +281,22 @@ class Agent:
 
         # Used to count when to update target NN with main NN weights
         self.target_update_counter = 0
+
+    def create_simple_model(self):
+        model = tf.keras.models.Sequential()
+
+        model.add(tf.keras.layers.Flatten())
+        model.add(tf.keras.layers.Dense(units=64, activation='relu'))
+
+        model.add(tf.keras.layers.Dense(units=64, activation='relu'))
+
+        model.add(tf.keras.layers.Dense(units=ACTION_SPACE_SIZE, activation='linear'))
+
+        # Compile model
+        model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.001), loss='mse',
+            metrics=['accuracy'])
+
+        return model
 
     def create_model(self):
         model = tf.keras.models.Sequential()
