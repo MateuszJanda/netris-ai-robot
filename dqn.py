@@ -59,13 +59,13 @@ MIN_REPLAY_MEMORY_SIZE = 1_000  # Minimum number of steps in a memory to start t
 MINIBATCH_SIZE = 64             # How many steps (samples) to use for training
 UPDATE_TARGET = 5               # Copy weights every UPDATE_TARGET finished games
 
-EPISODES = 2_000                # Episodes == full games
+EPISODES = 4_000                # Episodes == full games
 
 # Exploration settings
 EPSILON_DECAY = 0.999           # Try/explore other actions to escape local minimum
 MIN_EPSILON = 0.001
 
-
+# Snapshot settings
 SNAPSHOT_MOD = 25
 MODEL_SNAPSHOT = "%05d_model.h5"
 TARGET_MODEL_SNAPSHOT = "%05d_target_model.h5"
@@ -76,10 +76,11 @@ def main():
     args = parse_args()
 
     # Fixed memory limit to prevent crash
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    for gpu in gpus:
-        tf.config.experimental.set_memory_growth(gpu, True)
-    tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
+    if args.gpu:
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         agent = Agent()
@@ -116,6 +117,8 @@ def parse_args():
 
     parser.add_argument('-e', '--load_episode', required=False, action='store', dest='episode',
                         help='Load data from idicated episode')
+    parser.add_argument('-g', '--gpu', required=False, action='store_true', dest='gpu',
+                        help='Use GPU (with fixed memory limit to prevent crashes).')
     parser.add_argument('-p', '--port', required=False, action='store', default=PORT, dest='port',
                         help='Listen at port')
 
