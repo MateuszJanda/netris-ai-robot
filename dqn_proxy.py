@@ -218,6 +218,11 @@ class RobotProxy(asyncio.Protocol):
         log("Data received: shift: %d, rotate: %d" % (shift, rotate))
 
         cmd_out = []
+
+        while rotate != 0:
+            cmd_out.append("Rotate " + self.sequence_num)
+            rotate -= 1
+
         if shift < 0:
             while shift != 0:
                 cmd_out.append("Left " + self.sequence_num)
@@ -226,10 +231,6 @@ class RobotProxy(asyncio.Protocol):
             while shift != 0:
                 cmd_out.append("Right " + self.sequence_num)
                 shift -= 1
-
-        while rotate != 0:
-            cmd_out.append("Rotate " + self.sequence_num)
-            rotate -= 1
 
         cmd_out.append("Drop " + self.sequence_num)
         for c in cmd_out:
