@@ -224,6 +224,10 @@ class Robot:
         shift, rotate = self._predict_action(piece)
 
         cmd_out = []
+        while rotate != 0:
+            cmd_out.append("Rotate " + self.sequence_num)
+            rotate -= 1
+
         if shift < 0:
             while shift != 0:
                 cmd_out.append("Left " + self.sequence_num)
@@ -232,10 +236,6 @@ class Robot:
             while shift != 0:
                 cmd_out.append("Right " + self.sequence_num)
                 shift -= 1
-
-        while rotate != 0:
-            cmd_out.append("Rotate " + self.sequence_num)
-            rotate -= 1
 
         cmd_out.append("Drop " + self.sequence_num)
         return cmd_out
