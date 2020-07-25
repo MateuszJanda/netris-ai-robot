@@ -356,9 +356,13 @@ class RobotProxy(asyncio.Protocol):
         norm_board = self._normalized_board(top_row)
         flat_board = "".join([("%0.2f " % val) for val in norm_board])
 
-        game_is_over = str(int(game_is_over))
-        score = str(self.lines_cleared * 100 + self.round * 0.1)
+        if game_is_over:
+            score = -5
+        else:
+            score = str(self.lines_cleared**2 * 100 + 1)
         self.lines_cleared = 0
+
+        game_is_over = str(int(game_is_over))
 
         report = str(game_is_over) + " " + score + " " + flat_board + "\n"
         self.transport.write(report.encode())
