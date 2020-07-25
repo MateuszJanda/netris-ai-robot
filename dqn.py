@@ -66,7 +66,7 @@ EPSILON_DECAY = 0.999           # Try/explore other actions to escape local mini
 MIN_EPSILON = 0.001
 
 
-SNAPSHOT = 50
+SNAPSHOT_MOD = 25
 MODEL_SNAPSHOT = "%05d_model.h5"
 TARGET_MODEL_SNAPSHOT = "%05d_target_model.h5"
 DATA_SNAPSHOT = "%05d_data.pickle"
@@ -130,10 +130,10 @@ def parse_args():
 
 def learn(env, agent, start_episode):
     """Learn though episodes."""
-    for episode in range(start_episode, EPISODES):
+    for episode in range(start_episode, EPISODES + 1):
         episode_reward = play_one_game(env, agent)
 
-        if episode > 0 and episode % SNAPSHOT == 0:
+        if episode > 0 and episode % SNAPSHOT_MOD == 0:
             save(agent, episode, episode_reward)
 
         log("Episode %d, reward %0.2f, moves %d, avg handling time: %0.4f, game time: %0.4f"
