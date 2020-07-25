@@ -359,10 +359,10 @@ class RobotProxy(asyncio.Protocol):
 
         if game_is_over:
             score = -5
-        elif self.lines_cleared:
+        elif self.lines_cleared == 0:
             score = 1
         else:
-            score = (2 * self.lines_cleared - 1) * 100 + 1
+            score = (2 * self.lines_cleared - 1) * 100
         self.lines_cleared = 0
 
         game_is_over = int(game_is_over)
