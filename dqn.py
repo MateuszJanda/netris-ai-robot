@@ -163,11 +163,11 @@ def play_one_game(env, agent):
 
     while not last_round:
         tic = time.time()
-        # Explore other actions with probability 1 - epsilon
-        if np.random.random() > epsilon:
-            action = np.argmax(agent.get_q_values(current_state))
-        else:
+        # Explore other actions with probability epsilon
+        if np.random.random() <= epsilon:
             action = np.random.randint(0, ACTION_SPACE_SIZE)
+        else:
+            action = np.argmax(agent.get_q_values(current_state))
 
         last_round, reward, next_state = env.step(action)
 
