@@ -159,9 +159,9 @@ def play_one_game(env, agent):
     #     log("Enought data in replay memory. Learning started.")
 
     # Reset flag and start iterating until episode ends
-    done_status = False
+    last_round = False
 
-    while not done_status:
+    while not last_round:
         tic = time.time()
         # Explore other actions with probability 1 - epsilon
         if np.random.random() > epsilon:
@@ -169,15 +169,15 @@ def play_one_game(env, agent):
         else:
             action = np.random.randint(0, ACTION_SPACE_SIZE)
 
-        done_status, reward, next_state = env.step(action)
+        last_round, reward, next_state = env.step(action)
 
         # Transform new continuous state to new discrete state and count reward
         episode_reward += reward
 
         # Every step update replay memory and train main NN model
-        transition = Transition(current_state, action, reward, next_state, done_status)
+        transition = Transition(current_state, action, reward, next_state, last_round)
         agent.update_replay_memory(transition)
-        agent.train(done_status)
+        agent.train(last_round)
 
         current_state = next_state
 
@@ -213,7 +213,7 @@ class Environment:
         self.game_tic = time.time()
         self.handling_time = []
         self.conn, addr = self.sock.accept()
-        done_status, reward, state = self._recevie_data()
+        last_round, reward, state = self._recevie_data()
 
         return state
 
@@ -229,9 +229,9 @@ class Environment:
         message = str(shift) + ' ' + str(rotate) + '\n'
         self.conn.sendall(message.encode())
 
-        done_status, reward, state = self._recevie_data()
+        last_round, reward, state = self._recevie_data()
 
-        return done_status, reward, state
+        return last_round, reward, state
 
     def close(self):
         """Close connection with robot."""
@@ -256,16 +256,16 @@ class Environment:
         self.buffer = self.buffer[self.buffer.find(b'\n') + 1:]
 
         # Parse msg from robot
-        done_status, reward, *state = msg.decode().split()
+        last_round, reward, *state = msg.decode().split()
 
-        done_status = True if int(done_status) else False
+        last_round = True if int(last_round) else False
         reward = float(reward)
         state = np.array([float(val) for val in state])
 
-        # if done_status:
+        # if last_round:
         #     log("Game is over")
 
-        return done_status, reward, state
+        return last_round, reward, state
 
 
 class Agent:
@@ -342,7 +342,7 @@ class Agent:
         state = state.reshape(1, BOARD_HEIGHT, BOARD_WIDTH, 1)
         return self.model.predict(state)[0]
 
-    def train(self, done_status):
+    def train(self, last_round):
         """Trains main NN model every step during episode."""
 
         # Start training only if certain number of samples is already saved in
@@ -369,7 +369,7 @@ class Agent:
 
         for index, transition in enumerate(minibatch):
             # If not a terminal state then get new Q from future states (Bellman equation)
-            if not transition.done_status:
+            if not transition.last_round:
                 max_future_q = np.max(future_q_values[index])
                 new_q = transition.reward + DISCOUNT * max_future_q
             # Otherwise set to new Q reward
@@ -389,13 +389,13 @@ class Agent:
         self.model.fit(x=states, y=np.array(q_values), batch_size=MINIBATCH_SIZE,
             verbose=0, shuffle=False)
 
-        self.update_weights(done_status)
+        self.update_weights(last_round)
 
 
-    def update_weights(self, done_status):
+    def update_weights(self, last_round):
         """Update weights when counter reaches certain value."""
         # Update target NN counter every episode
-        if done_status:
+        if last_round:
             self.target_update_counter += 1
 
         # Update weights every UPDATE_TARGET end games
@@ -405,12 +405,12 @@ class Agent:
 
 
 class Transition:
-    def __init__(self, current_state, action, reward, next_state, done_status):
+    def __init__(self, current_state, action, reward, next_state, last_round):
         self.current_state = current_state
         self.action = action
         self.reward = reward
         self.next_state = next_state
-        self.done_status = done_status
+        self.last_round = last_round
 
 
 def save(agent, episode, episode_reward):
