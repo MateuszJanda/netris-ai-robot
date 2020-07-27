@@ -52,9 +52,9 @@ HOST = "127.0.0.1"
 PORT = 9800
 
 # DQN parameters
-DISCOUNT = 0.99                 # Gamma (𝛾) parameter from Bellman equation
-REPLAY_MEMORY_SIZE = 50_000     # Last steps kept for model training
-MIN_REPLAY_MEMORY_SIZE = 1_000  # Minimum number of steps in a memory to start training
+DISCOUNT = 0.95                 # Gamma (𝛾) parameter from Bellman equation
+REPLAY_MEMORY_SIZE = 100_000    # Last steps kept for model training
+MIN_REPLAY_MEMORY_SIZE = 2_000  # Minimum number of steps in a memory to start training
 
 MINIBATCH_SIZE = 64             # How many steps (samples) to use for training
 UPDATE_TARGET = 5               # Copy weights every UPDATE_TARGET finished games
@@ -169,17 +169,17 @@ def play_one_game(env, agent):
         else:
             action = np.random.randint(0, ACTION_SPACE_SIZE)
 
-        done_status, reward, new_state = env.step(action)
+        done_status, reward, next_state = env.step(action)
 
         # Transform new continuous state to new discrete state and count reward
         episode_reward += reward
 
         # Every step update replay memory and train main NN model
-        transition = Transition(current_state, action, reward, new_state, done_status)
+        transition = Transition(current_state, action, reward, next_state, done_status)
         agent.update_replay_memory(transition)
         agent.train(done_status)
 
-        current_state = new_state
+        current_state = next_state
 
         epsilon = adjust_epsilon(epsilon)
 
@@ -315,12 +315,8 @@ class Agent:
         #   each pixel there will be generated 256 features.
         model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3),
             input_shape=(BOARD_HEIGHT, BOARD_WIDTH, 1), activation='relu'))
-        model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
-        model.add(tf.keras.layers.Dropout(rate=0.2))
 
         model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3), activation='relu'))
-        model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
-        model.add(tf.keras.layers.Dropout(rate=0.2))
 
         model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(units=64, activation='relu'))
@@ -364,7 +360,7 @@ class Agent:
 
         # Get future states from mini-batch, then query NN model for Q values
         # When using target NN, query it, otherwise main network should be queried
-        next_states = np.array([transition.new_state for transition in minibatch])
+        next_states = np.array([transition.next_state for transition in minibatch])
         next_states = next_states.reshape(MINIBATCH_SIZE, BOARD_HEIGHT, BOARD_WIDTH, 1)
         future_q_values = self.target_model.predict(next_states)
 
@@ -390,7 +386,7 @@ class Agent:
 
         # Fit on all samples as one batch
         states = np.array(states).reshape(MINIBATCH_SIZE, BOARD_HEIGHT, BOARD_WIDTH, 1)
-        self.model.fit(x=states, y=np.array(qs), batch_size=MINIBATCH_SIZE,
+        self.model.fit(x=states, y=np.array(q_values), batch_size=MINIBATCH_SIZE,
             verbose=0, shuffle=False)
 
         self.update_weights(done_status)
@@ -409,11 +405,11 @@ class Agent:
 
 
 class Transition:
-    def __init__(self, current_state, action, reward, new_state, done_status):
+    def __init__(self, current_state, action, reward, next_state, done_status):
         self.current_state = current_state
         self.action = action
         self.reward = reward
-        self.new_state = new_state
+        self.next_state = next_state
         self.done_status = done_status
 
 
