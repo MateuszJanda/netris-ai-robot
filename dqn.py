@@ -165,7 +165,7 @@ def play_one_game(env, agent):
         tic = time.time()
         # Explore other actions with probability 1 - epsilon
         if np.random.random() > epsilon:
-            action = np.argmax(agent.get_qs(current_state))
+            action = np.argmax(agent.get_q_values(current_state))
         else:
             action = np.random.randint(0, ACTION_SPACE_SIZE)
 
@@ -337,7 +337,7 @@ class Agent:
         """Adds transition (step's data) to a replay memory."""
         self.replay_memory.append(transition)
 
-    def get_qs(self, state):
+    def get_q_values(self, state):
         """
         Queries main NN model for Q values given current observation (state).
         Also flatten output - from (1, ACTION_SPACE_SIZE) shape to
@@ -360,34 +360,33 @@ class Agent:
         # Get current states from mini-batch, then query NN model for Q values
         current_states = np.array([transition.current_state for transition in minibatch])
         current_states = current_states.reshape(MINIBATCH_SIZE, BOARD_HEIGHT, BOARD_WIDTH, 1)
-        current_qs_list = self.model.predict(current_states)
+        current_q_values = self.model.predict(current_states)
 
         # Get future states from mini-batch, then query NN model for Q values
         # When using target NN, query it, otherwise main network should be queried
-        new_states = np.array([transition.new_state for transition in minibatch])
-        new_states = new_states.reshape(MINIBATCH_SIZE, BOARD_HEIGHT, BOARD_WIDTH, 1)
-        future_qs_list = self.target_model.predict(new_states)
+        next_states = np.array([transition.new_state for transition in minibatch])
+        next_states = next_states.reshape(MINIBATCH_SIZE, BOARD_HEIGHT, BOARD_WIDTH, 1)
+        future_q_values = self.target_model.predict(next_states)
 
-        # Input (x), and output (y) for training
-        states = []
-        qs = []
+        states = []    # Input X
+        q_values = []  # Output Y
 
         for index, transition in enumerate(minibatch):
             # If not a terminal state then get new Q from future states (Bellman equation)
             if not transition.done_status:
-                max_future_q = np.max(future_qs_list[index])
+                max_future_q = np.max(future_q_values[index])
                 new_q = transition.reward + DISCOUNT * max_future_q
             # Otherwise set to new Q reward
             else:
                 new_q = transition.reward
 
             # Update Q value for given state
-            current_qs = current_qs_list[index]
-            current_qs[transition.action] = new_q
+            current_q_values = current_q_values[index]
+            current_q_values[transition.action] = new_q
 
             # Append to training data
             states.append(transition.current_state)
-            qs.append(current_qs)
+            q_values.append(current_q_values)
 
         # Fit on all samples as one batch
         states = np.array(states).reshape(MINIBATCH_SIZE, BOARD_HEIGHT, BOARD_WIDTH, 1)
