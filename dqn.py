@@ -66,7 +66,7 @@ EPSILON_DECAY = 0.999           # Try/explore other actions to escape local mini
 MIN_EPSILON = 0.001
 
 # Snapshot settings
-SNAPSHOT_MOD = 25
+SNAPSHOT_MOD = 50
 MODEL_SNAPSHOT = "%05d_model.h5"
 TARGET_MODEL_SNAPSHOT = "%05d_target_model.h5"
 DATA_SNAPSHOT = "%05d_data.pickle"
@@ -434,9 +434,10 @@ def load(agent, episode):
 def print_board(board):
     """Print board state. For debug only."""
     log("Board")
+    board = board.reshape(BOARD_HEIGHT, BOARD_WIDTH)
     for line in board:
         l = "".join(["1" if b else " " for b in line])
-        log(l)
+        log("|" + l + "|")
 
 
 def log(*args, **kwargs):
