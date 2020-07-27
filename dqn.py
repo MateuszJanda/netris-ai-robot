@@ -59,7 +59,7 @@ MIN_REPLAY_MEMORY_SIZE = 2_000  # Minimum number of steps in a memory to start t
 MINIBATCH_SIZE = 64             # How many steps (samples) to use for training
 UPDATE_TARGET = 5               # Copy weights every UPDATE_TARGET finished games
 
-EPISODES = 4_000                # Episodes == full games
+EPISODES = 20_000               # Episodes == full games
 
 # Exploration settings
 EPSILON_DECAY = 0.999           # Try/explore other actions to escape local minimum
