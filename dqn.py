@@ -377,12 +377,12 @@ class Agent:
                 new_q = transition.reward
 
             # Update Q value for given state
-            current_q_values = current_q_values[index]
-            current_q_values[transition.action] = new_q
+            current_qs = current_q_values[index]
+            current_qs[transition.action] = new_q
 
             # Append to training data
             states.append(transition.current_state)
-            q_values.append(current_q_values)
+            q_values.append(current_qs)
 
         # Fit on all samples as one batch
         states = np.array(states).reshape(MINIBATCH_SIZE, BOARD_HEIGHT, BOARD_WIDTH, 1)
