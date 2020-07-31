@@ -427,7 +427,7 @@ def save(agent, episode, episode_reward, moves):
         pickle.dump((agent.target_update_counter, agent.replay_memory, episode_reward), f)
 
     with open(STATS_FILE, "a") as f:
-        f.write("Episode: %d, moves: %d, reward: %f\n", episode, moves, episode_reward)
+        f.write("Episode: %d, moves: %d, reward: %f\n" % (episode, moves, episode_reward))
 
 
 def load(agent, episode):
