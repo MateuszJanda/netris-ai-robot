@@ -44,8 +44,8 @@ import pickle
 
 
 # Netris/environment parameters
-BOARD_WIDTH = 10
 BOARD_HEIGHT = 20
+BOARD_WIDTH = 10
 ACTION_SPACE_SIZE = 4*10
 SHFIT_OFFSET = 5
 HOST = "127.0.0.1"
@@ -262,7 +262,8 @@ class Environment:
 
         last_round = True if int(last_round) else False
         reward = float(reward)
-        state = np.array([float(val) for val in state])
+        state = np.array([float(val) for val in state]).reshape(BOARD_HEIGHT, BOARD_WIDTH)
+        state = np.pad(state, pad_width=1, mode='constant', constant_values=0)
 
         # if last_round:
         #     log("Game is over")
@@ -274,11 +275,15 @@ class Agent:
     """DQN agent."""
 
     def __init__(self):
+        # Board size with extra padding
+        self._height = BOARD_HEIGHT + 1
+        self._width = BOARD_WIDTH + 1
+
         # Build main NN model
-        self.model = self.create_flat_model()
+        self.model = self.create_cnn_model(self._height, self._width)
 
         # Build target NN model
-        self.target_model = self.create_flat_model()
+        self.target_model = self.create_cnn_model(self._height, self._width)
         self.target_model.set_weights(self.model.get_weights())
 
         # An array with last REPLAY_MEMORY_SIZE steps for training
@@ -287,10 +292,10 @@ class Agent:
         # Used to count when to update target NN with main NN weights
         self.target_update_counter = 0
 
-    def create_flat_model(self):
+    def create_flat_model(self, height, width):
         model = tf.keras.models.Sequential()
 
-        model.add(tf.keras.layers.Flatten(input_shape=(BOARD_HEIGHT, BOARD_WIDTH, 1)))
+        model.add(tf.keras.layers.Flatten(input_shape=(height, width, 1)))
         model.add(tf.keras.layers.Dense(units=128, activation='relu'))
 
         model.add(tf.keras.layers.Dense(units=64, activation='relu'))
@@ -303,7 +308,7 @@ class Agent:
 
         return model
 
-    def create_cnn_model(self):
+    def create_cnn_model(self, height, width):
         model = tf.keras.models.Sequential()
 
         # Conv2D:
@@ -316,7 +321,7 @@ class Agent:
         # filters: (integer) the dimensionality of the output space. Here for
         #   each pixel there will be generated 256 features.
         model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3),
-            input_shape=(BOARD_HEIGHT, BOARD_WIDTH, 1), activation='relu'))
+            input_shape=(height, width, 1), activation='relu'))
 
         model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3), activation='relu'))
 
@@ -341,7 +346,7 @@ class Agent:
         Also flatten output - from (1, ACTION_SPACE_SIZE) shape to
         (ACTION_SPACE_SIZE,)
         """
-        state = state.reshape(1, BOARD_HEIGHT, BOARD_WIDTH, 1)
+        state = state.reshape(1, self._height, self._width, 1)
         return self.model.predict(state)[0]
 
     def train(self, last_round):
@@ -357,13 +362,13 @@ class Agent:
 
         # Get current states from mini-batch, then query NN model for Q values
         current_states = np.array([transition.current_state for transition in minibatch])
-        current_states = current_states.reshape(MINIBATCH_SIZE, BOARD_HEIGHT, BOARD_WIDTH, 1)
+        current_states = current_states.reshape(MINIBATCH_SIZE, self._height, self._width, 1)
         current_q_values = self.model.predict(current_states)
 
         # Get future states from mini-batch, then query NN model for Q values
         # When using target NN, query it, otherwise main network should be queried
         next_states = np.array([transition.next_state for transition in minibatch])
-        next_states = next_states.reshape(MINIBATCH_SIZE, BOARD_HEIGHT, BOARD_WIDTH, 1)
+        next_states = next_states.reshape(MINIBATCH_SIZE, self._height, self._width, 1)
         future_q_values = self.target_model.predict(next_states)
 
         states = []    # Input X
@@ -387,7 +392,7 @@ class Agent:
             q_values.append(current_qs)
 
         # Fit on all samples as one batch
-        states = np.array(states).reshape(MINIBATCH_SIZE, BOARD_HEIGHT, BOARD_WIDTH, 1)
+        states = np.array(states).reshape(MINIBATCH_SIZE, self._height, self._width, 1)
         self.model.fit(x=states, y=np.array(q_values), batch_size=MINIBATCH_SIZE,
             verbose=0, shuffle=False)
 
@@ -434,10 +439,10 @@ def load(agent, episode):
         agent.target_update_counter, agent.replay_memory, _ = pickle.load(f)
 
 
-def print_board(board):
+def print_board(board, height, width):
     """Print board state. For debug only."""
     log("Board")
-    board = board.reshape(BOARD_HEIGHT, BOARD_WIDTH)
+    board = board.reshape(height, width)
     for line in board:
         l = "".join(["1" if b else " " for b in line])
         log("|" + l + "|")
