@@ -68,11 +68,13 @@ MIN_EPSILON = 0.001
 # Snapshot settings
 SNAPSHOT_MOD = 50
 MODEL_SNAPSHOT = "%05d_model.h5"
-TARGET_MODEL_SNAPSHOT = "%05d_target_model.h5"
 DATA_SNAPSHOT = "%05d_data.pickle"
+STATS_FILE = "stats.txt"
 
 
 def main():
+    assert SNAPSHOT_MOD % UPDATE_TARGET == 0, "Loaded target_model and model will differ."
+
     args = parse_args()
 
     # Fixed memory limit to prevent crash
@@ -132,12 +134,12 @@ def parse_args():
 
 
 def learn(env, agent, start_episode):
-    """Learn though episodes."""
+    """Learn through episodes."""
     for episode in range(start_episode, EPISODES + 1):
         episode_reward = play_one_game(env, agent)
 
         if episode > 0 and episode % SNAPSHOT_MOD == 0:
-            save(agent, episode, episode_reward)
+            save(agent, episode, episode_reward, len(env.handling_time))
 
         log("Episode %d, reward %0.2f, moves %d, avg handling time: %0.4f, game time: %0.4f"
             % (episode,
@@ -156,7 +158,7 @@ def play_one_game(env, agent):
     current_state = env.reset()
 
     # if len(agent.replay_memory) >= MIN_REPLAY_MEMORY_SIZE:
-    #     log("Enought data in replay memory. Learning started.")
+    #     log("Enough data in replay memory. Learning started.")
 
     # Reset flag and start iterating until episode ends
     last_round = False
@@ -412,19 +414,21 @@ class Transition:
         self.last_round = last_round
 
 
-def save(agent, episode, episode_reward):
-    """Save shapshot."""
+def save(agent, episode, episode_reward, moves):
+    """Save snapshot."""
     agent.model.save_weights(MODEL_SNAPSHOT % episode, save_format="h5")
-    agent.target_model.save_weights(TARGET_MODEL_SNAPSHOT % episode, save_format="h5")
 
     with open(DATA_SNAPSHOT % episode, "wb") as f:
         pickle.dump((agent.target_update_counter, agent.replay_memory, episode_reward), f)
 
+    with open(STATS_FILE, "w+") as f:
+        f.write("Episode: %d, moves: %d, reward: %f\n", episode, moves, episode_reward)
+
 
 def load(agent, episode):
-    """Load shapshot."""
+    """Load snapshot."""
     agent.model.load_weights(MODEL_SNAPSHOT % episode)
-    agent.target_model.load_weights(TARGET_MODEL_SNAPSHOT % episode)
+    agent.target_model.load_weights(MODEL_SNAPSHOT % episode)
 
     with open(DATA_SNAPSHOT % episode, "rb") as f:
         agent.target_update_counter, agent.replay_memory, _ = pickle.load(f)
