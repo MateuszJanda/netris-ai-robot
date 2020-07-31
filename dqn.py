@@ -197,11 +197,11 @@ def adjust_epsilon(epsilon):
 
 class Environment:
     def __init__(self, sock):
-        self.sock = sock
-        self.conn = None
-        self.buffer = bytes()
+        self._sock = sock
+        self._conn = None
+        self._buffer = bytes()
 
-        self.step_tic = time.time()
+        self._step_tic = time.time()
         self.game_tic = time.time()
         self.handling_time = []
 
@@ -212,7 +212,7 @@ class Environment:
         """
         self.game_tic = time.time()
         self.handling_time = []
-        self.conn, addr = self.sock.accept()
+        self._conn, addr = self._sock.accept()
         last_round, reward, state = self._recevie_data()
 
         return state
@@ -222,12 +222,12 @@ class Environment:
         if action >= ACTION_SPACE_SIZE:
             raise Exception("Action not in action space")
 
-        self.handling_time.append(time.time() - self.step_tic)
+        self.handling_time.append(time.time() - self._step_tic)
         shift = action % BOARD_WIDTH - SHFIT_OFFSET
         rotate = action // BOARD_WIDTH
 
         message = str(shift) + ' ' + str(rotate) + '\n'
-        self.conn.sendall(message.encode())
+        self._conn.sendall(message.encode())
 
         last_round, reward, state = self._recevie_data()
 
@@ -235,25 +235,25 @@ class Environment:
 
     def close(self):
         """Close connection with robot."""
-        if self.conn:
-            self.conn.close()
+        if self._conn:
+            self._conn.close()
 
     def _recevie_data(self):
         """Receive data from robot."""
-        if not self.conn:
+        if not self._conn:
             raise Exception('Connection not established')
 
         # Ensure that new full data is received (single line with \n at the end)
         while True:
-            self.buffer += self.conn.recv(1024)
+            self._buffer += self._conn.recv(1024)
 
-            if b'\n' in self.buffer:
+            if b'\n' in self._buffer:
                 break
 
-        self.step_tic = time.time()
+        self._step_tic = time.time()
 
-        msg = self.buffer[:self.buffer.find(b'\n')]
-        self.buffer = self.buffer[self.buffer.find(b'\n') + 1:]
+        msg = self._buffer[:self._buffer.find(b'\n')]
+        self._buffer = self._buffer[self._buffer.find(b'\n') + 1:]
 
         # Parse msg from robot
         last_round, reward, *state = msg.decode().split()
@@ -273,10 +273,10 @@ class Agent:
 
     def __init__(self):
         # Build main NN model
-        self.model = self.create_simple_model()
+        self.model = self.create_flat_model()
 
         # Build target NN model
-        self.target_model = self.create_simple_model()
+        self.target_model = self.create_flat_model()
         self.target_model.set_weights(self.model.get_weights())
 
         # An array with last REPLAY_MEMORY_SIZE steps for training
@@ -285,7 +285,7 @@ class Agent:
         # Used to count when to update target NN with main NN weights
         self.target_update_counter = 0
 
-    def create_simple_model(self):
+    def create_flat_model(self):
         model = tf.keras.models.Sequential()
 
         model.add(tf.keras.layers.Flatten(input_shape=(BOARD_HEIGHT, BOARD_WIDTH, 1)))
@@ -301,7 +301,7 @@ class Agent:
 
         return model
 
-    def create_model(self):
+    def create_cnn_model(self):
         model = tf.keras.models.Sequential()
 
         # Conv2D:
@@ -389,10 +389,9 @@ class Agent:
         self.model.fit(x=states, y=np.array(q_values), batch_size=MINIBATCH_SIZE,
             verbose=0, shuffle=False)
 
-        self.update_weights(last_round)
+        self._update_weights(last_round)
 
-
-    def update_weights(self, last_round):
+    def _update_weights(self, last_round):
         """Update weights when counter reaches certain value."""
         # Update target NN counter every episode
         if last_round:
