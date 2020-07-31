@@ -276,8 +276,8 @@ class Agent:
 
     def __init__(self):
         # Board size with extra padding
-        self._height = BOARD_HEIGHT + 1
-        self._width = BOARD_WIDTH + 1
+        self._height = BOARD_HEIGHT + 2
+        self._width = BOARD_WIDTH + 2
 
         # Build main NN model
         self.model = self.create_cnn_model(self._height, self._width)
