@@ -166,30 +166,31 @@ class RobotProxy(asyncio.Protocol):
     }
 
     def __init__(self, loop, future_stop, queue):
-        self.loop = loop
-        self.future_stop = future_stop
-        self.queue = queue
+        self._loop = loop
+        self._future_stop = future_stop
+        self._queue = queue
 
-        self.board = np.zeros(shape=(BORAD_HEIGHT, BOARD_WIDTH), dtype=int)
-        self.sequence_num = None
-        self.fresh_piece = False
-        self.piece = None
-        self.round = 0
-        self.lines_cleared = 0
+        self._board = np.zeros(shape=(BORAD_HEIGHT, BOARD_WIDTH), dtype=int)
+        self._sequence_num = None
+        self._fresh_piece = False
+        self._piece = None
+        self._round = 0
+        self._lines_cleared = 0
+        self._gaps_count = 0
 
-        self.transport = None
-        self.buffer = bytes()
+        self._transport = None
+        self._buffer = bytes()
 
-        self.tic = time.time()
+        self._tic = time.time()
 
     def connection_made(self, transport):
         """DQN agent established connection with robot."""
         log("Connection from DQN agent")
-        self.transport = transport
+        self._transport = transport
 
         # Initialize game, send first command (version)
         # self._send_robot_cmd("Version 1")
-        self.loop.create_task(self._wait_for_robot_cmd())
+        self._loop.create_task(self._wait_for_robot_cmd())
 
     def connection_lost(self, exc):
         log("[!] Connection lost. Should be handled?")
@@ -207,39 +208,39 @@ class RobotProxy(asyncio.Protocol):
 
     def data_received(self, data):
         """Data received from DQN agent, determine next robot move."""
-        self.buffer += data
+        self._buffer += data
 
-        if b'\n' not in self.buffer:
+        if b'\n' not in self._buffer:
             return
 
-        msg = self.buffer[:self.buffer.find(b'\n')]
-        self.buffer = self.buffer[self.buffer.find(b'\n') + 1:]
+        msg = self._buffer[:self._buffer.find(b'\n')]
+        self._buffer = self._buffer[self._buffer.find(b'\n') + 1:]
         shift, rotate = [int(d) for d in msg.decode().split()]
         log("Data received: shift: %d, rotate: %d" % (shift, rotate))
 
         cmd_out = []
 
         while rotate != 0:
-            cmd_out.append("Rotate " + self.sequence_num)
+            cmd_out.append("Rotate " + self._sequence_num)
             rotate -= 1
 
         if shift < 0:
             while shift != 0:
-                cmd_out.append("Left " + self.sequence_num)
+                cmd_out.append("Left " + self._sequence_num)
                 shift += 1
         elif shift > 0:
             while shift != 0:
-                cmd_out.append("Right " + self.sequence_num)
+                cmd_out.append("Right " + self._sequence_num)
                 shift -= 1
 
-        cmd_out.append("Drop " + self.sequence_num)
+        cmd_out.append("Drop " + self._sequence_num)
         for c in cmd_out:
             self._send_robot_cmd(c)
-        self.tic = time.time()
+        self._tic = time.time()
 
     async def _wait_for_robot_cmd(self):
         """Wait for command from stdin."""
-        command = await self.queue.get()
+        command = await self._queue.get()
         self._handle_command(command)
 
     def _handle_command(self, command):
@@ -260,10 +261,10 @@ class RobotProxy(asyncio.Protocol):
             log("[!] Empty command. Should not happen.")
             return
         if name not in handlers:
-            self.loop.create_task(self._wait_for_robot_cmd())
+            self._loop.create_task(self._wait_for_robot_cmd())
             return
 
-        # log("Time:", time.time() - self.tic, name)
+        # log("Time:", time.time() - self._tic, name)
 
         params = command.strip().split(" ")[1:]
         continue_loop = handlers[name](params)
@@ -271,7 +272,7 @@ class RobotProxy(asyncio.Protocol):
         if not continue_loop:
             return
 
-        self.loop.create_task(self._wait_for_robot_cmd())
+        self._loop.create_task(self._wait_for_robot_cmd())
 
     def _handle_cmd_lines_cleared(self, params):
         """Handle Ext:LinesCleared - available only in modified Netris."""
@@ -284,14 +285,14 @@ class RobotProxy(asyncio.Protocol):
         if lines_cleared:
             log("LinesCleared:", lines_cleared)
 
-        self.lines_cleared = lines_cleared
+        self._lines_cleared = lines_cleared
         return True
 
     def _handle_cmd_exit(self, params):
         """Handle Exit command."""
         log("Exit command received")
         self._send_update_to_agent(top_row=EMPTY_LINE, game_is_over=True)
-        self.future_stop.set_result(True)
+        self._future_stop.set_result(True)
 
         return False
 
@@ -307,9 +308,9 @@ class RobotProxy(asyncio.Protocol):
         Handle NewPiece from server. Unfortunately server provide here only
         sequence number not real piece id.
         """
-        self.sequence_num = params[0]
-        self.fresh_piece = True
-        self.round += 1
+        self._sequence_num = params[0]
+        self._fresh_piece = True
+        self._round += 1
 
         return True
 
@@ -338,17 +339,17 @@ class RobotProxy(asyncio.Protocol):
         if scr != SCREEN_ID:
             return True
 
-        # Server inform about switch from "piece block" to "fixed block" starting
+        # Netris inform about switch from "piece block" to "fixed block" starting
         # from second RowUpdate command after NewPiece command. This is to late,
         # for prediction, so better is assume that first line is always empty.
         if y != TOP_LINE:
             for x, val in enumerate(row):
-                self.board[BORAD_HEIGHT - 1 - y][x] = FULL_BLOCK if val else EMPTY_BLOCK
+                self._board[BORAD_HEIGHT - 1 - y][x] = FULL_BLOCK if val else EMPTY_BLOCK
 
         # Send board to agent if this is new piece
-        if self.fresh_piece and y == TOP_LINE:
+        if self._fresh_piece and y == TOP_LINE:
             self._send_update_to_agent(top_row=row, game_is_over=False)
-            self.fresh_piece = False
+            self._fresh_piece = False
 
         return True
 
@@ -357,25 +358,47 @@ class RobotProxy(asyncio.Protocol):
         norm_board = self._normalized_board(top_row)
         flat_board = "".join([("%0.2f " % val) for val in norm_board])
 
+        # Punish for ending the game
         if game_is_over:
-            score = -5
-        elif self.lines_cleared == 0:
+            score = -100
+        # Reward for adding piece
+        elif self._lines_cleared == 0:
             score = 1
+        # Reward for adding piece and clearing lines
         else:
-            score = (2 * self.lines_cleared - 1) * 100
-        self.lines_cleared = 0
+            score = 1 + (2 * self._lines_cleared - 1) * 100
+        # Reset lines_cleared counter
+        self._lines_cleared = 0
 
+        # Punish for created gaps
+        current_gaps = self._gaps()
+        score += max(0, current_gaps - self._gaps_count) * -3
+        self._gaps_count = current_gaps
+
+        # Format message and send
         game_is_over = int(game_is_over)
-
         report = str(game_is_over) + " " + str(score) + " " + flat_board + "\n"
-        self.transport.write(report.encode())
+        self._transport.write(report.encode())
+
+    def _gaps(self):
+        """Count all gaps (blocks that can't be reached in next tour)."""
+        counter = 0
+        for x in range(BOARD_WIDTH):
+            is_roof = False
+            for y in range(BORAD_HEIGHT):
+                if self._board[y][x] == FULL_BLOCK and not is_roof:
+                    is_roof = True
+                elif self._board[y][x] == EMPTY_BLOCK and is_roof:
+                    counter += 1
+
+        return counter
 
     def _normalized_board(self, top_row):
         """Create flat board with normalized values."""
         norm_piece = self._normalized_piece(top_row)
 
         # Combine board with normalized piece
-        norm_board = np.copy(self.board).astype('float')
+        norm_board = np.copy(self._board).astype('float')
         for x, color_type in enumerate(top_row):
             if color_type < 0:
                 norm_board[0][x] = norm_piece
