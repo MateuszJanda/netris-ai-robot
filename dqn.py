@@ -57,7 +57,6 @@ REPLAY_MEMORY_SIZE = 100_000    # Last steps kept for model training
 MIN_REPLAY_MEMORY_SIZE = 2_000  # Minimum number of steps in a memory to start training
 
 MINIBATCH_SIZE = 64             # How many steps (samples) to use for training
-UPDATE_TARGET = 5               # Copy weights every UPDATE_TARGET finished games
 
 EPISODES = 20_000               # Episodes == full games
 
@@ -73,8 +72,6 @@ STATS_FILE = "stats.txt"
 
 
 def main():
-    assert SNAPSHOT_MOD % UPDATE_TARGET == 0, "Loaded target_model and model will differ."
-
     args = parse_args()
 
     # Fixed memory limit to prevent crash
@@ -176,7 +173,7 @@ def play_one_game(env, agent):
         # Transform new continuous state to new discrete state and count reward
         episode_reward += reward
 
-        # Every step update replay memory and train main NN model
+        # Every step update replay memory and train NN model
         transition = Transition(current_state, action, reward, next_state, last_round)
         agent.update_replay_memory(transition)
         agent.train(last_round)
@@ -279,18 +276,11 @@ class Agent:
         self._height = BOARD_HEIGHT + 2
         self._width = BOARD_WIDTH + 2
 
-        # Build main NN model
+        # Build NN model
         self.model = self.create_cnn_model(self._height, self._width)
-
-        # Build target NN model
-        self.target_model = self.create_cnn_model(self._height, self._width)
-        self.target_model.set_weights(self.model.get_weights())
 
         # An array with last REPLAY_MEMORY_SIZE steps for training
         self.replay_memory = deque(maxlen=REPLAY_MEMORY_SIZE)
-
-        # Used to count when to update target NN with main NN weights
-        self.target_update_counter = 0
 
     def create_flat_model(self, height, width):
         model = tf.keras.models.Sequential()
@@ -342,7 +332,7 @@ class Agent:
 
     def get_q_values(self, state):
         """
-        Queries main NN model for Q values given current observation (state).
+        Queries NN model for Q values given current observation (state).
         Also flatten output - from (1, ACTION_SPACE_SIZE) shape to
         (ACTION_SPACE_SIZE,)
         """
@@ -350,7 +340,7 @@ class Agent:
         return self.model.predict(state)[0]
 
     def train(self, last_round):
-        """Trains main NN model every step during episode."""
+        """Trains NN model every step during episode."""
 
         # Start training only if certain number of samples is already saved in
         # replay memory
@@ -359,55 +349,47 @@ class Agent:
 
         # Get a mini-batch of random samples from replay memory
         minibatch = random.sample(self.replay_memory, MINIBATCH_SIZE)
-
-        # Get current states from mini-batch, then query NN model for Q values
-        current_states = np.array([transition.current_state for transition in minibatch])
-        current_states = current_states.reshape(MINIBATCH_SIZE, self._height, self._width, 1)
-        current_q_values = self.model.predict(current_states)
-
-        # Get future states from mini-batch, then query NN model for Q values
-        # When using target NN, query it, otherwise main network should be queried
-        next_states = np.array([transition.next_state for transition in minibatch])
-        next_states = next_states.reshape(MINIBATCH_SIZE, self._height, self._width, 1)
-        future_q_values = self.target_model.predict(next_states)
+        current_q_values, future_q_values = query_model_for_qs(minibatch)
 
         states = []    # Input X
-        q_values = []  # Output Y
+        q_values = []  # Output y
 
         for index, transition in enumerate(minibatch):
-            # If not a terminal state then get new Q from future states (Bellman equation)
-            if not transition.last_round:
-                max_future_q = np.max(future_q_values[index])
-                new_q = transition.reward + DISCOUNT * max_future_q
-            # Otherwise set to new Q reward
-            else:
+            # If last round assign reward to Q
+            if transition.last_round:
                 new_q = transition.reward
+            # Otherwise set new Q from future states (Bellman equation)
+            else:
+                new_q = transition.reward + DISCOUNT * max_future_q
+                max_future_q = np.max(future_q_values[index])
 
-            # Update Q value for given state
+            # Update Q value for given action, and append to training output (y) data
             current_qs = current_q_values[index]
             current_qs[transition.action] = new_q
-
-            # Append to training data
-            states.append(transition.current_state)
             q_values.append(current_qs)
 
-        # Fit on all samples as one batch
+            # Append to training input (X) data
+            states.append(transition.current_state)
+
+        # Fit with new Q values
         states = np.array(states).reshape(MINIBATCH_SIZE, self._height, self._width, 1)
         self.model.fit(x=states, y=np.array(q_values), batch_size=MINIBATCH_SIZE,
             verbose=0, shuffle=False)
 
-        self._update_weights(last_round)
+    def query_model_for_qs(self, minibatch):
+        """
+        Take current and next states (from minibach) and query NN model for Q
+        values.
+        """
+        current_states = np.array([transition.current_state for transition in minibatch])
+        current_states = current_states.reshape(MINIBATCH_SIZE, self._height, self._width, 1)
+        current_q_values = self.model.predict(current_states)
 
-    def _update_weights(self, last_round):
-        """Update weights when counter reaches certain value."""
-        # Update target NN counter every episode
-        if last_round:
-            self.target_update_counter += 1
+        next_states = np.array([transition.next_state for transition in minibatch])
+        next_states = next_states.reshape(MINIBATCH_SIZE, self._height, self._width, 1)
+        future_q_values = self.model.predict(next_states)
 
-        # Update weights every UPDATE_TARGET end games
-        if self.target_update_counter > UPDATE_TARGET:
-            self.target_model.set_weights(self.model.get_weights())
-            self.target_update_counter = 0
+        return current_q_values, future_q_values
 
 
 class Transition:
@@ -424,7 +406,7 @@ def save(agent, episode, episode_reward, moves):
     agent.model.save_weights(MODEL_SNAPSHOT % episode, save_format="h5")
 
     with open(DATA_SNAPSHOT % episode, "wb") as f:
-        pickle.dump((agent.target_update_counter, agent.replay_memory, episode_reward), f)
+        pickle.dump((agent.replay_memory, episode_reward), f)
 
     with open(STATS_FILE, "a") as f:
         f.write("Episode: %d, moves: %d, reward: %0.2f\n" % (episode, moves, episode_reward))
@@ -433,10 +415,9 @@ def save(agent, episode, episode_reward, moves):
 def load(agent, episode):
     """Load snapshot."""
     agent.model.load_weights(MODEL_SNAPSHOT % episode)
-    agent.target_model.load_weights(MODEL_SNAPSHOT % episode)
 
     with open(DATA_SNAPSHOT % episode, "rb") as f:
-        agent.target_update_counter, agent.replay_memory, _ = pickle.load(f)
+        agent.replay_memory, _ = pickle.load(f)
 
 
 def print_board(board, height, width):
