@@ -349,7 +349,7 @@ class Agent:
 
         # Get a mini-batch of random samples from replay memory
         minibatch = random.sample(self.replay_memory, MINIBATCH_SIZE)
-        current_q_values, future_q_values = query_model_for_qs(minibatch)
+        current_q_values, future_q_values = query_model_for_q_values(minibatch)
 
         states = []    # Input X
         q_values = []  # Output y
@@ -376,7 +376,7 @@ class Agent:
         self.model.fit(x=states, y=np.array(q_values), batch_size=MINIBATCH_SIZE,
             verbose=0, shuffle=False)
 
-    def query_model_for_qs(self, minibatch):
+    def query_model_for_q_values(self, minibatch):
         """
         Take current and next states (from minibach) and query NN model for Q
         values.
