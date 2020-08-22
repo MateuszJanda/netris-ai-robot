@@ -371,9 +371,9 @@ class RobotProxy(asyncio.Protocol):
         self._lines_cleared = 0
 
         # Punish for created gaps
-        current_gaps = self._gaps()
-        score += max(0, current_gaps - self._gaps_count) * -3
-        self._gaps_count = current_gaps
+        all_gaps = self._gaps()
+        score += max(0, all_gaps - self._gaps_count) * -3
+        self._gaps_count = all_gaps
 
         # Format message and send
         game_is_over = int(game_is_over)
