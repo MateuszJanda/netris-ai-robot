@@ -10,11 +10,6 @@ Run Netris server at host
 ./netris-env -w -u -i 0.1
 ```
 
-Run proxy robot at host
-```bash
-./netris-env -n -m -c localhost -i 0.1 -r 'python dqn_proxy.py -t /dev/pts/3'
-```
-
 Run dqn agent with CPU at host
 ```bash
 python dqn.py
@@ -22,7 +17,13 @@ python dqn.py
 
 Run dqn agent with GPU support at guest
 ```bash
-docker exec -it tf_netris python dqn.py -g
+docker start tf_netris
+docker exec -it tf_netris python dqn.py -g -p 9800
+```
+
+Run proxy robot at host (note that interval (`-i`) must match value passed to Netris server
+```bash
+./netris-env -n -m -c localhost -i 0.1 -r 'python env_proxy.py -t /dev/pts/3 -p 9800'
 ```
 
 ## Example
