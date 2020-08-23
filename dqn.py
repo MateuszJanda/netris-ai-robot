@@ -260,7 +260,7 @@ class Environment:
         last_round = True if int(last_round) else False
         reward = float(reward)
         state = np.array([float(val) for val in state]).reshape(BOARD_HEIGHT, BOARD_WIDTH)
-        state = np.pad(state, pad_width=1, mode='constant', constant_values=0)
+        # state = np.pad(state, pad_width=1, mode='constant', constant_values=0)
 
         # if last_round:
         #     log("Game is over")
@@ -273,11 +273,15 @@ class Agent:
 
     def __init__(self):
         # Board size with extra padding
-        self._height = BOARD_HEIGHT + 2
-        self._width = BOARD_WIDTH + 2
+        # self._height = BOARD_HEIGHT + 2
+        # self._width = BOARD_WIDTH + 2
+        self._height = BOARD_HEIGHT
+        self._width = BOARD_WIDTH
 
         # Build NN model
-        self.model = self.create_cnn_model(self._height, self._width)
+        # self.model = self.create_cnn_model(self._height, self._width)
+        self.model = self.create_flat_model(self._height, self._width)
+
 
         # An array with last REPLAY_MEMORY_SIZE steps for training
         self.replay_memory = deque(maxlen=REPLAY_MEMORY_SIZE)
@@ -286,6 +290,10 @@ class Agent:
         model = tf.keras.models.Sequential()
 
         model.add(tf.keras.layers.Flatten(input_shape=(height, width, 1)))
+        model.add(tf.keras.layers.Dense(units=256, activation='relu'))
+
+        model.add(tf.keras.layers.Dense(units=128, activation='relu'))
+
         model.add(tf.keras.layers.Dense(units=128, activation='relu'))
 
         model.add(tf.keras.layers.Dense(units=64, activation='relu'))
@@ -293,7 +301,7 @@ class Agent:
         model.add(tf.keras.layers.Dense(units=ACTION_SPACE_SIZE, activation='linear'))
 
         # Compile model
-        model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.001), loss='mse',
+        model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.05), loss='mse',
             metrics=['accuracy'])
 
         return model
@@ -321,7 +329,7 @@ class Agent:
         model.add(tf.keras.layers.Dense(units=ACTION_SPACE_SIZE, activation='linear'))
 
         # Compile model
-        model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.001), loss='mse',
+        model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.05), loss='mse',
             metrics=['accuracy'])
 
         return model
@@ -349,7 +357,7 @@ class Agent:
 
         # Get a mini-batch of random samples from replay memory
         minibatch = random.sample(self.replay_memory, MINIBATCH_SIZE)
-        current_q_values, future_q_values = query_model_for_q_values(minibatch)
+        current_q_values, future_q_values = self.query_model_for_q_values(minibatch)
 
         states = []    # Input X
         q_values = []  # Output y
@@ -360,8 +368,8 @@ class Agent:
                 new_q = transition.reward
             # Otherwise set new Q from future states (Bellman equation)
             else:
-                new_q = transition.reward + DISCOUNT * max_future_q
                 max_future_q = np.max(future_q_values[index])
+                new_q = transition.reward + DISCOUNT * max_future_q
 
             # Update Q value for given action, and append to training output (y) data
             current_qs = current_q_values[index]
