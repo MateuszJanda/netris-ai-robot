@@ -82,8 +82,10 @@ def main():
         tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        agent = Agent()
+        flat_model = FlatModel()
+        agent = Agent(flat_model)
         start_episode = 0
+
         if args.episode:
             load(agent, args.episode)
             start_episode = args.episode + 1
@@ -153,6 +155,7 @@ def play_one_game(env, agent):
 
     # Reset environment and get initial state
     current_state = env.reset()
+    current_state = agent.reshape_input(current_state)
 
     # if len(agent.replay_memory) >= MIN_REPLAY_MEMORY_SIZE:
     #     log("Enough data in replay memory. Learning started.")
@@ -169,6 +172,7 @@ def play_one_game(env, agent):
             action = np.argmax(agent.get_q_values(current_state))
 
         last_round, reward, next_state = env.step(action)
+        next_state = agent.reshape_input(next_state)
 
         # Transform new continuous state to new discrete state and count reward
         episode_reward += reward
@@ -259,37 +263,22 @@ class Environment:
 
         last_round = True if int(last_round) else False
         reward = float(reward)
-        state = np.array([float(val) for val in state]).reshape(BOARD_HEIGHT, BOARD_WIDTH)
-        # state = np.pad(state, pad_width=1, mode='constant', constant_values=0)
-
-        # if last_round:
-        #     log("Game is over")
+        state = np.array([float(val) for val in state])
 
         return last_round, reward, state
 
 
-class Agent:
-    """DQN agent."""
-
+class FlatModel:
     def __init__(self):
-        # Board size with extra padding
-        # self._height = BOARD_HEIGHT + 2
-        # self._width = BOARD_WIDTH + 2
-        self._height = BOARD_HEIGHT
-        self._width = BOARD_WIDTH
-
         # Build NN model
-        # self.model = self.create_cnn_model(self._height, self._width)
-        self.model = self.create_flat_model(self._height, self._width)
+        self._model = self.create_model(BOARD_HEIGHT * BOARD_WIDTH)
 
-
-        # An array with last REPLAY_MEMORY_SIZE steps for training
-        self.replay_memory = deque(maxlen=REPLAY_MEMORY_SIZE)
-
-    def create_flat_model(self, height, width):
+    @staticmethod
+    def create_model(size):
+        """Create tensorflow model."""
         model = tf.keras.models.Sequential()
 
-        model.add(tf.keras.layers.Flatten(input_shape=(height, width, 1)))
+        model.add(tf.keras.layers.InputLayer(input_shape=(size, 1)))
         model.add(tf.keras.layers.Dense(units=256, activation='relu'))
 
         model.add(tf.keras.layers.Dense(units=128, activation='relu'))
@@ -306,7 +295,38 @@ class Agent:
 
         return model
 
-    def create_cnn_model(self, height, width):
+    def predict(self, batch_size, state):
+        """
+        Queries NN model for Q values given current observation (state).
+        """
+        return self._model.predict(state)[0]
+
+    def fit(self, x, y, batch_size, verbose, shuffle):
+        """Wrapper around fit."""
+        self._model.fit(x=x, y=y, batch_size=batch_size, verbose=verbose,
+            shuffle=shuffle)
+
+    def get_tf_model(self):
+        """Getter to tensorflow model."""
+        return self._model
+
+    def reshape_input(self, state):
+        """Reshape is not needed for flat model, so just return."""
+        return state
+
+
+class CnnModel:
+    def __init__(self):
+        # Board size with extra padding
+        self._height = BOARD_HEIGHT + 2
+        self._width = BOARD_WIDTH + 2
+
+        # Build NN model
+        self._model = self.create_model(self._height, self._width)
+
+    @staticmethod
+    def create_model(height, width):
+        """Create tensorflow model."""
         model = tf.keras.models.Sequential()
 
         # Conv2D:
@@ -334,6 +354,42 @@ class Agent:
 
         return model
 
+    def predict(self, batch_size, state):
+        """
+        Queries NN model for Q values given current observation (state).
+        """
+        state = state.reshape(batch_size, self._height, self._width, 1)
+        return self._model.predict(state)[0]
+
+    def fit(self, x, y, batch_size, verbose, shuffle):
+        """Wrapper around fit."""
+        x = np.array(x).reshape(batch_size, self._height, self._width, 1)
+        self._model.fit(x=x, y=y, batch_size=batch_size, verbose=verbose,
+            shuffle=shuffle)
+
+    def get_tf_model(self):
+        """Getter to tensorflow model."""
+        return self._model
+
+    def reshape_input(self, state):
+        """
+        Board state with extra padding, because CNN remove boarded where
+        piece data are stored.
+        """
+        state = sate.reshape(BOARD_HEIGHT, BOARD_WIDTH)
+        return np.pad(state, pad_width=1, mode='constant', constant_values=0)
+
+
+class Agent:
+    """DQN agent."""
+
+    def __init__(self, model):
+        # Build NN model
+        self._model = model
+
+        # An array with last REPLAY_MEMORY_SIZE steps for training
+        self.replay_memory = deque(maxlen=REPLAY_MEMORY_SIZE)
+
     def update_replay_memory(self, transition):
         """Adds transition (step's data) to a replay memory."""
         self.replay_memory.append(transition)
@@ -341,11 +397,8 @@ class Agent:
     def get_q_values(self, state):
         """
         Queries NN model for Q values given current observation (state).
-        Also flatten output - from (1, ACTION_SPACE_SIZE) shape to
-        (ACTION_SPACE_SIZE,)
         """
-        state = state.reshape(1, self._height, self._width, 1)
-        return self.model.predict(state)[0]
+        return self.model.predict(batch_size=1, state=state)[0]
 
     def train(self, last_round):
         """Trains NN model every step during episode."""
@@ -380,7 +433,6 @@ class Agent:
             states.append(transition.current_state)
 
         # Fit with new Q values
-        states = np.array(states).reshape(MINIBATCH_SIZE, self._height, self._width, 1)
         self.model.fit(x=states, y=np.array(q_values), batch_size=MINIBATCH_SIZE,
             verbose=0, shuffle=False)
 
@@ -390,14 +442,20 @@ class Agent:
         values.
         """
         current_states = np.array([transition.current_state for transition in minibatch])
-        current_states = current_states.reshape(MINIBATCH_SIZE, self._height, self._width, 1)
-        current_q_values = self.model.predict(current_states)
+        current_q_values = self.model.predict(MINIBATCH_SIZE, current_states)
 
         next_states = np.array([transition.next_state for transition in minibatch])
-        next_states = next_states.reshape(MINIBATCH_SIZE, self._height, self._width, 1)
-        future_q_values = self.model.predict(next_states)
+        future_q_values = self.model.predict(MINIBATCH_SIZE, next_states)
 
         return current_q_values, future_q_values
+
+    def get_tf_model(path):
+        """Getter to tensorflow model."""
+        return self._model.get_tf_model()
+
+    def reshape_input(self, state):
+        """Reshape input state if needed later by model."""
+        return self._model.reshape_input(state)
 
 
 class Transition:
@@ -411,7 +469,7 @@ class Transition:
 
 def save(agent, episode, episode_reward, moves):
     """Save snapshot."""
-    agent.model.save_weights(MODEL_SNAPSHOT % episode, save_format="h5")
+    agent.get_tf_model().save_weights(MODEL_SNAPSHOT % episode, save_format="h5")
 
     with open(DATA_SNAPSHOT % episode, "wb") as f:
         pickle.dump((agent.replay_memory, episode_reward), f)
@@ -422,7 +480,7 @@ def save(agent, episode, episode_reward, moves):
 
 def load(agent, episode):
     """Load snapshot."""
-    agent.model.load_weights(MODEL_SNAPSHOT % episode)
+    agent.get_model().load_weights(MODEL_SNAPSHOT % episode)
 
     with open(DATA_SNAPSHOT % episode, "rb") as f:
         agent.replay_memory, _ = pickle.load(f)
