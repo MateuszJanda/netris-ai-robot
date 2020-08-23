@@ -169,7 +169,7 @@ def play_one_game(env, agent):
         if np.random.random() <= epsilon:
             action = np.random.randint(0, ACTION_SPACE_SIZE)
         else:
-            action = np.argmax(agent.get_q_values(current_state))
+            action = np.argmax(agent.q_values_for_state(current_state))
 
         last_round, reward, next_state = env.step(action)
         next_state = agent.reshape_input(next_state)
@@ -397,9 +397,9 @@ class Agent:
         """Adds transition (step's data) to a replay memory."""
         self.replay_memory.append(transition)
 
-    def get_q_values(self, state):
+    def q_values_for_state(self, state):
         """
-        Queries NN model for Q values given current observation (state).
+        Query NN model for Q values for current observation (state).
         """
         return self._model.predict(batch_size=1, state=state)[0]
 
@@ -413,7 +413,7 @@ class Agent:
 
         # Get a mini-batch of random samples from replay memory
         minibatch = random.sample(self.replay_memory, MINIBATCH_SIZE)
-        current_q_values, future_q_values = self.query_model_for_q_values(minibatch)
+        current_q_values, future_q_values = self.q_values_for_historic(minibatch)
 
         states = []    # Input X
         q_values = []  # Output y
@@ -439,10 +439,10 @@ class Agent:
         self._model.fit(x=states, y=np.array(q_values), batch_size=MINIBATCH_SIZE,
             verbose=0, shuffle=False)
 
-    def query_model_for_q_values(self, minibatch):
+    def q_values_for_historic(self, minibatch):
         """
-        Take current and next states (from minibach) and query NN model for Q
-        values.
+        Take historic current and next states (from minibach) and query NN model
+        for Q values.
         """
         current_states = np.array([transition.current_state for transition in minibatch])
         current_q_values = self._model.predict(MINIBATCH_SIZE, current_states)
