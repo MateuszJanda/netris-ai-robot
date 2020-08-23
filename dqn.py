@@ -305,7 +305,7 @@ class FlatModel:
 
     def fit(self, x, y, batch_size, verbose, shuffle):
         """Wrapper around fit."""
-        x = np.array(x).reshape(batch_size, BOARD_HEIGHT * BOARD_WIDTH)
+        x = x.reshape(batch_size, BOARD_HEIGHT * BOARD_WIDTH)
         self._model.fit(x=x, y=y, batch_size=batch_size, verbose=verbose,
             shuffle=shuffle)
 
@@ -366,7 +366,7 @@ class CnnModel:
 
     def fit(self, x, y, batch_size, verbose, shuffle):
         """Wrapper around fit."""
-        x = np.array(x).reshape(batch_size, self._height, self._width, 1)
+        x = x.reshape(batch_size, self._height, self._width, 1)
         self._model.fit(x=x, y=y, batch_size=batch_size, verbose=verbose,
             shuffle=shuffle)
 
@@ -415,8 +415,8 @@ class Agent:
         minibatch = random.sample(self.replay_memory, MINIBATCH_SIZE)
         current_q_values, future_q_values = self.q_values_for_historic(minibatch)
 
-        states = []    # Input X
-        q_values = []  # Output y
+        input_states = []     # Input (X)
+        target_q_values = []  # Output (y)
 
         for index, transition in enumerate(minibatch):
             # If last round assign reward to Q
@@ -430,14 +430,14 @@ class Agent:
             # Update Q value for given action, and append to training output (y) data
             current_qs = current_q_values[index]
             current_qs[transition.action] = new_q
-            q_values.append(current_qs)
+            target_q_values.append(current_qs)
 
             # Append to training input (X) data
-            states.append(transition.current_state)
+            input_states.append(transition.current_state)
 
         # Fit with new Q values
-        self._model.fit(x=states, y=np.array(q_values), batch_size=MINIBATCH_SIZE,
-            verbose=0, shuffle=False)
+        self._model.fit(x=np.array(input_states), y=np.array(target_q_values),
+            batch_size=MINIBATCH_SIZE, verbose=0, shuffle=False)
 
     def q_values_for_historic(self, minibatch):
         """
