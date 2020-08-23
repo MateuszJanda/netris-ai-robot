@@ -223,7 +223,7 @@ class Environment:
     def step(self, action):
         """Send action to robot and receive new feedback."""
         if action >= ACTION_SPACE_SIZE:
-            raise Exception("Action not in action space")
+            raise Exception("Action not in action space:", action)
 
         self.handling_time.append(time.time() - self._step_tic)
         shift = action % BOARD_WIDTH - SHFIT_OFFSET
@@ -272,13 +272,14 @@ class FlatModel:
     def __init__(self):
         # Build NN model
         self._model = self.create_model(BOARD_HEIGHT * BOARD_WIDTH)
+        log(self._model.summary())
 
     @staticmethod
     def create_model(size):
         """Create tensorflow model."""
         model = tf.keras.models.Sequential()
 
-        model.add(tf.keras.layers.InputLayer(input_shape=(size, 1)))
+        model.add(tf.keras.layers.Input(shape=(size,)))
         model.add(tf.keras.layers.Dense(units=256, activation='relu'))
 
         model.add(tf.keras.layers.Dense(units=128, activation='relu'))
@@ -299,10 +300,12 @@ class FlatModel:
         """
         Queries NN model for Q values given current observation (state).
         """
-        return self._model.predict(state)[0]
+        state = state.reshape(batch_size, BOARD_HEIGHT * BOARD_WIDTH)
+        return self._model.predict(state)
 
     def fit(self, x, y, batch_size, verbose, shuffle):
         """Wrapper around fit."""
+        x = np.array(x).reshape(batch_size, BOARD_HEIGHT * BOARD_WIDTH)
         self._model.fit(x=x, y=y, batch_size=batch_size, verbose=verbose,
             shuffle=shuffle)
 
@@ -311,7 +314,7 @@ class FlatModel:
         return self._model
 
     def reshape_input(self, state):
-        """Reshape is not needed for flat model, so just return."""
+        """Just return same state."""
         return state
 
 
@@ -359,7 +362,7 @@ class CnnModel:
         Queries NN model for Q values given current observation (state).
         """
         state = state.reshape(batch_size, self._height, self._width, 1)
-        return self._model.predict(state)[0]
+        return self._model.predict(state)
 
     def fit(self, x, y, batch_size, verbose, shuffle):
         """Wrapper around fit."""
@@ -398,7 +401,7 @@ class Agent:
         """
         Queries NN model for Q values given current observation (state).
         """
-        return self.model.predict(batch_size=1, state=state)[0]
+        return self._model.predict(batch_size=1, state=state)[0]
 
     def train(self, last_round):
         """Trains NN model every step during episode."""
@@ -433,7 +436,7 @@ class Agent:
             states.append(transition.current_state)
 
         # Fit with new Q values
-        self.model.fit(x=states, y=np.array(q_values), batch_size=MINIBATCH_SIZE,
+        self._model.fit(x=states, y=np.array(q_values), batch_size=MINIBATCH_SIZE,
             verbose=0, shuffle=False)
 
     def query_model_for_q_values(self, minibatch):
@@ -442,10 +445,10 @@ class Agent:
         values.
         """
         current_states = np.array([transition.current_state for transition in minibatch])
-        current_q_values = self.model.predict(MINIBATCH_SIZE, current_states)
+        current_q_values = self._model.predict(MINIBATCH_SIZE, current_states)
 
         next_states = np.array([transition.next_state for transition in minibatch])
-        future_q_values = self.model.predict(MINIBATCH_SIZE, next_states)
+        future_q_values = self._model.predict(MINIBATCH_SIZE, next_states)
 
         return current_q_values, future_q_values
 
