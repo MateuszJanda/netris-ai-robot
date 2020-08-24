@@ -52,17 +52,15 @@ HOST = "127.0.0.1"
 PORT = 9800
 
 # DQN parameters
-DISCOUNT = 0.95                 # Gamma (𝛾) parameter from Bellman equation
-REPLAY_MEMORY_SIZE = 100_000    # Last steps kept for model training
-MIN_REPLAY_MEMORY_SIZE = 2_000  # Minimum number of steps in a memory to start training
+DISCOUNT = 0.95                               # Gamma (𝛾) parameter from Bellman equation
+MINIBATCH_SIZE = 64                           # How many steps (samples) to use for training
+REPLAY_MEMORY_SIZE = 2_000                    # Last steps kept for model training
+MIN_REPLAY_MEMORY_SIZE = 2 * MINIBATCH_SIZE   # Minimum number of steps in a memory to start training
+EPISODES = 20_000                             # Episodes == full games
 
-MINIBATCH_SIZE = 64             # How many steps (samples) to use for training
-
-EPISODES = 20_000               # Episodes == full games
-
-# Exploration settings
-EPSILON_DECAY = 0.999           # Try/explore other actions to escape local minimum
-MIN_EPSILON = 0.01
+# Exploration settings - try/explore random action with probability epsilon
+EPSILON_DECAY = 0.999                         # Decay epsilon. Smarter NN is, then less random action should be taken
+MIN_EPSILON = 0.01                            # Epsilon shouldn't less than this. We always want to check something new
 
 # Snapshot settings
 SNAPSHOT_MOD = 50
