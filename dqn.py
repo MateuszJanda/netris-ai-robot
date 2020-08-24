@@ -62,7 +62,7 @@ EPISODES = 20_000               # Episodes == full games
 
 # Exploration settings
 EPSILON_DECAY = 0.999           # Try/explore other actions to escape local minimum
-MIN_EPSILON = 0.001
+MIN_EPSILON = 0.01
 
 # Snapshot settings
 SNAPSHOT_MOD = 50
@@ -192,8 +192,7 @@ def play_one_game(env, agent):
 def adjust_epsilon(epsilon):
     """Decay epsilon."""
     if epsilon > MIN_EPSILON:
-        epsilon *= EPSILON_DECAY
-        epsilon = max(MIN_EPSILON, epsilon)
+        epsilon = epsilon * EPSILON_DECAY
 
     return epsilon
 
