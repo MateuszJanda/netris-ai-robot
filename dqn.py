@@ -156,9 +156,6 @@ def play_one_game(epsilon, env, agent):
     current_state = env.reset()
     current_state = agent.reshape_input(current_state)
 
-    # if len(agent.replay_memory) >= MIN_REPLAY_MEMORY_SIZE:
-    #     log("Enough data in replay memory. Learning started.")
-
     # Reset flag and start iterating until episode ends
     last_round = False
 
@@ -168,7 +165,11 @@ def play_one_game(epsilon, env, agent):
         if np.random.random() <= epsilon:
             action = np.random.randint(0, ACTION_SPACE_SIZE)
         else:
-            action = np.argmax(agent.q_values_for_state(current_state))
+            q = agent.q_values_for_state(current_state)
+            action = np.argmax(q)
+            log(action)
+            if action == 0:
+                log(q)
 
         last_round, reward, next_state = env.step(action)
         next_state = agent.reshape_input(next_state)
@@ -289,7 +290,7 @@ class FlatModel:
         model.add(tf.keras.layers.Dense(units=ACTION_SPACE_SIZE, activation='linear'))
 
         # Compile model
-        model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.05), loss='mse',
+        model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.001), loss='mse',
             metrics=['accuracy'])
 
         return model
