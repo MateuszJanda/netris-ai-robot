@@ -372,7 +372,7 @@ class RobotProxy(asyncio.Protocol):
 
         # Punish for created gaps
         all_gaps = self._gaps()
-        score += max(0, all_gaps - self._gaps_count) * -3
+        score += max(0, all_gaps - self._gaps_count) * -0.3
         self._gaps_count = all_gaps
 
         # Format message and send
