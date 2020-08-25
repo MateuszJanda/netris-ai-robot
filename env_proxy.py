@@ -376,9 +376,9 @@ class RobotProxy(asyncio.Protocol):
         score += max(0, all_board_gaps - self._board_gaps_count) * -0.3
         self._board_gaps_count = all_board_gaps
 
-        # Punish for building high towers and reward for filling holes
+        # Punish for building high towers
         board_height = self._board_height()
-        score += (board_height - self._board_max_height) * -0.5
+        score += max(0, board_height - self._board_max_height) * -0.5
         self._board_max_height = board_height
 
         # Format message and send
