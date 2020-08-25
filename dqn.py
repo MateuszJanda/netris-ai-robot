@@ -482,7 +482,7 @@ def save(agent, episode, episode_reward, moves):
 
 def load(agent, episode):
     """Load snapshot."""
-    agent.get_model().load_weights(MODEL_SNAPSHOT % episode)
+    agent.get_tf_model().load_weights(MODEL_SNAPSHOT % episode)
 
     with open(DATA_SNAPSHOT % episode, "rb") as f:
         agent.replay_memory, _ = pickle.load(f)
