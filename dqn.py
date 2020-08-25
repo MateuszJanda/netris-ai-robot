@@ -53,7 +53,7 @@ PORT = 9800
 
 # DQN parameters
 DISCOUNT = 0.95                               # Gamma (𝛾) parameter from Bellman equation
-MINIBATCH_SIZE = 64                           # How many steps (samples) to use for training
+MINIBATCH_SIZE = 128                          # How many steps (samples) to use for training
 REPLAY_MEMORY_SIZE = 5_000                    # Last steps kept for model training
 MIN_REPLAY_MEMORY_SIZE = 10 * MINIBATCH_SIZE  # Minimum number of steps in a memory to start training
 EPISODES = 20_000                             # Episodes == full games
@@ -165,11 +165,11 @@ def play_one_game(epsilon, env, agent):
         if np.random.random() <= epsilon:
             action = np.random.randint(0, ACTION_SPACE_SIZE)
         else:
-            q = agent.q_values_for_state(current_state)
-            action = np.argmax(q)
+            qs = agent.q_values_for_state(current_state)
+            action = np.argmax(qs)
             log(action)
             if action == 0:
-                log(q)
+                log(qs)
 
         last_round, reward, next_state = env.step(action)
         next_state = agent.reshape_input(next_state)
