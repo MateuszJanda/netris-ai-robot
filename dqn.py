@@ -451,7 +451,7 @@ class Agent:
 
         return current_q_values, future_q_values
 
-    def get_tf_model(path):
+    def get_tf_model(self, path):
         """Getter to tensorflow model."""
         return self._model.get_tf_model()
 
