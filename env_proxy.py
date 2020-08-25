@@ -176,7 +176,8 @@ class RobotProxy(asyncio.Protocol):
         self._piece = None
         self._round = 0
         self._lines_cleared = 0
-        self._gaps_count = 0
+        self._board_gaps_count = 0
+        self._board_max_height = 0
 
         self._transport = None
         self._buffer = bytes()
@@ -370,17 +371,22 @@ class RobotProxy(asyncio.Protocol):
         # Reset lines_cleared counter
         self._lines_cleared = 0
 
-        # Punish for created gaps
-        all_gaps = self._gaps()
-        score += max(0, all_gaps - self._gaps_count) * -0.3
-        self._gaps_count = all_gaps
+        # Punish for creating gaps
+        all_board_gaps = self._board_gaps()
+        score += max(0, all_board_gaps - self._board_gaps_count) * -0.3
+        self._board_gaps_count = all_board_gaps
+
+        # Punish for building high towers and reward for filling holes
+        board_height = self._board_height()
+        score += (board_height - self._board_max_height) * -0.5
+        self._board_max_height = board_height
 
         # Format message and send
         game_is_over = int(game_is_over)
         report = str(game_is_over) + " " + str(score) + " " + flat_board + "\n"
         self._transport.write(report.encode())
 
-    def _gaps(self):
+    def _board_gaps(self):
         """Count all gaps (blocks that can't be reached in next tour)."""
         counter = 0
         for x in range(BOARD_WIDTH):
@@ -392,6 +398,16 @@ class RobotProxy(asyncio.Protocol):
                     counter += 1
 
         return counter
+
+    def _board_height(self):
+        """Count max height."""
+        max_height = 0
+        for x in range(BOARD_WIDTH):
+            for y in range(BORAD_HEIGHT):
+                if self._board[y][x] == FULL_BLOCK:
+                    max_height = max(max_height, BORAD_HEIGHT - y)
+
+        return max_height
 
     def _normalized_board(self, top_row):
         """Create flat board with normalized values."""
