@@ -82,10 +82,11 @@ def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         flat_model = FlatModel()
         agent = Agent(flat_model)
+        epsilon = 1
         start_episode = 0
 
         if args.episode:
-            load(agent, args.episode)
+            epsilon = load(agent, args.episode)
             start_episode = args.episode + 1
 
         sock.bind((HOST, args.port))
@@ -93,7 +94,7 @@ def main():
         log("Starting server at %s:%d" % (HOST, args.port))
         env = Environment(sock)
 
-        learn(env, agent, start_episode)
+        learn(env, epsilon, agent, start_episode)
 
         env.close()
 
@@ -130,15 +131,13 @@ def parse_args():
     return args
 
 
-def learn(env, agent, start_episode):
+def learn(env, epsilon, agent, start_episode):
     """Learn through episodes."""
-    epsilon = 1
-
     for episode in range(start_episode, EPISODES + 1):
         episode_reward, epsilon = play_one_game(epsilon, env, agent)
 
         if episode > 0 and episode % SNAPSHOT_MOD == 0:
-            save(agent, episode, episode_reward, len(env.handling_time))
+            save(agent, epsilon, episode, episode_reward, len(env.handling_time))
 
         log("Episode %d, epsilon %0.3f, reward %0.2f, moves %d, avg handling time: %0.4f, game time: %0.4f"
             % (episode,
@@ -469,15 +468,15 @@ class Transition:
         self.last_round = last_round
 
 
-def save(agent, episode, episode_reward, moves):
+def save(agent, epsilon, episode, episode_reward, moves):
     """Save snapshot."""
     agent.get_tf_model().save_weights(MODEL_SNAPSHOT % episode, save_format="h5")
 
     with open(DATA_SNAPSHOT % episode, "wb") as f:
-        pickle.dump((agent.replay_memory, episode_reward), f)
+        pickle.dump((epsilon, agent.replay_memory, episode_reward), f)
 
     with open(STATS_FILE, "a") as f:
-        f.write("Episode: %d, moves: %d, reward: %0.2f\n" % (episode, moves, episode_reward))
+        f.write("Episode: %d, epsilon: %0.2f, moves: %d, reward: %0.2f\n" % (episode, epsilon, moves, episode_reward))
 
 
 def load(agent, episode):
@@ -485,7 +484,9 @@ def load(agent, episode):
     agent.get_tf_model().load_weights(MODEL_SNAPSHOT % episode)
 
     with open(DATA_SNAPSHOT % episode, "rb") as f:
-        agent.replay_memory, _ = pickle.load(f)
+        epsilon, agent.replay_memory, _ = pickle.load(f)
+
+    return epsilon
 
 
 def print_board(board, height, width):
