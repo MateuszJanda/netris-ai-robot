@@ -59,7 +59,7 @@ MIN_REPLAY_MEMORY_SIZE = 10 * MINIBATCH_SIZE  # Minimum number of steps in a mem
 EPISODES = 20_000                             # Episodes == full games
 
 # Exploration settings - try/explore random action with probability epsilon
-EPSILON_DECAY = 0.999                         # Decay epsilon. Smarter NN is, then less random action should be taken
+EPSILON_DECAY = 0.9999                        # Decay epsilon. Smarter NN is, then less random action should be taken
 MIN_EPSILON = 0.01                            # Epsilon shouldn't less than this. We always want to check something new
 
 # Snapshot settings
