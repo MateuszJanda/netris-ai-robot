@@ -53,9 +53,9 @@ PORT = 9800
 
 # DQN parameters
 DISCOUNT = 0.95                               # Gamma (𝛾) parameter from Bellman equation
-MINIBATCH_SIZE = 128                          # How many steps (samples) to use for training
-REPLAY_MEMORY_SIZE = 5_000                    # Last steps kept for model training
-MIN_REPLAY_MEMORY_SIZE = 10 * MINIBATCH_SIZE  # Minimum number of steps in a memory to start training
+MINIBATCH_SIZE = 192                          # How many steps (samples) to use for training
+REPLAY_MEMORY_SIZE = 20_000                   # Last steps kept for model training
+MIN_REPLAY_MEMORY_SIZE = 7 * MINIBATCH_SIZE   # Minimum number of steps in a memory to start training
 EPISODES = 20_000                             # Episodes == full games
 
 # Exploration settings - try/explore random action with probability epsilon
