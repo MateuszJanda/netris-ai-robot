@@ -356,8 +356,8 @@ class RobotProxy(asyncio.Protocol):
 
     def _send_update_to_agent(self, top_row, game_is_over):
         """Send update to DQN agent."""
-        norm_board = self._normalized_board(top_row)
-        flat_board = "".join([("%0.2f " % val) for val in norm_board])
+        new_board = self._board_with_piece_bits(top_row)
+        flat_board = "".join([("%0.2f " % val) for val in new_board])
 
         # Punish for ending the game
         if game_is_over:
@@ -409,6 +409,30 @@ class RobotProxy(asyncio.Protocol):
 
         return max_height
 
+    def _board_with_piece_bits(self, top_row):
+        """Create flat board with four blocks representing piece."""
+        piece_bits = self._piece_as_bits(top_row)
+
+        # Combine board with piece bits
+        new_board = np.copy(self._board).astype('float')
+        for x in range(BOARD_WIDTH):
+            if 3 < x < 8:
+                new_board[0][x] = piece_bits[x - 4]
+
+        return new_board.flatten()
+
+    def _piece_as_bits(self, top_row):
+        """Extract new piece and create his four bits representation."""
+        for color_type in top_row:
+            # Block of moving piece have negative values
+            if color_type < 0:
+                log("Extracted piece:", self._piece_name_by_color(color_type))
+                piece = self.COLOR_TO_PIECE[color_type]
+                # Piece +1 because 0 is reserved for "empty block"
+                return [float(ch) for ch in list('{0:04b}'.format(piece + 1))]
+
+        return None
+
     def _normalized_board(self, top_row):
         """Create flat board with normalized values."""
         norm_piece = self._normalized_piece(top_row)
@@ -430,7 +454,7 @@ class RobotProxy(asyncio.Protocol):
                 piece = self.COLOR_TO_PIECE[color_type]
                 # All pieces with full block
                 all_pieces = len(self.PIECE_TO_PIECE_ID) + 1
-                # Piece +1 because 0 is for "empty block"
+                # Piece +1 because 0 is reserved for "empty block"
                 return (piece + 1) / all_pieces
 
         return None
