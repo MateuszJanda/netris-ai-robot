@@ -361,7 +361,7 @@ class RobotProxy(asyncio.Protocol):
 
         # Punish for ending the game
         if game_is_over:
-            score = -100
+            score = -10
         # Reward for adding piece
         elif self._lines_cleared == 0:
             score = 1
@@ -378,7 +378,7 @@ class RobotProxy(asyncio.Protocol):
 
         # Punish for building high towers
         board_height = self._board_height()
-        score += max(0, board_height - self._board_max_height) * -0.5
+        score += max(0, board_height - self._board_max_height) * -0.8
         self._board_max_height = board_height
 
         # Format message and send
