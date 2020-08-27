@@ -431,7 +431,7 @@ class RobotProxy(asyncio.Protocol):
                 # Piece +1 because 0 is reserved for "empty block"
                 return [float(ch) for ch in list('{0:04b}'.format(piece + 1))]
 
-        return None
+        return [0.0, 0.0, 0.0, 0.0]
 
     def _normalized_board(self, top_row):
         """Create flat board with normalized values."""
