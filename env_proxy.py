@@ -178,6 +178,7 @@ class RobotProxy(asyncio.Protocol):
         self._lines_cleared = 0
         self._board_gaps_count = 0
         self._board_max_height = 0
+        self._board_valley = (0, 0)
 
         self._transport = None
         self._buffer = bytes()
@@ -358,16 +359,23 @@ class RobotProxy(asyncio.Protocol):
         """Send update to DQN agent."""
         new_board = self._board_with_piece_bits(top_row)
         flat_board = "".join([("%0.2f " % val) for val in new_board])
+        score = 0
+
+        # Punish for not filling valleys. When line clearing reveal new bottom then skip
+        top, bottom = self._board_top_bottom()
+        if not game_is_over and self._lines_cleared == 0:
+            score += max(top - bottom, self._board_valley[0] - self._board_valley[1])
+        self._board_valley = top, bottom
 
         # Punish for ending the game
         if game_is_over:
-            score = -10
+            score += -10
         # Reward for adding piece
         elif self._lines_cleared == 0:
-            score = 1 * 0.01
+            score += 1 * 0.1
         # Reward for adding piece and clearing lines
         else:
-            score = (1 + (2 * self._lines_cleared - 1)) * 0.01
+            score += (1 + (2 * self._lines_cleared - 1)) * 0.1
         # Reset lines_cleared counter
         self._lines_cleared = 0
 
@@ -376,10 +384,10 @@ class RobotProxy(asyncio.Protocol):
         # score += max(0, all_board_gaps - self._board_gaps_count) * -0.3
         # self._board_gaps_count = all_board_gaps
 
-        # Punish for building high towers
-        board_height = self._board_height()
-        score += max(0, board_height - self._board_max_height) * -0.8
-        self._board_max_height = board_height
+        # # Punish for building high towers
+        # board_height = self._board_height()
+        # score += max(0, board_height - self._board_max_height) * -0.8
+        # self._board_max_height = board_height
 
         # Format message and send
         game_is_over = int(game_is_over)
@@ -399,13 +407,28 @@ class RobotProxy(asyncio.Protocol):
 
         return counter
 
+    def _board_top_bottom(self):
+        """Get max and min height."""
+        max_height = 0
+        min_height = BORAD_HEIGHT - 1
+        for x in range(BOARD_WIDTH):
+            for y in range(BORAD_HEIGHT):
+                if self._board[y][x] == FULL_BLOCK:
+                    max_height = max(max_height, BORAD_HEIGHT - y)
+                    min_height = min(min_height, BORAD_HEIGHT - y)
+                    break
+
+        return max_height, min_height
+
+
     def _board_height(self):
-        """Count max height."""
+        """Count max height. Seems not very useful, high towers are still build."""
         max_height = 0
         for x in range(BOARD_WIDTH):
             for y in range(BORAD_HEIGHT):
                 if self._board[y][x] == FULL_BLOCK:
                     max_height = max(max_height, BORAD_HEIGHT - y)
+                    break
 
         return max_height
 
