@@ -364,17 +364,17 @@ class RobotProxy(asyncio.Protocol):
             score = -10
         # Reward for adding piece
         elif self._lines_cleared == 0:
-            score = 1
+            score = 1 * 0.01
         # Reward for adding piece and clearing lines
         else:
-            score = 1 + (2 * self._lines_cleared - 1) * 100
+            score = (1 + (2 * self._lines_cleared - 1)) * 0.01
         # Reset lines_cleared counter
         self._lines_cleared = 0
 
-        # Punish for creating gaps
-        all_board_gaps = self._board_gaps()
-        score += max(0, all_board_gaps - self._board_gaps_count) * -0.3
-        self._board_gaps_count = all_board_gaps
+        # # Punish for creating gaps
+        # all_board_gaps = self._board_gaps()
+        # score += max(0, all_board_gaps - self._board_gaps_count) * -0.3
+        # self._board_gaps_count = all_board_gaps
 
         # Punish for building high towers
         board_height = self._board_height()

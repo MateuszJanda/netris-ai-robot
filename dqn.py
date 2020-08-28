@@ -167,7 +167,7 @@ def play_one_game(epsilon, env, agent):
         else:
             qs = agent.q_values_for_state(current_state)
             action = np.argmax(qs)
-            log(action)
+            # log(action)
             if action == 0:
                 log(qs)
 
@@ -232,6 +232,7 @@ class Environment:
         self._conn.sendall(message.encode())
 
         last_round, reward, state = self._receive_data()
+        log(reward)
 
         return last_round, reward, state
 
