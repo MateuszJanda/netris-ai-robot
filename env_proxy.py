@@ -178,7 +178,6 @@ class RobotProxy(asyncio.Protocol):
         self._lines_cleared = 0
         self._board_gaps_count = 0
         self._board_max_height = 0
-        self._board_valley = (0, 0)
 
         self._transport = None
         self._buffer = bytes()
@@ -362,10 +361,9 @@ class RobotProxy(asyncio.Protocol):
         score = 0
 
         # Punish for not filling valleys. When line clearing reveal new bottom then skip
-        top, bottom = self._board_top_bottom()
+        top, bottom = self._board_valley()
         if not game_is_over and self._lines_cleared == 0:
-            score += max(top - bottom, self._board_valley[0] - self._board_valley[1])
-        self._board_valley = top, bottom
+            score += (top - bottom) * -0.5
 
         # Punish for ending the game
         if game_is_over:
@@ -407,7 +405,7 @@ class RobotProxy(asyncio.Protocol):
 
         return counter
 
-    def _board_top_bottom(self):
+    def _board_valley(self):
         """Get max and min height."""
         max_height = 0
         min_height = BORAD_HEIGHT - 1
@@ -416,6 +414,10 @@ class RobotProxy(asyncio.Protocol):
                 if self._board[y][x] == FULL_BLOCK:
                     max_height = max(max_height, BORAD_HEIGHT - y)
                     min_height = min(min_height, BORAD_HEIGHT - y)
+                    break
+                elif y == BORAD_HEIGHT - 1 and self._board[y][x] == EMPTY_BLOCK:
+                    max_height = max(max_height, 0)
+                    min_height = min(min_height, 0)
                     break
 
         return max_height, min_height
