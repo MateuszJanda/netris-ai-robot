@@ -363,29 +363,29 @@ class RobotProxy(asyncio.Protocol):
         # Punish for not filling valleys. When line clearing reveal new bottom then skip
         top, bottom = self._board_valley()
         if not game_is_over and self._lines_cleared == 0:
-            score += (top - bottom) * -0.5
+            score += (top - bottom) * -1
+
+        # Punish for creating gaps
+        all_board_gaps = self._board_gaps()
+        score += max(0, all_board_gaps - self._board_gaps_count) * -0.5
+        self._board_gaps_count = all_board_gaps
+
+        # # Punish for building high towers
+        # board_height = self._board_height()
+        # score += max(0, board_height - self._board_max_height) * -0.8
+        # self._board_max_height = board_height
 
         # Punish for ending the game
         if game_is_over:
             score += -10
         # Reward for adding piece
         elif self._lines_cleared == 0:
-            score += 1 * 0.1
+            score += 1
         # Reward for adding piece and clearing lines
         else:
-            score += (1 + (2 * self._lines_cleared - 1)) * 0.1
+            score += 1 + (2 * self._lines_cleared - 1)
         # Reset lines_cleared counter
         self._lines_cleared = 0
-
-        # # Punish for creating gaps
-        # all_board_gaps = self._board_gaps()
-        # score += max(0, all_board_gaps - self._board_gaps_count) * -0.3
-        # self._board_gaps_count = all_board_gaps
-
-        # # Punish for building high towers
-        # board_height = self._board_height()
-        # score += max(0, board_height - self._board_max_height) * -0.8
-        # self._board_max_height = board_height
 
         # Format message and send
         game_is_over = int(game_is_over)
