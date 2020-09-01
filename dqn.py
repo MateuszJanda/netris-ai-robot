@@ -80,14 +80,7 @@ def main():
         tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        flat_model = FlatModel()
-        agent = Agent(flat_model)
-        epsilon = 1
-        start_episode = 0
-
-        if args.episode:
-            epsilon = load(agent, args.episode)
-            start_episode = args.episode + 1
+        agent, epsilon, start_episode = create_agent(args.episode)
 
         sock.bind((HOST, args.port))
         sock.listen()
@@ -269,9 +262,13 @@ class Environment:
 
 
 class FlatModel:
-    def __init__(self):
+    def __init__(self, episode=None):
         # Build NN model
-        self._model = self.create_model(BOARD_HEIGHT * BOARD_WIDTH)
+        if episode:
+            self._model = tf.keras.models.load_model(MODEL_SNAPSHOT % episode)
+        else:
+            self._model = self.create_model(BOARD_HEIGHT * BOARD_WIDTH)
+
         log(self._model.summary())
 
     @staticmethod
@@ -386,7 +383,7 @@ class CnnModel:
 class Agent:
     """DQN agent."""
 
-    def __init__(self, model):
+    def __init__(self, model, episode=None):
         # Build NN model
         self._model = model
 
@@ -472,7 +469,7 @@ class Transition:
 
 def save(agent, epsilon, episode, episode_reward, moves):
     """Save snapshot."""
-    agent.get_tf_model().save_weights(MODEL_SNAPSHOT % episode, save_format="h5")
+    agent.get_tf_model().save(MODEL_SNAPSHOT % episode)
 
     with open(DATA_SNAPSHOT % episode, "wb") as f:
         pickle.dump((epsilon, agent.replay_memory, episode_reward), f)
@@ -481,14 +478,20 @@ def save(agent, epsilon, episode, episode_reward, moves):
         f.write("Episode: %d, epsilon: %0.2f, moves: %d, reward: %0.2f\n" % (episode, epsilon, moves, episode_reward))
 
 
-def load(agent, episode):
-    """Load snapshot."""
-    agent.get_tf_model().load_weights(MODEL_SNAPSHOT % episode)
+def create_agent(episode):
+    """Create agent from existing snapshot, or create new one."""
+    model = FlatModel(episode)
+    agent = Agent(model)
 
-    with open(DATA_SNAPSHOT % episode, "rb") as f:
-        epsilon, agent.replay_memory, _ = pickle.load(f)
+    if episode:
+        with open(DATA_SNAPSHOT % episode, "rb") as f:
+            epsilon, agent.replay_memory, _ = pickle.load(f)
+        start_episode = episode + 1
+    else:
+        epsilon = 1
+        start_episode = 0
 
-    return epsilon
+    return agent, epsilon, start_episode
 
 
 def print_board(board, height, width):
