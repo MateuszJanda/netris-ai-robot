@@ -495,8 +495,8 @@ def print_board(board):
     """Print board state. For debug only."""
     log("Board")
     for line in board:
-        l = "".join(["1" if b else " " for b in line])
-        log(l)
+        blocks = "".join(["1" if b else " " for b in line])
+        log(blocks)
 
 
 def log(*args, **kwargs):

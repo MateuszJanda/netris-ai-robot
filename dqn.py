@@ -46,7 +46,7 @@ import pickle
 # Netris/environment parameters
 BOARD_HEIGHT = 20
 BOARD_WIDTH = 10
-ACTION_SPACE_SIZE = 4*10
+ACTION_SPACE_SIZE = 4 * 10
 SHFIT_OFFSET = 5
 HOST = "127.0.0.1"
 PORT = 9800
@@ -153,7 +153,6 @@ def play_one_game(epsilon, env, agent):
     last_round = False
 
     while not last_round:
-        tic = time.time()
         # Explore other actions with probability epsilon
         if np.random.random() <= epsilon:
             action = np.random.randint(0, ACTION_SPACE_SIZE)
@@ -376,7 +375,7 @@ class CnnModel:
         Board state with extra padding, because CNN remove boarded where
         piece data are stored.
         """
-        state = sate.reshape(BOARD_HEIGHT, BOARD_WIDTH)
+        state = state.reshape(BOARD_HEIGHT, BOARD_WIDTH)
         return np.pad(state, pad_width=1, mode='constant', constant_values=0)
 
 
@@ -499,8 +498,8 @@ def print_board(board, height, width):
     log("Board")
     board = board.reshape(height, width)
     for line in board:
-        l = "".join(["1" if b else " " for b in line])
-        log("|" + l + "|")
+        blocks = "".join(["1" if b else " " for b in line])
+        log("|" + blocks + "|")
 
 
 def log(*args, **kwargs):
