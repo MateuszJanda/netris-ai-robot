@@ -250,7 +250,7 @@ class RobotProxy(asyncio.Protocol):
         handlers = {
             "Ext:LinesCleared": self._handle_cmd_lines_cleared,
             "Exit": self._handle_cmd_exit,
-            "Versin": self._handle_cmd_version,
+            "Version": self._handle_cmd_version,
             "NewPiece": self._handle_cmd_new_piece,
             "BoardSize": self._handle_cmd_board_size,
             "RowUpdate": self._handle_cmd_row_update,
