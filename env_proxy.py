@@ -52,7 +52,7 @@ def main():
     future_stop.add_done_callback(cancel_all_task)
 
     coroutine = loop.create_connection(lambda: RobotProxy(loop, future_stop, queue), HOST, args.port)
-    client = loop.run_until_complete(coroutine)
+    loop.run_until_complete(coroutine)
 
     try:
         loop.run_forever()
@@ -157,10 +157,10 @@ class RobotProxy(asyncio.Protocol):
 
     PIECE_ID_TO_NAME = {
         11: "white pyramid",
-        0 : "blue log",
-        2 : "violet square",
-        3 : "azure L",
-        7 : "yellow mirror L",
+         0: "blue log",
+         2: "violet square",
+         3: "azure L",
+         7: "yellow mirror L",
         15: "green S",
         17: "red Z",
     }
@@ -190,7 +190,6 @@ class RobotProxy(asyncio.Protocol):
         self._transport = transport
 
         # Initialize game, send first command (version)
-        # self._send_robot_cmd("Version 1")
         self._loop.create_task(self._wait_for_robot_cmd())
 
     def connection_lost(self, exc):
@@ -249,12 +248,12 @@ class RobotProxy(asyncio.Protocol):
         # log("[>] " + command.strip())
 
         handlers = {
-            "Ext:LinesCleared" : self._handle_cmd_lines_cleared,
-            "Exit" : self._handle_cmd_exit,
-            "Version" : self._handle_cmd_version,
-            "NewPiece" : self._handle_cmd_new_piece,
-            "BoardSize" : self._handle_cmd_board_size,
-            "RowUpdate" : self._handle_cmd_row_update,
+            "Ext:LinesCleared": self._handle_cmd_lines_cleared,
+            "Exit": self._handle_cmd_exit,
+            "Versin": self._handle_cmd_version,
+            "NewPiece": self._handle_cmd_new_piece,
+            "BoardSize": self._handle_cmd_board_size,
+            "RowUpdate": self._handle_cmd_row_update,
         }
 
         name = command.strip().split(" ")[0]
