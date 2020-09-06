@@ -53,7 +53,7 @@ PORT = 9800
 
 # DQN parameters
 DISCOUNT = 0.95                               # Gamma (𝛾) parameter from Bellman equation
-MINIBATCH_SIZE = 192                          # How many steps (samples) to use for training
+MINIBATCH_SIZE = 128                          # How many steps (samples) to use for training
 REPLAY_MEMORY_SIZE = 40_000                   # Last steps kept for model training
 MIN_REPLAY_MEMORY_SIZE = 10 * MINIBATCH_SIZE  # Minimum number of steps in a memory to start training
 EPISODES = 20_000                             # Episodes == full games
@@ -63,7 +63,7 @@ EPSILON_DECAY = 0.99995                       # Decay epsilon. Smarter NN is, th
 MIN_EPSILON = 0.02                            # Epsilon shouldn't less than this. We always want to check something new
 
 # Snapshot settings
-SNAPSHOT_MOD = 50
+SNAPSHOT_MODULO = 50
 MODEL_SNAPSHOT = "%05d_model.h5"
 DATA_SNAPSHOT = "%05d_data.pickle"
 STATS_FILE = "stats.txt"
@@ -129,7 +129,7 @@ def learn(env, epsilon, agent, start_episode):
     for episode in range(start_episode, EPISODES + 1):
         episode_reward, epsilon = play_one_game(epsilon, env, agent)
 
-        if episode > 0 and episode % SNAPSHOT_MOD == 0:
+        if episode > 0 and episode % SNAPSHOT_MODULO == 0:
             save(agent, epsilon, episode, episode_reward, len(env.handling_time))
 
         log("Episode %d, epsilon %0.3f, reward %0.2f, moves %d, avg handling time: %0.4f, game time: %0.4f"

@@ -22,6 +22,7 @@ PORT = 9800
 BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
 SHFIT_OFFSET = 5
+MAX_PIECE_HEIGHT = 4
 
 SCREEN_ID = 0
 TOP_LINE = 19
@@ -357,54 +358,69 @@ class RobotProxy(asyncio.Protocol):
         """Send update to DQN agent."""
         new_board = self._board_with_piece_bits(top_row)
         flat_board = "".join([("%0.2f " % val) for val in new_board])
-        score = 0
-
-        # Punish for not filling valleys. When line clearing reveal new bottom then skip
-        top, bottom = self._board_valley()
-        if not game_is_over and self._lines_cleared == 0:
-            score += (top - bottom) * -1
-
-        # Punish for creating gaps
-        all_board_gaps = self._board_gaps()
-        score += max(0, all_board_gaps - self._board_gaps_count) * -0.5
-        self._board_gaps_count = all_board_gaps
-
-        # # Punish for building high towers
-        # board_height = self._board_height()
-        # score += max(0, board_height - self._board_max_height) * -0.8
-        # self._board_max_height = board_height
-
-        # Punish for ending the game
-        if game_is_over:
-            score += -10
-        # Reward for adding piece
-        elif self._lines_cleared == 0:
-            score += 1
-        # Reward for adding piece and clearing lines
-        else:
-            score += 1 + (2 * self._lines_cleared - 1)
-        # Reset lines_cleared counter
-        self._lines_cleared = 0
+        score = self._score(game_is_over)
+        game_is_over = int(game_is_over)
 
         # Format message and send
-        game_is_over = int(game_is_over)
         report = str(game_is_over) + " " + str(score) + " " + flat_board + "\n"
         self._transport.write(report.encode())
 
-    def _board_gaps(self):
+    def _score(self, game_is_over):
+        """
+        Calculate final score. In competitive game this values where extra
+        lines are added by enemy could be invalid.
+
+        Return value in range [-1, 1]
+        """
+        score = 0.0
+
+        # Punish for not filling valleys. When line clearing reveal new bottom then skip
+        if not game_is_over and self._lines_cleared == 0:
+            top, bottom = self._calc_valley()
+            score += ((top - bottom) / MAX_PIECE_HEIGHT) * -0.5
+
+        # # Punish for creating gaps
+        # gaps_count = self._calc_gaps()
+        # score += (max(0, gaps_count - self._board_gaps_count) / (BOARD_WIDTH * BORAD_HEIGHT)) * -0.5
+        # self._board_gaps_count = gaps_count
+
+        # Punish for building high towers
+        max_height = self._calc_height()
+        score += (max(0, max_height - self._board_max_height) / MAX_PIECE_HEIGHT) * -0.5
+        self._board_max_height = max_height
+
+        # Punish for ending the game
+        if game_is_over:
+            score += -1
+        # Reward for adding piece
+        elif self._lines_cleared == 0:
+            score += 0.01
+        # Reward for adding piece and clearing lines
+        else:
+            score += self._lines_cleared / MAX_PIECE_HEIGHT
+
+        # Reset lines_cleared counter
+        self._lines_cleared = 0
+
+        if score > 1 and score < -1:
+            raise Exception("Score out of range: %f" % (score))
+
+        return score
+
+    def _calc_gaps(self):
         """Count all gaps (blocks that can't be reached in next tour)."""
-        counter = 0
+        gaps_count = 0
         for x in range(BOARD_WIDTH):
             is_roof = False
             for y in range(BORAD_HEIGHT):
                 if self._board[y][x] == FULL_BLOCK and not is_roof:
                     is_roof = True
                 elif self._board[y][x] == EMPTY_BLOCK and is_roof:
-                    counter += 1
+                    gaps_count += 1
 
-        return counter
+        return gaps_count
 
-    def _board_valley(self):
+    def _calc_valley(self):
         """Get max and min height."""
         max_height = 0
         min_height = BORAD_HEIGHT - 1
@@ -421,9 +437,8 @@ class RobotProxy(asyncio.Protocol):
 
         return max_height, min_height
 
-
-    def _board_height(self):
-        """Count max height. Seems not very useful, high towers are still build."""
+    def _calc_height(self):
+        """Calculate max height."""
         max_height = 0
         for x in range(BOARD_WIDTH):
             for y in range(BORAD_HEIGHT):
