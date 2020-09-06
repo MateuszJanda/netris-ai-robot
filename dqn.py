@@ -224,7 +224,7 @@ class Environment:
         self._conn.sendall(message.encode())
 
         last_round, reward, state = self._receive_data()
-        # log("Reward:", reward)
+        log("Reward:", reward)
 
         return last_round, reward, state
 

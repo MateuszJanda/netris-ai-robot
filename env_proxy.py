@@ -24,6 +24,8 @@ BORAD_HEIGHT = 20
 SHFIT_OFFSET = 5
 MAX_PIECE_HEIGHT = 4
 MAX_ALLOWED_GAPS = 5
+MAX_CLEARED_LINES = 4
+REWAD_THRESHOLDS = MAX_CLEARED_LINES + (MAX_CLEARED_LINES - 1)
 
 SCREEN_ID = 0
 TOP_LINE = 19
@@ -370,55 +372,54 @@ class RobotProxy(asyncio.Protocol):
 
     def _reward(self, game_is_over):
         """
-        Calculate final reward. In competitive game this values where extra
-        lines are added by enemy could be invalid.
+        Calculate final reward. In competitive game this values, where extra
+        lines are added by enemy, will be invalid.
 
-        Return value in range [-1, 1]
+        Return value in range [0, 1]
         """
-        reward = 0.0
 
-        # Punish for not filling valleys. When line clearing reveal new bottom then skip
-        if not game_is_over and self._lines_cleared == 0:
+        # Punish for not filling valleys
+        if self._lines_cleared == 0:
             top, bottom = self._calc_valley()
-            score = (top - bottom) / (BORAD_HEIGHT - 1)
-            if score < 0 or score > 1:
-                raise Exception("Score out of range: %f, (top, bottom) = (%d, %d)"
-                    % (score, top, bottom))
-            reward += score * -0.6
+            penalty_valley = (top - bottom) / (BORAD_HEIGHT - 1)
+            if penalty_valley < 0 or penalty_valley > 1:
+                raise Exception("Penalty out of range: %f, (top, bottom) = (%d, %d)"
+                    % (penalty_valley, top, bottom))
+        # When cleared lines reveal new bottom then skip
+        else:
+            penalty_valley = 0
 
         # Punish for creating gaps
         gaps_count = self._calc_gaps()
-        score = min(max(0, gaps_count - self._board_gaps_count), MAX_ALLOWED_GAPS) / MAX_ALLOWED_GAPS
-        if score > 1 or score < 0:
-            raise Exception("Score out of range: %f, gaps = %d, board_gaps = %d"
-                % (score, gaps_count, self._board_gaps_count))
+        penalty_gaps = min(max(0, gaps_count - self._board_gaps_count), MAX_ALLOWED_GAPS) / MAX_ALLOWED_GAPS
+        if penalty_gaps < 0 or penalty_gaps > 1:
+            raise Exception("Penalty out of range: %f, gaps = %d, board_gaps = %d"
+                % (penalty_gaps, gaps_count, self._board_gaps_count))
         self._board_gaps_count = gaps_count
-        reward += score * -0.4
 
-        # # Punish for increasing hight
+        # # Punish for increasing the height
         # max_height = self._calc_height()
-        # score = max(0, max_height - self._board_max_height) / MAX_PIECE_HEIGHT
-        # if score < 0 or score > 1:
-        #     raise Exception("Score out of range: %f, max_height = %d, board_height = %d"
-        #         % (score, max_height, self._board_max_height))
+        # penalty_height = max(0, max_height - self._board_max_height) / MAX_PIECE_HEIGHT
+        # if penalty_height < 0 or penalty_height > 1:
+        #     raise Exception("Penalty out of range: %f, max_height = %d, board_height = %d"
+        #         % (penalty_height, max_height, self._board_max_height))
         # self._board_max_height = max_height
-        # reward += score * -0.5
 
         # Punish for ending the game
         if game_is_over:
-            reward = -1
+            score = 0
         # Reward for adding piece
         elif self._lines_cleared == 0:
-            reward += 0.01
-        # Reward for adding piece and clearing lines
+            score = 0.08
+        # Reward for clearing lines
         else:
-            reward += self._lines_cleared / MAX_PIECE_HEIGHT
+            score = (self._lines_cleared + (self._lines_cleared - 1)) / REWAD_THRESHOLDS
 
-        # Reset lines_cleared counter
+        # Reset counter
         self._lines_cleared = 0
 
-        # Normalize reward
-        reward = (reward + 1) / 2
+        # Normalize reward with punishment
+        reward = score * (0.5 * (1 - penalty_valley) + 0.5 * (1 - penalty_gaps))
 
         if reward < 0 or reward > 1:
             raise Exception("Reward out of range: %f" % (reward))
