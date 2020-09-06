@@ -358,54 +358,65 @@ class RobotProxy(asyncio.Protocol):
         """Send update to DQN agent."""
         new_board = self._board_with_piece_bits(top_row)
         flat_board = "".join([("%0.2f " % val) for val in new_board])
-        score = self._score(game_is_over)
+        reward = self._reward(game_is_over)
         game_is_over = int(game_is_over)
 
+        log("reward:", reward)
+
         # Format message and send
-        report = str(game_is_over) + " " + str(score) + " " + flat_board + "\n"
+        report = str(game_is_over) + " " + str(reward) + " " + flat_board + "\n"
         self._transport.write(report.encode())
 
-    def _score(self, game_is_over):
+    def _reward(self, game_is_over):
         """
-        Calculate final score. In competitive game this values where extra
+        Calculate final reward. In competitive game this values where extra
         lines are added by enemy could be invalid.
 
         Return value in range [-1, 1]
         """
-        score = 0.0
+        reward = 0.0
 
         # Punish for not filling valleys. When line clearing reveal new bottom then skip
         if not game_is_over and self._lines_cleared == 0:
             top, bottom = self._calc_valley()
-            score += ((top - bottom) / MAX_PIECE_HEIGHT) * -0.5
+            score = (top - bottom) / (BORAD_HEIGHT - 1)
+            if score < 0 or score > 1:
+                raise Exception("Score out of range: %f, (top, bottom) = (%d, %d)" % (score, top, bottom))
+            reward += score * -0.5
 
         # # Punish for creating gaps
         # gaps_count = self._calc_gaps()
-        # score += (max(0, gaps_count - self._board_gaps_count) / (BOARD_WIDTH * BORAD_HEIGHT)) * -0.5
+        # score = max(0, gaps_count - self._board_gaps_count) / (BOARD_WIDTH * BORAD_HEIGHT)
+        # if score > 1 or score < 0:
+        #     raise Exception("Score out of range: %f, gaps = %d, board_gaps = %d" % (score, gaps_count, self._board_gaps_count))
+        # reward += score * -0.5
         # self._board_gaps_count = gaps_count
 
         # Punish for building high towers
         max_height = self._calc_height()
-        score += (max(0, max_height - self._board_max_height) / MAX_PIECE_HEIGHT) * -0.5
+        score = max(0, max_height - self._board_max_height) / MAX_PIECE_HEIGHT
+        if score < 0 or score > 1:
+            raise Exception("Score out of range: %f, max_height = %d, board_height = %d" % (score, max_height, self._board_max_height))
         self._board_max_height = max_height
+        reward += score * -0.5
 
         # Punish for ending the game
         if game_is_over:
-            score += -1
+            reward = -1
         # Reward for adding piece
         elif self._lines_cleared == 0:
-            score += 0.01
+            reward += 0.01
         # Reward for adding piece and clearing lines
         else:
-            score += self._lines_cleared / MAX_PIECE_HEIGHT
+            reward += self._lines_cleared / MAX_PIECE_HEIGHT
 
         # Reset lines_cleared counter
         self._lines_cleared = 0
 
-        if score > 1 and score < -1:
-            raise Exception("Score out of range: %f" % (score))
+        if reward < -1 or reward > 1:
+            raise Exception("Reward out of range: %f" % (reward))
 
-        return score
+        return reward
 
     def _calc_gaps(self):
         """Count all gaps (blocks that can't be reached in next tour)."""
