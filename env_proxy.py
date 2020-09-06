@@ -381,14 +381,16 @@ class RobotProxy(asyncio.Protocol):
             top, bottom = self._calc_valley()
             score = (top - bottom) / (BORAD_HEIGHT - 1)
             if score < 0 or score > 1:
-                raise Exception("Score out of range: %f, (top, bottom) = (%d, %d)" % (score, top, bottom))
+                raise Exception("Score out of range: %f, (top, bottom) = (%d, %d)"
+                    % (score, top, bottom))
             reward += score * -0.5
 
         # # Punish for creating gaps
         # gaps_count = self._calc_gaps()
         # score = max(0, gaps_count - self._board_gaps_count) / (BOARD_WIDTH * BORAD_HEIGHT)
         # if score > 1 or score < 0:
-        #     raise Exception("Score out of range: %f, gaps = %d, board_gaps = %d" % (score, gaps_count, self._board_gaps_count))
+        #     raise Exception("Score out of range: %f, gaps = %d, board_gaps = %d"
+        #         % (score, gaps_count, self._board_gaps_count))
         # reward += score * -0.5
         # self._board_gaps_count = gaps_count
 
@@ -396,7 +398,8 @@ class RobotProxy(asyncio.Protocol):
         max_height = self._calc_height()
         score = max(0, max_height - self._board_max_height) / MAX_PIECE_HEIGHT
         if score < 0 or score > 1:
-            raise Exception("Score out of range: %f, max_height = %d, board_height = %d" % (score, max_height, self._board_max_height))
+            raise Exception("Score out of range: %f, max_height = %d, board_height = %d"
+                % (score, max_height, self._board_max_height))
         self._board_max_height = max_height
         reward += score * -0.5
 
