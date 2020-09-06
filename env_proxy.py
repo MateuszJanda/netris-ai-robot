@@ -416,7 +416,10 @@ class RobotProxy(asyncio.Protocol):
         # Reset lines_cleared counter
         self._lines_cleared = 0
 
-        if reward < -1 or reward > 1:
+        # Normalize reward
+        reward = (reward + 1) / 2
+
+        if reward < 0 or reward > 1:
             raise Exception("Reward out of range: %f" % (reward))
 
         return reward
