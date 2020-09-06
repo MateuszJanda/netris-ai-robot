@@ -23,6 +23,7 @@ BOARD_WIDTH = 10
 BORAD_HEIGHT = 20
 SHFIT_OFFSET = 5
 MAX_PIECE_HEIGHT = 4
+MAX_ALLOWED_GAPS = 5
 
 SCREEN_ID = 0
 TOP_LINE = 19
@@ -387,7 +388,7 @@ class RobotProxy(asyncio.Protocol):
 
         # Punish for creating gaps
         gaps_count = self._calc_gaps()
-        score = min(max(0, gaps_count - self._board_gaps_count), 5) / 5
+        score = min(max(0, gaps_count - self._board_gaps_count), MAX_ALLOWED_GAPS) / MAX_ALLOWED_GAPS
         if score > 1 or score < 0:
             raise Exception("Score out of range: %f, gaps = %d, board_gaps = %d"
                 % (score, gaps_count, self._board_gaps_count))
