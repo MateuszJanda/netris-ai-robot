@@ -352,7 +352,7 @@ class CnnModel:
         model.add(tf.keras.layers.Dense(units=ACTION_SPACE_SIZE, activation='linear'))
 
         # Compile model
-        model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.05), loss='mse',
+        model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.001), loss='mse',
             metrics=['accuracy'])
 
         return model
