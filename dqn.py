@@ -315,13 +315,17 @@ class FlatModel:
 
 
 class CnnModel:
-    def __init__(self):
+    def __init__(self, episode=None):
         # Board size with extra padding
         self._height = BOARD_HEIGHT + 2
         self._width = BOARD_WIDTH + 2
 
-        # Build NN model
-        self._model = self.create_model(self._height, self._width)
+        if episode:
+            self._model = tf.keras.models.load_model(MODEL_SNAPSHOT % episode)
+        else:
+            self._model = self.create_model(self._height, self._width)
+
+        log(self._model.summary())
 
     @staticmethod
     def create_model(height, width):
@@ -479,7 +483,7 @@ def save(agent, epsilon, episode, episode_reward, moves):
 
 def create_agent(episode):
     """Create agent from existing snapshot, or create new one."""
-    model = FlatModel(episode)
+    model = CnnModel(episode)
     agent = Agent(model)
 
     if episode:
