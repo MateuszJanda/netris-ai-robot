@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+.mypy_cache/
+checkpoints/
+only_wins_checkpoint/
+tb_logs/
+*.h5
+*.pickle
+stats.txt
