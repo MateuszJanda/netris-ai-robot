@@ -13,26 +13,26 @@ On first terminal run Netris server (at host)
 On second terminal, run dqn agent (with GPU support at guest)
 ```bash
 docker start tf_netris
-docker exec -it tf_netris python dqn.py -g -p 9800
+docker exec -it tf_netris python dqn_env.py -g -p 9800
 ```
 
 Alternatively, you can run dqn agent with CPU support (at host)
 ```bash
-python dqn.py -p 9800
+python dqn_env.py -p 9800
 ```
 
 On third terminal, run proxy robot (at host). Note that interval (`-i`) must match value passed to Netris server
 ```bash
-./netris-env -n -m -c localhost -i 0.1 -r 'python env_proxy.py -t /dev/pts/3 -p 9800'
+./netris-env -n -m -c localhost -i 0.1 -r 'python dqn_env_proxy.py -t /dev/pts/3 -p 9800'
 ```
 
 ## Example
-Learned model (in supervised learning), can be used by robot with normal netris instance
+Learned model, can be used by robot with normal netris instance
 On first termianl, run game in server mode and wait for **robot**
 ```bash
 netris -w
 ```
-On second terminal, connect **robot** to server as second player
+On second terminal, connect **robot** (using supervised learning) to server as second player
 ```bash
-netris -c localhost -r 'python robot_sl.py -f'
+netris -c localhost -r 'python robot_sup_learn.py -f'
 ```
