@@ -18,7 +18,7 @@ docker exec -it tf_netris python dqn.py -g -p 9800
 
 Alternatively, you can run dqn agent with CPU support (at host)
 ```bash
-python dqn.py
+python dqn.py -p 9800
 ```
 
 On third terminal, run proxy robot (at host). Note that interval (`-i`) must match value passed to Netris server
