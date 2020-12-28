@@ -483,7 +483,7 @@ def save(agent, epsilon, episode, episode_reward, moves):
 
 def create_agent(episode):
     """Create agent from existing snapshot, or create new one."""
-    model = CnnModel(episode)
+    model = FlatModel(episode)
     agent = Agent(model)
 
     if episode:
