@@ -82,6 +82,8 @@ def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         agent, epsilon, start_episode = create_agent(args.episode)
 
+        # Allow reuse port. Useful for testing, when server is killed many times
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((HOST, args.port))
         sock.listen()
         log("Starting server at %s:%d" % (HOST, args.port))
