@@ -2,7 +2,7 @@
 
 """
 Author: Mateusz Janda <mateusz janda at gmail com>
-Site: github.com/MateuszJanda
+Site: github.com/MateuszJanda/netris-ai-robot
 Ad maiorem Dei gloriam
 """
 
@@ -86,7 +86,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='Netris robot using neural network model from supervisedlearning\n'
                 'Mateusz Janda (c) <mateusz janda at gmail com>\n'
-                'netris-ai-robot project github.com/MateuszJanda/sloper\n',
+                'netris-ai-robot project github.com/MateuszJanda/netris-ai-robot\n',
         usage='Please try to use -h, --help for more informations',
         epilog='',
         formatter_class=CustomFormatter)

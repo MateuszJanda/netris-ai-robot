@@ -2,7 +2,7 @@
 
 """
 Author: Mateusz Janda <mateusz janda at gmail com>
-Site: github.com/MateuszJanda
+Site: github.com/MateuszJanda/netris-ai-robot
 Ad maiorem Dei gloriam
 """
 
@@ -77,7 +77,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='Netris proxy robot for reinforcement learning (DQN)\n'
                 'Mateusz Janda (c) <mateusz janda at gmail com>\n'
-                'netris-ai-robot project github.com/MateuszJanda/sloper\n'
+                'netris-ai-robot project github.com/MateuszJanda/netris-ai-robot\n'
                 '\n'
                 'Robot will try to connect with DQN agent at ' + HOST + ':' + str(PORT) + '\n',
         usage='Please try to use -h, --help for more informations',
