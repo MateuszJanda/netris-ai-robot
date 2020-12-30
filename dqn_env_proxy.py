@@ -53,15 +53,16 @@ def main():
     loop.add_reader(sys.stdin, got_robot_cmd, queue)
 
     future_stop = loop.create_future()
-    future_stop.add_done_callback(cancel_all_task)
 
     coroutine = loop.create_connection(lambda: RobotProxy(loop, future_stop, queue), HOST, args.port)
     loop.run_until_complete(coroutine)
 
     try:
-        loop.run_forever()
+        loop.run_until_complete(future_stop)
     except KeyboardInterrupt:
-        cancel_all_task()
+        pass
+
+    cancel_all_task()
 
     log("Stop robot, PID:", os.getpid())
     if LOG_FILE:
@@ -127,15 +128,8 @@ def got_robot_cmd(queue):
 def cancel_all_task(result=None):
     log("Cancel all tasks")
     loop = asyncio.get_event_loop()
-    for task in asyncio.all_tasks():
+    for task in asyncio.all_tasks(loop):
         task.cancel()
-    loop.create_task(stop_loop())
-
-
-async def stop_loop():
-    log("Stop loop")
-    loop = asyncio.get_event_loop()
-    loop.stop()
 
 
 class RobotProxy(asyncio.Protocol):
@@ -197,7 +191,8 @@ class RobotProxy(asyncio.Protocol):
         self._loop.create_task(self._wait_for_robot_cmd())
 
     def connection_lost(self, exc):
-        log("[!] Connection lost. Should be handled?")
+        log("[!] Connection lost")
+        self._future_stop.set_result(True)
 
     def _send_robot_cmd(self, cmd):
         """Send command to server."""
@@ -246,6 +241,7 @@ class RobotProxy(asyncio.Protocol):
         """Wait for command from stdin."""
         command = await self._queue.get()
         self._handle_command(command)
+        self._queue.task_done()
 
     def _handle_command(self, command):
         """Handle Netris (RobotCmd) commands."""
