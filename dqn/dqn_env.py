@@ -160,6 +160,7 @@ def play_one_game(epsilon, env, agent):
             action = np.random.randint(0, ACTION_SPACE_SIZE)
         else:
             qs = agent.q_values_for_state(current_state)
+            # Choose best action
             action = np.argmax(qs)
             # log(action)
             if action == 0:
