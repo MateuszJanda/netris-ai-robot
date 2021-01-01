@@ -1,3 +1,17 @@
+#!/usr/bin/env python3
+
+"""
+Author: Mateusz Janda <mateusz janda at gmail com>
+Site: github.com/MateuszJanda/netris-ai-robot
+Ad maiorem Dei gloriam
+"""
+
+import numpy as np
+import time
+import config
+import utils
+
+
 class Environment:
     def __init__(self, sock):
         self._sock = sock
@@ -22,18 +36,18 @@ class Environment:
 
     def step(self, action):
         """Send action to robot and receive new feedback."""
-        if action >= ACTION_SPACE_SIZE:
+        if action >= config.ACTION_SPACE_SIZE:
             raise Exception("Action not in action space:", action)
 
         self.handling_time.append(time.time() - self._step_tic)
-        shift = action % BOARD_WIDTH - SHFIT_OFFSET
-        rotate = action // BOARD_WIDTH
+        shift = action % config.BOARD_WIDTH - config.SHFIT_OFFSET
+        rotate = action // config.BOARD_WIDTH
 
         message = str(shift) + ' ' + str(rotate) + '\n'
         self._conn.sendall(message.encode())
 
         last_round, reward, state = self._receive_data()
-        log("Reward:", reward)
+        utils.log("Reward:", reward)
 
         return last_round, reward, state
 
