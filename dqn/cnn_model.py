@@ -8,20 +8,22 @@ Ad maiorem Dei gloriam
 
 import tensorflow as tf
 import numpy as np
+import config
+import utils
 
 
 class CnnModel:
     def __init__(self, episode=None):
         # Board size with extra padding
-        self._height = BOARD_HEIGHT + 2
-        self._width = BOARD_WIDTH + 2
+        self._height = config.BOARD_HEIGHT + 2
+        self._width = config.BOARD_WIDTH + 2
 
         if episode:
-            self._model = tf.keras.models.load_model(MODEL_SNAPSHOT % episode)
+            self._model = tf.keras.models.load_model(config.MODEL_SNAPSHOT % episode)
         else:
             self._model = self.create_model(self._height, self._width)
 
-        log(self._model.summary())
+        utils.log(self._model.summary())
 
     @staticmethod
     def create_model(height, width):
@@ -45,7 +47,7 @@ class CnnModel:
         model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(units=64, activation='relu'))
 
-        model.add(tf.keras.layers.Dense(units=ACTION_SPACE_SIZE, activation='linear'))
+        model.add(tf.keras.layers.Dense(units=config.ACTION_SPACE_SIZE, activation='linear'))
 
         # Compile model
         model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.001), loss='mse',
@@ -75,5 +77,5 @@ class CnnModel:
         Board state with extra padding, because CNN remove boarded where
         piece data are stored.
         """
-        state = state.reshape(BOARD_HEIGHT, BOARD_WIDTH)
+        state = state.reshape(config.BOARD_HEIGHT, config.BOARD_WIDTH)
         return np.pad(state, pad_width=1, mode='constant', constant_values=0)

@@ -10,6 +10,7 @@ import tensorflow as tf
 import config
 import utils
 
+
 class FlatNnModel:
     def __init__(self, episode=None):
         # Build NN model

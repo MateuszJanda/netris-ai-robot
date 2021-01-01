@@ -66,7 +66,7 @@ def main():
         utils.log("Starting server at %s:%d" % (config.HOST, args.port))
         env = Environment(sock)
 
-        learn(env, epsilon, agent, start_episode)
+        start_learning(env, epsilon, agent, start_episode)
 
         env.close()
 
@@ -103,13 +103,13 @@ def parse_args():
     return args
 
 
-def learn(env, epsilon, agent, start_episode):
+def start_learning(env, epsilon, agent, start_episode):
     """Learn through episodes."""
     for episode in range(start_episode, config.EPISODES + 1):
         episode_reward, epsilon = play_one_game(epsilon, env, agent)
 
         if episode > 0 and episode % config.SNAPSHOT_MODULO == 0:
-            save(agent, epsilon, episode, episode_reward, len(env.handling_time))
+            save_snapshot(agent, epsilon, episode, episode_reward, len(env.handling_time))
 
         utils.log("Episode %d, epsilon %0.3f, reward %0.2f, moves %d, avg handling time: %0.4f, game time: %0.4f"
             % (episode,
@@ -178,9 +178,9 @@ class Transition:
         self.last_round = last_round
 
 
-def save(agent, epsilon, episode, episode_reward, moves):
+def save_snapshot(agent, epsilon, episode, episode_reward, moves):
     """Save snapshot."""
-    agent.get_tf_model().save(config.MODEL_SNAPSHOT % episode)
+    agent.get_tf_model().save_snapshot(config.MODEL_SNAPSHOT % episode)
 
     with open(config.DATA_SNAPSHOT % episode, "wb") as f:
         pickle.dump((epsilon, agent.replay_memory, episode_reward), f)

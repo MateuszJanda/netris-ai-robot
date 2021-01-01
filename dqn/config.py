@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+
+"""
+Author: Mateusz Janda <mateusz janda at gmail com>
+Site: github.com/MateuszJanda/netris-ai-robot
+Ad maiorem Dei gloriam
+"""
+
 # Netris/environment parameters
 BOARD_HEIGHT = 20
 BOARD_WIDTH = 10
