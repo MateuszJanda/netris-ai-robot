@@ -35,8 +35,6 @@ Credits:
 
 import tensorflow as tf
 import numpy as np
-import random
-from collections import deque
 import socket
 import time
 import argparse

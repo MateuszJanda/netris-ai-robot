@@ -1,3 +1,17 @@
+#!/usr/bin/env python3
+
+"""
+Author: Mateusz Janda <mateusz janda at gmail com>
+Site: github.com/MateuszJanda/netris-ai-robot
+Ad maiorem Dei gloriam
+"""
+
+import numpy as np
+import random
+from collections import deque
+import config
+
+
 class Agent:
     """DQN agent."""
 
@@ -6,7 +20,7 @@ class Agent:
         self._model = model
 
         # An array with last REPLAY_MEMORY_SIZE steps for training
-        self.replay_memory = deque(maxlen=REPLAY_MEMORY_SIZE)
+        self.replay_memory = deque(maxlen=config.REPLAY_MEMORY_SIZE)
 
     def update_replay_memory(self, transition):
         """Adds transition (step's data) to a replay memory."""
@@ -23,11 +37,11 @@ class Agent:
 
         # Start training only if certain number of samples is already saved in
         # replay memory
-        if len(self.replay_memory) < MIN_REPLAY_MEMORY_SIZE:
+        if len(self.replay_memory) < config.MIN_REPLAY_MEMORY_SIZE:
             return
 
         # Get a mini-batch of random samples from replay memory
-        minibatch = random.sample(self.replay_memory, MINIBATCH_SIZE)
+        minibatch = random.sample(self.replay_memory, config.MINIBATCH_SIZE)
         current_q_values, future_q_values = self.q_values_for_historic(minibatch)
 
         input_states = []     # Input (X)
@@ -40,7 +54,7 @@ class Agent:
             # Otherwise set new Q from future states (Bellman equation)
             else:
                 max_future_q = np.max(future_q_values[index])
-                new_q = transition.reward + DISCOUNT * max_future_q
+                new_q = transition.reward + config.DISCOUNT * max_future_q
 
             # Update Q value for given action, and append to training output (y) data
             current_qs = current_q_values[index]
@@ -52,7 +66,7 @@ class Agent:
 
         # Fit with new Q values
         self._model.fit(x=np.array(input_states), y=np.array(target_q_values),
-            batch_size=MINIBATCH_SIZE, verbose=0, shuffle=False)
+            batch_size=config.MINIBATCH_SIZE, verbose=0, shuffle=False)
 
     def q_values_for_historic(self, minibatch):
         """
@@ -60,10 +74,10 @@ class Agent:
         for Q values.
         """
         current_states = np.array([transition.current_state for transition in minibatch])
-        current_q_values = self._model.predict(MINIBATCH_SIZE, current_states)
+        current_q_values = self._model.predict(config.MINIBATCH_SIZE, current_states)
 
         next_states = np.array([transition.next_state for transition in minibatch])
-        future_q_values = self._model.predict(MINIBATCH_SIZE, next_states)
+        future_q_values = self._model.predict(config.MINIBATCH_SIZE, next_states)
 
         return current_q_values, future_q_values
 
