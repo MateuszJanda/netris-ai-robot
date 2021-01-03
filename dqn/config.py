@@ -16,13 +16,23 @@ ACTION_SPACE_SIZE = 4 * 10
 SHFIT_OFFSET = 5
 
 SCREEN_ID = 0
+TOP_LINE = 19
+EMPTY_BLOCK = 0
+FULL_BLOCK = 1
+EMPTY_LINE = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+
+SHFIT_OFFSET = 5
+MAX_PIECE_HEIGHT = 4
+MAX_ALLOWED_GAPS = 5
+MAX_CLEARED_LINES = 4
+REWAD_THRESHOLDS = MAX_CLEARED_LINES + (MAX_CLEARED_LINES - 1)
 
 # Snapshot settings
 SNAPSHOT_MODULO = 50
 MODEL_SNAPSHOT = "%05d_model.h5"
 DATA_SNAPSHOT = "%05d_data.pickle"
 STATS_FILE = "stats.txt"
-
 
 # DQN parameters
 DISCOUNT = 0.95                               # Gamma (𝛾) parameter from Bellman equation
