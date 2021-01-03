@@ -103,6 +103,22 @@ def parse_args():
     return args
 
 
+def create_agent(episode):
+    """Create agent from existing snapshot, or create new one."""
+    model = FlatNnModel(episode)
+    agent = Agent(model)
+
+    if episode:
+        with open(config.DATA_SNAPSHOT % episode, "rb") as f:
+            epsilon, agent.replay_memory, _ = pickle.load(f)
+        start_episode = episode + 1
+    else:
+        epsilon = 1
+        start_episode = 0
+
+    return agent, epsilon, start_episode
+
+
 def start_learning(env, epsilon, agent, start_episode):
     """Learn through episodes."""
     for episode in range(start_episode, config.EPISODES + 1):
@@ -187,22 +203,6 @@ def save_snapshot(agent, epsilon, episode, episode_reward, moves):
 
     with open(config.STATS_FILE, "a") as f:
         f.write("Episode: %d, epsilon: %0.2f, moves: %d, reward: %0.2f\n" % (episode, epsilon, moves, episode_reward))
-
-
-def create_agent(episode):
-    """Create agent from existing snapshot, or create new one."""
-    model = FlatNnModel(episode)
-    agent = Agent(model)
-
-    if episode:
-        with open(config.DATA_SNAPSHOT % episode, "rb") as f:
-            epsilon, agent.replay_memory, _ = pickle.load(f)
-        start_episode = episode + 1
-    else:
-        epsilon = 1
-        start_episode = 0
-
-    return agent, epsilon, start_episode
 
 
 if __name__ == '__main__':
