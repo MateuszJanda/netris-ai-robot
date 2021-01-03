@@ -119,7 +119,6 @@ def cancel_all_task(result=None):
 
 class RobotProxy(asyncio.Protocol):
     def __init__(self, loop, future_stop, queue):
-        log("Tutaj")
         self._loop = loop
         self._future_stop = future_stop
         self._queue = queue
@@ -184,8 +183,10 @@ class RobotProxy(asyncio.Protocol):
         self._queue.task_done()
 
     def _handle_command(self, command):
-        """Handle Netris (RobotCmd) commands."""
-        log("[>] " + command.strip())
+        """
+        Handle Netris (RobotCmd) commands.
+        """
+        # log("[>] " + command.strip())
 
         handlers = {
             "Ext:LinesCleared": self._handle_cmd_lines_cleared,
@@ -268,7 +269,9 @@ class RobotProxy(asyncio.Protocol):
         return True
 
     def _send_to_game(self, cmd):
-        """Send command to netris."""
+        """
+        Send command to netris.
+        """
         # log("[<] " + cmd.strip())
         try:
             sys.stdout.write(cmd + "\n")
@@ -282,7 +285,6 @@ class RobotProxy(asyncio.Protocol):
         """
         Send status to agent.
         """
-        log("To agent", msg)
         self._transport.write(msg.encode())
 
 
@@ -290,12 +292,14 @@ def print_board(board):
     """Print board state. For debug only."""
     log("Board")
     for line in board:
-        blocks = "".join(["1" if b else " " for b in line])
+        blocks = "".join(["[]" if b else "  " for b in line])
         log(blocks)
 
 
 def log(*args, **kwargs):
-    """Print log to other terminal or file."""
+    """
+    Print log to other terminal or file.
+    """
     if LOG_FILE:
         print(*args, **kwargs, file=LOG_FILE)
 
