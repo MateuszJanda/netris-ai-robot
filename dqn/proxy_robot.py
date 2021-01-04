@@ -9,6 +9,7 @@ Ad maiorem Dei gloriam
 import sys
 import asyncio
 from tetris_model import TetrisModel
+from converter import Converter
 import config
 
 
@@ -20,6 +21,7 @@ class ProxyRobot(asyncio.Protocol):
         self._log_file = log_file
 
         self.model = TetrisModel(self._log_file)
+        self.converter = Converter(self.model, self._log_file)
 
         self._transport = None
         self._buffer = bytes()
@@ -114,7 +116,7 @@ class ProxyRobot(asyncio.Protocol):
     def _handle_cmd_exit(self, params):
         """Handle Exit command."""
         self._log("Exit command received")
-        msg = self.model.create_status_message(top_row=config.EMPTY_LINE, game_is_over=True)
+        msg = self.converter.create_status_message(top_row=config.EMPTY_LINE, game_is_over=True)
         self._send_to_agent(msg)
         self._future_stop.set_result(True)
 
@@ -152,8 +154,9 @@ class ProxyRobot(asyncio.Protocol):
         Handle RowUpdate command from netris. Update board. This is the moment
         when action can be taken for new piece.
         """
-        msg = self.model.update_row(params)
-        if msg:
+        row = self.model.update_row(params)
+        if row:
+            msg = self.converter.create_status_message(top_row=row, game_is_over=False)
             self._send_to_agent(msg)
 
         return True
