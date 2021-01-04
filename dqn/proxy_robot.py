@@ -114,8 +114,8 @@ class ProxyRobot(asyncio.Protocol):
     def _handle_cmd_exit(self, params):
         """Handle Exit command."""
         self._log("Exit command received")
-        status = self._board_buffer.flush_status(game_is_over=True)
-        self._send_to_agent(status)
+        msg = self._board_buffer.flush_as_msg(game_is_over=True)
+        self._send_to_agent(msg)
         self._future_stop.set_result(True)
 
         return False
@@ -153,8 +153,8 @@ class ProxyRobot(asyncio.Protocol):
         when action can be taken for new piece.
         """
         if self._board_buffer.update_row(params):
-            status = self._board_buffer.flush_status(game_is_over=False)
-            self._send_to_agent(status)
+            msg = self._board_buffer.flush_as_msg(game_is_over=False)
+            self._send_to_agent(msg)
 
         return True
 

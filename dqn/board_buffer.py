@@ -69,7 +69,7 @@ class BoardBuffer:
 
         return False
 
-    def flush_status(self, game_is_over=False):
+    def flush_as_msg(self, game_is_over=False):
         """Create status message for agent."""
         new_board = np.copy(self.model._board).flatten()
         flat_board = "".join([("%d " % val) for val in new_board])
