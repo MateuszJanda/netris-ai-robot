@@ -7,10 +7,12 @@ Ad maiorem Dei gloriam
 """
 
 
-def print_board(board, height, width):
+def board_look(board, height, width):
     """Print board state. For debug only."""
-    log("Board")
+    look = "Board"
     board = board.reshape(height, width)
     for line in board:
-        blocks = "".join(["1" if b else " " for b in line])
-        log("|" + blocks + "|")
+        blocks_line = "".join(["[]" if b else "  " for b in line])
+        look += "|" + blocks_line + "|\n"
+
+    return look

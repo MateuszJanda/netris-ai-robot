@@ -116,14 +116,6 @@ def cancel_all_task(result=None):
         task.cancel()
 
 
-def print_board(board):
-    """Print board state. For debug only."""
-    log("Board")
-    for line in board:
-        blocks = "".join(["[]" if b else "  " for b in line])
-        log(blocks)
-
-
 def log(*args, **kwargs):
     """
     Print log to other terminal or file.
