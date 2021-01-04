@@ -8,8 +8,7 @@ Ad maiorem Dei gloriam
 
 import sys
 import asyncio
-from tetris_model import TetrisModel
-from converter import Converter
+from board_buffer import BoardBuffer
 import config
 
 
@@ -20,8 +19,7 @@ class ProxyRobot(asyncio.Protocol):
         self._queue = queue
         self._log_file = log_file
 
-        self.model = TetrisModel(self._log_file)
-        self.converter = Converter(self.model, self._log_file)
+        self._board_buffer = BoardBuffer(log_file)
 
         self._transport = None
         self._buffer = bytes()
@@ -53,19 +51,19 @@ class ProxyRobot(asyncio.Protocol):
         cmd_out = []
 
         while rotate != 0:
-            cmd_out.append("Rotate " + self.model.sequence_num)
+            cmd_out.append("Rotate " + self._board_buffer.sequence_num)
             rotate -= 1
 
         if shift < 0:
             while shift != 0:
-                cmd_out.append("Left " + self.model.sequence_num)
+                cmd_out.append("Left " + self._board_buffer.sequence_num)
                 shift += 1
         elif shift > 0:
             while shift != 0:
-                cmd_out.append("Right " + self.model.sequence_num)
+                cmd_out.append("Right " + self._board_buffer.sequence_num)
                 shift -= 1
 
-        cmd_out.append("Drop " + self.model.sequence_num)
+        cmd_out.append("Drop " + self._board_buffer.sequence_num)
 
         for cmd in cmd_out:
             self._send_to_game(cmd)
@@ -109,15 +107,15 @@ class ProxyRobot(asyncio.Protocol):
 
     def _handle_cmd_lines_cleared(self, params):
         """Handle Ext:LinesCleared - available only in modified Netris."""
-        self.model.update_lines_cleared(params)
+        self._board_buffer.update_lines_cleared(params)
 
         return True
 
     def _handle_cmd_exit(self, params):
         """Handle Exit command."""
         self._log("Exit command received")
-        msg = self.converter.create_status_message(top_row=config.EMPTY_LINE, game_is_over=True)
-        self._send_to_agent(msg)
+        status = self._board_buffer.flush_status(game_is_over=True)
+        self._send_to_agent(status)
         self._future_stop.set_result(True)
 
         return False
@@ -133,7 +131,7 @@ class ProxyRobot(asyncio.Protocol):
         """
         Handle NewPiece from netris.
         """
-        self.model.update_new_piece(params)
+        self._board_buffer.update_new_piece(params)
 
         return True
 
@@ -154,10 +152,9 @@ class ProxyRobot(asyncio.Protocol):
         Handle RowUpdate command from netris. Update board. This is the moment
         when action can be taken for new piece.
         """
-        row = self.model.update_row(params)
-        if row:
-            msg = self.converter.create_status_message(top_row=row, game_is_over=False)
-            self._send_to_agent(msg)
+        if self._board_buffer.update_row(params):
+            status = self._board_buffer.flush_status(game_is_over=False)
+            self._send_to_agent(status)
 
         return True
 

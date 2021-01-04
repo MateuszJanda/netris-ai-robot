@@ -10,42 +10,43 @@ import numpy as np
 import config
 
 
-class TetrisModel:
-    COLOR_TO_PIECE = {
-        -1: 4,      # Piece Id: 11
-        -2: 0,      # Piece Id: 0
-        -3: 1,      # Piece Id: 2
-        -4: 2,      # Piece Id: 3
-        -5: 3,      # Piece Id: 7
-        -6: 5,      # Piece Id: 15
-        -7: 6,      # Piece Id: 17
-    }
+class BoardBuffer:
+    # COLOR_TO_PIECE = {
+    #     -1: 4,      # Piece Id: 11
+    #     -2: 0,      # Piece Id: 0
+    #     -3: 1,      # Piece Id: 2
+    #     -4: 2,      # Piece Id: 3
+    #     -5: 3,      # Piece Id: 7
+    #     -6: 5,      # Piece Id: 15
+    #     -7: 6,      # Piece Id: 17
+    # }
 
-    PIECE_TO_PIECE_ID = {
-        4: 11,
-        0: 0,
-        1: 2,
-        2: 3,
-        3: 7,
-        5: 15,
-        6: 17,
-    }
+    # PIECE_TO_PIECE_ID = {
+    #     4: 11,
+    #     0: 0,
+    #     1: 2,
+    #     2: 3,
+    #     3: 7,
+    #     5: 15,
+    #     6: 17,
+    # }
 
-    PIECE_ID_TO_NAME = {
-        11: "white pyramid",
-         0: "blue log",
-         2: "violet square",
-         3: "azure L",
-         7: "yellow mirror L",
-        15: "green S",
-        17: "red Z",
-    }
+    # PIECE_ID_TO_NAME = {
+    #     11: "white pyramid",
+    #      0: "blue log",
+    #      2: "violet square",
+    #      3: "azure L",
+    #      7: "yellow mirror L",
+    #     15: "green S",
+    #     17: "red Z",
+    # }
 
     def __init__(self, log_file):
         self._log_file = log_file
 
         self._board = np.zeros(shape=(config.BOARD_HEIGHT, config.BOARD_WIDTH), dtype=int)
-        self.sequence_num = None
+        self.sequence_num = None # TODO: getter
+        self._new_piece = 0
         self._fresh_piece = False
         self._round = 0
 
@@ -78,21 +79,43 @@ class TetrisModel:
 
         # Skip data if they don't belong to robot
         if scr != config.SCREEN_ID:
-            return None
+            return False
 
         # Netris inform about switch from "piece block" to "fixed block" starting
         # from second RowUpdate command after NewPiece command. This is to late,
         # for prediction, so better is assume that first line is always empty.
         if y != config.TOP_LINE:
-            for x, val in enumerate(row):
-                self._board[config.BOARD_HEIGHT - 1 - y][x] = config.FULL_BLOCK if val else config.EMPTY_BLOCK
+            for x, color in enumerate(row):
+                assert(color >= 0) # TODO: check
+                self._board[config.BOARD_HEIGHT - 1 - y][x] = color
 
         # Create board status if this is new piece
         if self._fresh_piece and y == config.TOP_LINE:
-            self._fresh_piece = False
-            return row
+            for color in row:
+                if color < 0:
+                    self._new_piece = -color
+                    self._fresh_piece = False
+                    return True
 
-        return None
+        return False
+
+    def flush_status(self, game_is_over=False):
+        """Create status message for agent."""
+        new_board = np.copy(self.model._board).flatten()
+        flat_board = "".join([("%d " % val) for val in new_board])
+
+        game_is_over = int(game_is_over)
+
+        # Format status message
+        status = str(game_is_over) + " " + str(self._lines_cleared) + " " + \
+            str(self._new_piece) +  self._ flat_board + "\n"
+
+        self._reset()
+        return status
+
+    def _reset(self):
+        self._lines_cleared = 0
+        self._new_piece = 0
 
     def log(self, *args, **kwargs):
         """Print log to other terminal or file."""
