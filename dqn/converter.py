@@ -20,19 +20,6 @@ class Converter:
         self._board_gaps_count = 0
         self._board_max_height = 0
 
-
-    def create_status_message(self, top_row, game_is_over):
-        """Create status message for agent."""
-        new_board = self._board_with_piece_bits(top_row)
-        flat_board = "".join([("%0.2f " % val) for val in new_board])
-        reward = self._reward(game_is_over)
-        game_is_over = int(game_is_over)
-
-        self.log("reward:", reward)
-
-        # Format status message
-        return str(game_is_over) + " " + str(reward) + " " + flat_board + "\n"
-
     def _board_with_piece_bits(self, top_row):
         """Create flat board with four blocks representing piece."""
         piece_bits = self._piece_as_bits(top_row)

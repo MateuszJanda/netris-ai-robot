@@ -6,9 +6,12 @@ Site: github.com/MateuszJanda/netris-ai-robot
 Ad maiorem Dei gloriam
 """
 
-import numpy as np
 import time
 import config
+from tetris_model import TetrisModel
+
+
+BUFFER_SIZE = 1024
 
 
 class Environment:
@@ -16,6 +19,8 @@ class Environment:
         self._sock = sock
         self._conn = None
         self._buffer = bytes()
+
+        self._model = TetrisModel()
 
         self._step_tic = time.time()
         self.game_tic = time.time()
@@ -45,10 +50,10 @@ class Environment:
         message = str(shift) + ' ' + str(rotate) + '\n'
         self._conn.sendall(message.encode())
 
-        last_round, reward, state = self._receive_data()
+        last_round, reward, board_state = self._receive_data()
         print("Reward:", reward)
 
-        return last_round, reward, state
+        return last_round, reward, board_state
 
     def close(self):
         """Close connection with robot."""
@@ -62,21 +67,17 @@ class Environment:
 
         # Ensure that new full data is received (single line with \n at the end)
         while True:
-            self._buffer += self._conn.recv(1024)
+            self._buffer += self._conn.recv(BUFFER_SIZE)
 
             if b'\n' in self._buffer:
                 break
 
         self._step_tic = time.time()
 
-        msg = self._buffer[:self._buffer.find(b'\n')]
+        status = self._buffer[:self._buffer.find(b'\n')]
         self._buffer = self._buffer[self._buffer.find(b'\n') + 1:]
 
-        # Parse msg from robot
-        last_round, reward, *state = msg.decode().split()
+        # Parse status from robot
+        self._model.parse(status.decode())
 
-        last_round = True if int(last_round) else False
-        reward = float(reward)
-        state = np.array([float(val) for val in state])
-
-        return last_round, reward, state
+        return self.last_round(), self.reward(), self.board()
