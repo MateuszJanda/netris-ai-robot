@@ -14,8 +14,3 @@ def print_board(board, height, width):
     for line in board:
         blocks = "".join(["1" if b else " " for b in line])
         log("|" + blocks + "|")
-
-
-def log(*args, **kwargs):
-    """Print log to other terminal or file."""
-    print(*args, **kwargs)

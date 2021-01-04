@@ -9,7 +9,6 @@ Ad maiorem Dei gloriam
 import tensorflow as tf
 import numpy as np
 import config
-import utils
 
 
 class CnnModel:
@@ -23,7 +22,7 @@ class CnnModel:
         else:
             self._model = self.create_model(self._height, self._width)
 
-        utils.log(self._model.summary())
+        print(self._model.summary())
 
     @staticmethod
     def create_model(height, width):

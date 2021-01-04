@@ -43,7 +43,6 @@ from flatnn_model import FlatNnModel
 from envirement import Environment
 from agent import Agent
 import config
-import utils
 
 
 def main():
@@ -63,7 +62,7 @@ def main():
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((config.HOST, args.port))
         sock.listen()
-        utils.log("Starting server at %s:%d" % (config.HOST, args.port))
+        print("Starting server at %s:%d" % (config.HOST, args.port))
         env = Environment(sock)
 
         start_learning(env, epsilon, agent, start_episode)
@@ -127,7 +126,7 @@ def start_learning(env, epsilon, agent, start_episode):
         if episode > 0 and episode % config.SNAPSHOT_MODULO == 0:
             save_snapshot(agent, epsilon, episode, episode_reward, len(env.handling_time))
 
-        utils.log("Episode %d, epsilon %0.3f, reward %0.2f, moves %d, avg handling time: %0.4f, game time: %0.4f"
+        print("Episode %d, epsilon %0.3f, reward %0.2f, moves %d, avg handling time: %0.4f, game time: %0.4f"
             % (episode,
                 epsilon,
                 episode_reward,
@@ -157,7 +156,7 @@ def play_one_game(epsilon, env, agent):
             action = np.argmax(q_values)
             # log(action)
             if action == 0:
-                utils.log("Action:", action, ", Q values=", q_values)
+                print("Action:", action, ", Q values=", q_values)
 
         last_round, reward, next_state = env.step(action)
         next_state = agent.reshape_input(next_state)

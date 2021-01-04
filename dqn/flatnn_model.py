@@ -8,7 +8,6 @@ Ad maiorem Dei gloriam
 
 import tensorflow as tf
 import config
-import utils
 
 
 class FlatNnModel:
@@ -19,7 +18,7 @@ class FlatNnModel:
         else:
             self._model = self.create_model(config.BOARD_HEIGHT * config.BOARD_WIDTH)
 
-        utils.log(self._model.summary())
+        print(self._model.summary())
 
     @staticmethod
     def create_model(size):

@@ -9,7 +9,6 @@ Ad maiorem Dei gloriam
 import numpy as np
 import time
 import config
-import utils
 
 
 class Environment:
@@ -47,7 +46,7 @@ class Environment:
         self._conn.sendall(message.encode())
 
         last_round, reward, state = self._receive_data()
-        utils.log("Reward:", reward)
+        print("Reward:", reward)
 
         return last_round, reward, state
 
