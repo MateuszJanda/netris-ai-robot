@@ -44,15 +44,24 @@ class TetrisModel:
 
     def __init__(self):
         self._last_round = False
-        self._reward = 0
+        self._lines_cleared = 0
         self._new_piece = 0
 
-        self._board = np.zeros(shape=(config.BOARD_HEIGHT, config.BOARD_WIDTH), dtype=int)
+        self._board = None
 
 
     def parse(self, msg):
-        last_round, reward, new_piece, *state = msg
+        last_round, lines_cleared, new_piece, *state = msg
 
         self._last_round = True if int(last_round) else False
-        self._reward = float(reward)
+        self._lines_cleared = float(lines_cleared)
         self._board = np.array([float(val) for val in state])
+
+    def last_round(self):
+        self._last_round
+
+    def reward(self):
+        self._lines_cleared
+
+    def board(self):
+        self._board
