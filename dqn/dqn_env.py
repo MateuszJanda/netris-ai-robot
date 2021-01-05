@@ -195,7 +195,7 @@ class Transition:
 
 def save_snapshot(agent, epsilon, episode, episode_reward, moves):
     """Save snapshot."""
-    agent.get_tf_model().save_snapshot(config.MODEL_SNAPSHOT % episode)
+    agent.get_tf_model().save(config.MODEL_SNAPSHOT % episode)
 
     with open(config.DATA_SNAPSHOT % episode, "wb") as f:
         pickle.dump((epsilon, agent.replay_memory, episode_reward), f)
