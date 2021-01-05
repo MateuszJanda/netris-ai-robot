@@ -34,7 +34,7 @@ class Environment:
         self.game_tic = time.time()
         self.handling_time = []
         self._conn, addr = self._sock.accept()
-        last_round, reward, state = self._receive_data()
+        last_round, reward, state = self._update_model()
 
         return state
 
@@ -50,7 +50,7 @@ class Environment:
         message = str(shift) + ' ' + str(rotate) + '\n'
         self._conn.sendall(message.encode())
 
-        last_round, reward, board_state = self._receive_data()
+        last_round, reward, board_state = self._update_model()
         print("Reward:", reward)
 
         return last_round, reward, board_state
@@ -60,7 +60,7 @@ class Environment:
         if self._conn:
             self._conn.close()
 
-    def _receive_data(self):
+    def _update_model(self):
         """Receive data from robot."""
         if not self._conn:
             raise Exception('Connection not established')
