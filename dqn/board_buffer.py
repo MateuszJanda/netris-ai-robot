@@ -82,7 +82,7 @@ class BoardBuffer:
 
         # Format status message
         status = str(game_is_over) + " " + str(self._lines_cleared) + " " + \
-            str(self._new_piece) +  flat_board + "\n"
+            str(self._new_piece) + " " + flat_board + "\n"
 
         self._reset()
         return status
