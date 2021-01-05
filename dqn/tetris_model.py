@@ -49,13 +49,12 @@ class TetrisModel:
 
         self._board = None
 
-
     def parse(self, msg):
         """
         Parse message, extract if this is last round, lines cleared, and current
         board state.
         """
-        last_round, lines_cleared, new_piece, *board = msg
+        last_round, lines_cleared, new_piece, *board = msg.split()
 
         self._last_round = True if int(last_round) else False
         self._lines_cleared = float(lines_cleared)
@@ -65,28 +64,28 @@ class TetrisModel:
         """
         Return if game is over.
         """
-        self._last_round
+        return self._last_round
 
     def reward(self):
         """
         Return reward, lines_cleared**2.
         """
-        self._lines_cleared**2
+        return self._lines_cleared**2
 
     def board(self):
         """
         Create flat board with four blocks representing pieces.
         """
-        out_board = np.copy(self.model._board)
+        out_board = np.copy(self._board)
 
         # Normalize board
-        out_board = out_board / len(COLOR_TO_PIECE)
+        out_board = out_board / len(TetrisModel.COLOR_TO_PIECE)
 
         # In top row set four middle block as new piece, and erase all other
         for x in range(config.BOARD_WIDTH):
             if 3 < x < 8:
-                out_board[0][x] = self._new_piece / len(COLOR_TO_PIECE)
+                out_board[x] = self._new_piece / len(TetrisModel.COLOR_TO_PIECE)
             else:
-                out_board[0][x] = config.EMPTY_BLOCK
+                out_board[x] = config.EMPTY_BLOCK
 
         return out_board

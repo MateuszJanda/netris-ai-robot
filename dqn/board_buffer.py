@@ -23,7 +23,9 @@ class BoardBuffer:
         self._lines_cleared = 0
 
     def update_lines_cleared(self, params):
-        """Handle Ext:LinesCleared - available only in netris-env."""
+        """
+        Handle Ext:LinesCleared - available only in netris-env.
+        """
         scr, lines_cleared = [int(p) for p in params]
 
         # Skip data if they don't belong to robot
@@ -52,12 +54,12 @@ class BoardBuffer:
             return False
 
         # Netris inform about switch from "piece block" to "fixed block" starting
-        # from second RowUpdate command after NewPiece command. This is to late,
+        # from second RowUpdate command after NewPiece command. This is to late
         # for prediction, so better is assume that first line is always empty.
         if y != config.TOP_LINE:
             for x, color in enumerate(row):
-                assert(color >= 0) # TODO: check
-                self._board[config.BOARD_HEIGHT - 1 - y][x] = color
+                if color >= 0:
+                    self._board[config.BOARD_HEIGHT - 1 - y][x] = color
 
         # Create board status if this is new piece
         if self._fresh_piece and y == config.TOP_LINE:
@@ -70,24 +72,31 @@ class BoardBuffer:
         return False
 
     def flush_as_msg(self, game_is_over=False):
-        """Create status message for agent."""
-        new_board = np.copy(self.model._board).flatten()
+        """
+        Create status message for agent.
+        """
+        new_board = np.copy(self._board).flatten()
         flat_board = "".join([("%d " % val) for val in new_board])
 
         game_is_over = int(game_is_over)
 
         # Format status message
         status = str(game_is_over) + " " + str(self._lines_cleared) + " " + \
-            str(self._new_piece) +  self._ flat_board + "\n"
+            str(self._new_piece) +  flat_board + "\n"
 
         self._reset()
         return status
 
     def _reset(self):
+        """
+        Reset lines cleared, and new piece.
+        """
         self._lines_cleared = 0
         self._new_piece = 0
 
     def log(self, *args, **kwargs):
-        """Print log to other terminal or file."""
+        """
+        Print log to other terminal or file.
+        """
         if self._log_file:
             print(*args, **kwargs, file=self._log_file)

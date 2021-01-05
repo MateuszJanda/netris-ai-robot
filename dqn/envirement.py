@@ -74,10 +74,10 @@ class Environment:
 
         self._step_tic = time.time()
 
-        status = self._buffer[:self._buffer.find(b'\n')]
+        msg_status = self._buffer[:self._buffer.find(b'\n')]
         self._buffer = self._buffer[self._buffer.find(b'\n') + 1:]
 
         # Parse status from robot
-        self._model.parse(status.decode())
+        self._model.parse(msg_status.decode())
 
-        return self.last_round(), self.reward(), self.board()
+        return self._model.last_round(), self._model.reward(), self._model.board()
