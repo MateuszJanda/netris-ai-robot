@@ -76,10 +76,8 @@ class TetrisModel:
         """
         Create flat board with four blocks representing pieces.
         """
-        out_board = np.copy(self._board)
-
-        # Normalize board
-        out_board = out_board / len(TetrisModel.COLOR_TO_PIECE)
+        # Normalize board, all blocks are set to 1
+        out_board = (self._board > 0).astype(float)
 
         # In top row set four middle block as new piece, and erase all other
         for x in range(config.BOARD_WIDTH):
