@@ -31,9 +31,10 @@ class HeuristicSolver:
         best_action = 0
         piece = np.array(PIECE[piece_index])
 
-        board = board > 0
+        board = board.reshape(config.BOARD_HEIGHT, config.BOARD_WIDTH) > 0
         board = board.astype(int)
 
+        min_score = None
         for rot in range(4):
             for column in range(config.BOARD_WIDTH):
                 row = self._fit(column, piece, board)
@@ -42,6 +43,11 @@ class HeuristicSolver:
                     continue
 
                 lines_cleared = self._lines_cleared()
+                score = self._score()
+
+                if not min_score or min_score < score:
+                    min_score = score
+                    best_action = rot * config.BOARD_WIDTH + column
 
             piece = np.rot90(piece)
 
@@ -52,7 +58,7 @@ class HeuristicSolver:
             return None
 
         last_row = None
-        for row in range(config.BOARD_HEIGHT):
+        for row in range(config.BOARD_HEIGHT - piece.shape[0]):
             sub_board = board[row: row + piece.shape[0]][column: column + piece.shape[1]]
 
             if np.any(piece + sub_board == 2):
@@ -62,5 +68,9 @@ class HeuristicSolver:
 
         return last_row
 
-    def _lines_cleared(self):
+    def _lines_cleared(self, row, column, piece, board):
+        merged_board = board[row: row + piece.shape[0]][column: column + piece.shape[1]] + piece
+        return np.sum(np.sum(merged_board, axis=1) > 0 )
+
+    def _score(self):
         return 0
