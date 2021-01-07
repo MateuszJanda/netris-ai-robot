@@ -75,7 +75,7 @@ class HeuristicSolver:
     def _score(self, current_row, lines_cleared, board):
         max_height = 0
 
-        height = np.zeros((config.BOARD_WIDTH))
+        height = np.zeros((config.BOARD_WIDTH), dtype=int)
         for col in range(config.BOARD_WIDTH):
             for row in range(config.BOARD_HEIGHT):
                 if board[row][col]:
@@ -83,8 +83,8 @@ class HeuristicSolver:
             if max_height < height[col]:
                 max_height = height[col]
 
-        cover = np.zeros((config.BOARD_WIDTH))
-        depend = np.zeros((config.BOARD_HEIGHT))
+        cover = np.zeros((config.BOARD_WIDTH), dtype=int)
+        depend = np.zeros((config.BOARD_HEIGHT), dtype=int)
         for row in reversed(range(max_height)):
             for col in range(config.BOARD_WIDTH):
                 if board[row][col]:
@@ -97,7 +97,7 @@ class HeuristicSolver:
                     depend[row] |= depend[i]
 
 
-        hard_fit = np.full((config.BOARD_HEIGHT), 5)
+        hard_fit = np.full((config.BOARD_HEIGHT), 5, dtype=int)
         space = 0
         delta_left = 0
         delta_right = 0
