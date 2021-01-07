@@ -27,6 +27,9 @@ class HeuristicSolver:
             [0, 1, 1]],
     }
 
+    MAX_BOARD_WIDTH = 32
+    MAX_BOARD_HEIGHT = 64
+
     def action(self, piece_index, board):
         best_action = 0
         piece_blocks = np.array(HeuristicSolver.PIECE[piece_index])
@@ -77,7 +80,7 @@ class HeuristicSolver:
     def _score(self, current_row, lines_cleared, merged_board):
         max_height = 0
 
-        height = np.zeros((config.BOARD_WIDTH), dtype=int)
+        height = np.zeros((HeuristicSolver.MAX_BOARD_WIDTH), dtype=int)
         for col in range(config.BOARD_WIDTH):
             for row in range(config.BOARD_HEIGHT):
                 if merged_board[row][col]:
@@ -85,8 +88,9 @@ class HeuristicSolver:
             if max_height < height[col]:
                 max_height = height[col]
 
-        cover = np.zeros((config.BOARD_WIDTH), dtype=int)
-        depend = np.zeros((config.BOARD_HEIGHT), dtype=int)
+        # Calculate dependencies
+        cover = np.zeros((HeuristicSolver.MAX_BOARD_WIDTH), dtype=int)
+        depend = np.zeros((HeuristicSolver.MAX_BOARD_HEIGHT), dtype=int)
         for row in reversed(range(max_height)):
             for col in range(config.BOARD_WIDTH):
                 if merged_board[row][col]:
@@ -98,8 +102,8 @@ class HeuristicSolver:
                 if depend[row] & (1 << 1):
                     depend[row] |= depend[i]
 
-
-        hard_fit = np.full((config.BOARD_HEIGHT), 5, dtype=int)
+        # Calculate hardness of fit
+        hard_fit = np.full((HeuristicSolver.MAX_BOARD_HEIGHT), 5, dtype=int)
         space = 0
         delta_left = 0
         delta_right = 0
@@ -120,11 +124,11 @@ class HeuristicSolver:
                     if col > 0:
                         delta_left = height[col - 1] - row
                     else:
-                        delta_left = config.BOARD_HEIGHT
+                        delta_left = HeuristicSolver.MAX_BOARD_HEIGHT
                     if col < config.BOARD_HEIGHT - 1:
                         delta_right = height[col + 1] - row
                     else:
-                        delta_right = config.BOARD_HEIGHT
+                        delta_right = HeuristicSolver.MAX_BOARD_HEIGHT
                     if delta_left > 2 and delta_right > 2:
                         hard_fit[row] += 7
                     elif delta_left > 2 or delta_right > 2:
@@ -141,16 +145,17 @@ class HeuristicSolver:
                         max_hard = hard_fit[i]
             fit_probs += max_hard * count
 
+        # Calculate score based on top shape
         top_shape = 0
         for col in range(config.BOARD_WIDTH):
             if col > 0:
                 delta_left = height[col - 1] - height[col]
             else:
-                delta_left = config.BOARD_HEIGHT
+                delta_left = HeuristicSolver.MAX_BOARD_HEIGHT
             if col < config.BOARD_WIDTH - 1:
                 delta_right = height[col + 1] - height[col]
             else:
-                delta_right = config.BOARD_HEIGHT
+                delta_right = HeuristicSolver.MAX_BOARD_HEIGHT
             if delta_left > 2 and delta_right > 2:
                 top_shape += 15 + 15 * (min(delta_left, delta_right) / 4)
             elif delta_left > 2 or delta_right > 2:
