@@ -43,7 +43,7 @@ class HeuristicSolver:
                     continue
 
                 lines_cleared = self._lines_cleared(merged_board)
-                score = self._score(row, merged_board)
+                score = self._score(row, lines_cleared, merged_board)
 
                 if not min_score or min_score < score:
                     min_score = score
@@ -60,25 +60,27 @@ class HeuristicSolver:
         last_row = None
         last_board = None
         for row in range(config.BOARD_HEIGHT - piece_blocks.shape[0]):
-            merged_board = board[row: row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]] + piece_blocks
+            merged_board = np.copy(board)
+            merged_board[row: row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]] = piece_blocks
 
             if np.any(merged_board == 2):
                 return last_row, last_board
 
             last_row = row
+            last_board = merged_board
 
         return last_row, last_board
 
     def _lines_cleared(self, merged_board):
         return np.sum(np.sum(merged_board, axis=1) == config.BOARD_WIDTH)
 
-    def _score(self, current_row, lines_cleared, board):
+    def _score(self, current_row, lines_cleared, merged_board):
         max_height = 0
 
         height = np.zeros((config.BOARD_WIDTH), dtype=int)
         for col in range(config.BOARD_WIDTH):
             for row in range(config.BOARD_HEIGHT):
-                if board[row][col]:
+                if merged_board[row][col]:
                     height[col] = row + 1
             if max_height < height[col]:
                 max_height = height[col]
@@ -87,7 +89,7 @@ class HeuristicSolver:
         depend = np.zeros((config.BOARD_HEIGHT), dtype=int)
         for row in reversed(range(max_height)):
             for col in range(config.BOARD_WIDTH):
-                if board[row][col]:
+                if merged_board[row][col]:
                     cover[col] |= 1 << row
                 else:
                     depend[row] |= cover[col]
@@ -105,7 +107,7 @@ class HeuristicSolver:
         for row in reversed(range(max_height)):
             count = 0
             for col in range(config.BOARD_WIDTH):
-                if board[row][col]:
+                if merged_board[row][col]:
                     space += 0.5
                 else:
                     count += 1
