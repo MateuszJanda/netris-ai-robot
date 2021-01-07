@@ -139,9 +139,10 @@ def start_learning(env, epsilon, agent, start_episode):
 def play_one_game(epsilon, env, agent):
     """Play one game."""
     episode_reward = 0
+    solver = HeuristicSolver()
 
     # Reset environment and get initial state
-    _, _, piece, raw_current_state, current_state = env.reset()
+    _, _, current_piece, raw_current_state, current_state = env.reset()
     current_state = agent.reshape_input(current_state)
 
     # Reset flag and start iterating until episode ends
@@ -159,9 +160,9 @@ def play_one_game(epsilon, env, agent):
         #     if action == 0:
         #         print("Action:", action, ", Q values=", q_values)
 
-        action = HeuristicSolver.action(piece, raw_current_state)
+        action = solver.action(current_piece, raw_current_state)
 
-        last_round, reward, piece, raw_next_state, next_state = env.step(action)
+        last_round, reward, next_piece, raw_next_state, next_state = env.step(action)
         next_state = agent.reshape_input(next_state)
 
         # Transform new continuous state to new discrete state and count reward
@@ -172,6 +173,7 @@ def play_one_game(epsilon, env, agent):
         agent.update_replay_memory(transition)
         agent.train(last_round)
 
+        current_piece = next_piece
         current_state = next_state
         raw_current_state = raw_next_state
 

@@ -29,7 +29,7 @@ class HeuristicSolver:
 
     def action(self, piece_index, board):
         best_action = 0
-        piece = np.array(PIECE[piece_index])
+        piece = np.array(HeuristicSolver.PIECE[piece_index])
 
         board = board.reshape(config.BOARD_HEIGHT, config.BOARD_WIDTH) > 0
         board = board.astype(int)
