@@ -42,8 +42,8 @@ class HeuristicSolver:
                 if not row:
                     continue
 
-                lines_cleared = self._lines_cleared()
-                score = self._score(lines_cleared)
+                lines_cleared = self._lines_cleared(row, col, piece_blocks, board)
+                score = self._score(row, lines_cleared, board)
 
                 if not min_score or min_score < score:
                     min_score = score
@@ -59,7 +59,7 @@ class HeuristicSolver:
 
         last_row = None
         for row in range(config.BOARD_HEIGHT - piece_blocks.shape[0]):
-            sub_board = board[row: row + piece_blocks.shape[0]][col: col + piece_blocks.shape[1]]
+            sub_board = board[row: row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]]
 
             if np.any(piece_blocks + sub_board == 2):
                 return last_row
@@ -69,10 +69,10 @@ class HeuristicSolver:
         return last_row
 
     def _lines_cleared(self, row, col, piece_blocks, board):
-        merged_board = board[row: row + piece_blocks.shape[0]][col: col + piece_blocks.shape[1]] + piece_blocks
+        merged_board = board[row: row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]] + piece_blocks
         return np.sum(np.sum(merged_board, axis=1) > 0)
 
-    def _score(self, lines_cleared):
+    def _score(self, current_row, lines_cleared, board):
         max_height = 0
 
         height = np.zeros((config.BOARD_WIDTH))
@@ -97,7 +97,7 @@ class HeuristicSolver:
                     depend[row] |= depend[i]
 
 
-        hard_fit = np.full((BOARD_HEIGHT), 5)
+        hard_fit = np.full((config.BOARD_HEIGHT), 5)
         space = 0
         delta_left = 0
         delta_right = 0
@@ -139,7 +139,7 @@ class HeuristicSolver:
                         max_hard = hard_fit[i]
             fit_probs += max_hard * count
 
-
+        top_shape = 0
         for col in range(config.BOARD_WIDTH):
             if col > 0:
                 delta_left = height[col - 1] - height[col]
@@ -158,7 +158,7 @@ class HeuristicSolver:
             elif abs(delta_left) == 2 or abs(delta_right) == 2:
                 top_shape += 3
 
-        close_to_top = pRow / config.BOARD_HEIGHT
+        close_to_top = current_row / config.BOARD_HEIGHT
         close_to_top *= close_to_top
 
         close_to_top *= 200
