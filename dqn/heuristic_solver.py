@@ -61,18 +61,20 @@ class HeuristicSolver:
             return None, None
 
         last_row = None
-        final_board = None
+        merged_board = None
         for row in range(config.BOARD_HEIGHT - piece_blocks.shape[0]):
-            merged_board = np.copy(board)
-            merged_board[row: row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]] = piece_blocks
+            sub_board = board[row: row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]]
 
-            if np.any(merged_board == 2):
-                return last_row, final_board
+            if np.any(sub_board + piece_blocks == 2):
+                break
 
             last_row = row
-            final_board = merged_board
 
-        return last_row, final_board
+        if not last_row:
+            merged_board = np.copy(board)
+            merged_board[last_row: last_row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]] = piece_blocks
+
+        return last_row, merged_board
 
     def _lines_cleared(self, merged_board):
         return np.sum(np.sum(merged_board, axis=1) == config.BOARD_WIDTH)
