@@ -29,7 +29,7 @@ class HeuristicSolver:
 
     def action(self, piece_index, board):
         best_action = 0
-        piece = np.array(HeuristicSolver.PIECE[piece_index])
+        piece_blocks = np.array(HeuristicSolver.PIECE[piece_index])
 
         board = board.reshape(config.BOARD_HEIGHT, config.BOARD_WIDTH) > 0
         board = board.astype(int)
@@ -37,7 +37,7 @@ class HeuristicSolver:
         min_score = None
         for rot in range(4):
             for col in range(config.BOARD_WIDTH):
-                row = self._fit(col, piece, board)
+                row = self._fit(col, piece_blocks, board)
 
                 if not row:
                     continue
@@ -49,27 +49,27 @@ class HeuristicSolver:
                     min_score = score
                     best_action = rot * config.BOARD_WIDTH + col
 
-            piece = np.rot90(piece)
+            piece_blocks = np.rot90(piece_blocks)
 
         return best_action
 
-    def _fit(self, col, piece, board):
-        if col + piece.shape[1] >= config.BOARD_WIDTH:
+    def _fit(self, col, piece_blocks, board):
+        if col + piece_blocks.shape[1] >= config.BOARD_WIDTH:
             return None
 
         last_row = None
-        for row in range(config.BOARD_HEIGHT - piece.shape[0]):
-            sub_board = board[row: row + piece.shape[0]][col: col + piece.shape[1]]
+        for row in range(config.BOARD_HEIGHT - piece_blocks.shape[0]):
+            sub_board = board[row: row + piece_blocks.shape[0]][col: col + piece_blocks.shape[1]]
 
-            if np.any(piece + sub_board == 2):
+            if np.any(piece_blocks + sub_board == 2):
                 return last_row
 
             last_row = row
 
         return last_row
 
-    def _lines_cleared(self, row, col, piece, board):
-        merged_board = board[row: row + piece.shape[0]][col: col + piece.shape[1]] + piece
+    def _lines_cleared(self, row, col, piece_blocks, board):
+        merged_board = board[row: row + piece_blocks.shape[0]][col: col + piece_blocks.shape[1]] + piece_blocks
         return np.sum(np.sum(merged_board, axis=1) > 0)
 
     def _score(self, lines_cleared):

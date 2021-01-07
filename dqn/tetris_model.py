@@ -58,7 +58,7 @@ class TetrisModel:
 
         self._last_round = True if int(last_round) else False
         self._lines_cleared = float(lines_cleared)
-        self._new_piece = new_piece
+        self._new_piece = int(new_piece)
         self._board = np.array([float(block_color) for block_color in board])
 
     def last_round(self):
