@@ -37,13 +37,13 @@ class HeuristicSolver:
         min_score = None
         for rot in range(4):
             for col in range(config.BOARD_WIDTH):
-                row = self._fit(col, piece_blocks, board)
+                row, merged_board = self._fit(col, piece_blocks, board)
 
                 if not row:
                     continue
 
-                lines_cleared = self._lines_cleared(row, col, piece_blocks, board)
-                score = self._score(row, lines_cleared, board)
+                lines_cleared = self._lines_cleared(merged_board)
+                score = self._score(row, merged_board)
 
                 if not min_score or min_score < score:
                     min_score = score
@@ -58,19 +58,19 @@ class HeuristicSolver:
             return None
 
         last_row = None
+        last_board = None
         for row in range(config.BOARD_HEIGHT - piece_blocks.shape[0]):
-            sub_board = board[row: row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]]
+            merged_board = board[row: row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]] + piece_blocks
 
-            if np.any(piece_blocks + sub_board == 2):
-                return last_row
+            if np.any(merged_board == 2):
+                return last_row, last_board
 
             last_row = row
 
-        return last_row
+        return last_row, last_board
 
-    def _lines_cleared(self, row, col, piece_blocks, board):
-        merged_board = board[row: row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]] + piece_blocks
-        return np.sum(np.sum(merged_board, axis=1) > 0)
+    def _lines_cleared(self, merged_board):
+        return np.sum(np.sum(merged_board, axis=1) == config.BOARD_WIDTH)
 
     def _score(self, current_row, lines_cleared, board):
         max_height = 0
