@@ -58,7 +58,7 @@ class HeuristicSolver:
 
     def _fit(self, col, piece_blocks, board):
         if col + piece_blocks.shape[1] >= config.BOARD_WIDTH:
-            return None
+            return None, None
 
         last_row = None
         last_board = None
