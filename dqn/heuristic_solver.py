@@ -70,7 +70,7 @@ class HeuristicSolver:
 
             last_row = row
 
-        if not last_row:
+        if last_row is not None:
             merged_board = np.copy(board)
             merged_board[last_row: last_row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]] = piece_blocks
 
