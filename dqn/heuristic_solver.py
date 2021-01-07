@@ -48,7 +48,7 @@ class HeuristicSolver:
                 lines_cleared = self._lines_cleared(merged_board)
                 score = self._score(row, lines_cleared, merged_board)
 
-                if not min_score or min_score < score:
+                if not min_score or min_score > score:
                     min_score = score
                     best_action = rot * config.BOARD_WIDTH + col
 
