@@ -40,13 +40,13 @@ class HeuristicSolver:
         min_score = None
         for rot in range(4):
             for col in range(config.BOARD_WIDTH):
-                row, merged_board = self._fit(col, piece_blocks, board)
+                last_row, merged_board = self._fit(col, piece_blocks, board)
 
-                if not row:
+                if not last_row:
                     continue
 
                 lines_cleared = self._lines_cleared(merged_board)
-                score = self._score(row, lines_cleared, merged_board)
+                score = self._score(last_row, lines_cleared, merged_board)
 
                 if not min_score or min_score > score:
                     min_score = score
@@ -61,23 +61,23 @@ class HeuristicSolver:
             return None, None
 
         last_row = None
-        last_board = None
+        final_board = None
         for row in range(config.BOARD_HEIGHT - piece_blocks.shape[0]):
             merged_board = np.copy(board)
             merged_board[row: row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]] = piece_blocks
 
             if np.any(merged_board == 2):
-                return last_row, last_board
+                return last_row, final_board
 
             last_row = row
-            last_board = merged_board
+            final_board = merged_board
 
-        return last_row, last_board
+        return last_row, final_board
 
     def _lines_cleared(self, merged_board):
         return np.sum(np.sum(merged_board, axis=1) == config.BOARD_WIDTH)
 
-    def _score(self, current_row, lines_cleared, merged_board):
+    def _score(self, last_row, lines_cleared, merged_board):
         max_height = 0
 
         height = np.zeros((HeuristicSolver.MAX_BOARD_WIDTH), dtype=int)
@@ -165,7 +165,7 @@ class HeuristicSolver:
             elif abs(delta_left) == 2 or abs(delta_right) == 2:
                 top_shape += 3
 
-        close_to_top = current_row / config.BOARD_HEIGHT
+        close_to_top = last_row / config.BOARD_HEIGHT
         close_to_top *= close_to_top
 
         close_to_top *= 200
