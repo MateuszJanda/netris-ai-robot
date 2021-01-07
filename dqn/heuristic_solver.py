@@ -36,30 +36,30 @@ class HeuristicSolver:
 
         min_score = None
         for rot in range(4):
-            for column in range(config.BOARD_WIDTH):
-                row = self._fit(column, piece, board)
+            for col in range(config.BOARD_WIDTH):
+                row = self._fit(col, piece, board)
 
                 if not row:
                     continue
 
                 lines_cleared = self._lines_cleared()
-                score = self._score()
+                score = self._score(lines_cleared)
 
                 if not min_score or min_score < score:
                     min_score = score
-                    best_action = rot * config.BOARD_WIDTH + column
+                    best_action = rot * config.BOARD_WIDTH + col
 
             piece = np.rot90(piece)
 
         return best_action
 
-    def _fit(self, column, piece, board):
-        if column + piece.shape[1] >= config.BOARD_WIDTH:
+    def _fit(self, col, piece, board):
+        if col + piece.shape[1] >= config.BOARD_WIDTH:
             return None
 
         last_row = None
         for row in range(config.BOARD_HEIGHT - piece.shape[0]):
-            sub_board = board[row: row + piece.shape[0]][column: column + piece.shape[1]]
+            sub_board = board[row: row + piece.shape[0]][col: col + piece.shape[1]]
 
             if np.any(piece + sub_board == 2):
                 return last_row
@@ -68,9 +68,100 @@ class HeuristicSolver:
 
         return last_row
 
-    def _lines_cleared(self, row, column, piece, board):
-        merged_board = board[row: row + piece.shape[0]][column: column + piece.shape[1]] + piece
-        return np.sum(np.sum(merged_board, axis=1) > 0 )
+    def _lines_cleared(self, row, col, piece, board):
+        merged_board = board[row: row + piece.shape[0]][col: col + piece.shape[1]] + piece
+        return np.sum(np.sum(merged_board, axis=1) > 0)
 
-    def _score(self):
-        return 0
+    def _score(self, lines_cleared):
+        max_height = 0
+
+        height = np.zeros((config.BOARD_WIDTH))
+        for col in range(config.BOARD_WIDTH):
+            for row in range(config.BOARD_HEIGHT):
+                if board[row][col]:
+                    height[col] = row + 1
+            if max_height < height[col]:
+                max_height = height[col]
+
+        cover = np.zeros((config.BOARD_WIDTH))
+        depend = np.zeros((config.BOARD_HEIGHT))
+        for row in reversed(range(max_height)):
+            for col in range(config.BOARD_WIDTH):
+                if board[row][col]:
+                    cover[col] |= 1 << row
+                else:
+                    depend[row] |= cover[col]
+
+            for i in range(row + 1, max_height):
+                if depend[row] & (1 << 1):
+                    depend[row] |= depend[i]
+
+
+        hard_fit = np.full((BOARD_HEIGHT), 5)
+        space = 0
+        delta_left = 0
+        delta_right = 0
+        fit_probs = 0
+        for row in reversed(range(max_height)):
+            count = 0
+            for col in range(config.BOARD_WIDTH):
+                if board[row][col]:
+                    space += 0.5
+                else:
+                    count += 1
+                    space += 1
+                    hard_fit[row] += 1
+
+                    if height[col] < row:
+                        hard_fit[row] += row - height[col]
+
+                    if col > 0:
+                        delta_left = height[col - 1] - row
+                    else:
+                        delta_left = config.BOARD_HEIGHT
+                    if col < config.BOARD_HEIGHT - 1:
+                        delta_right = height[col + 1] - row
+                    else:
+                        delta_right = config.BOARD_HEIGHT
+                    if delta_left > 2 and delta_right > 2:
+                        hard_fit[row] += 7
+                    elif delta_left > 2 or delta_right > 2:
+                        hard_fit[row] += 2
+                    elif abs(delta_left) == 2 and abs(delta_right) == 2:
+                        hard_fit[row] += 2
+                    elif abs(delta_left) == 2 or abs(delta_right) == 2:
+                        hard_fit[row] += 3
+
+            max_hard = 0
+            for i in range(min(row + 5, max_height)):
+                if depend[row] & (1 << i):
+                    if max_hard < hard_fit[i]:
+                        max_hard = hard_fit[i]
+            fit_probs += max_hard * count
+
+
+        for col in range(config.BOARD_WIDTH):
+            if col > 0:
+                delta_left = height[col - 1] - height[col]
+            else:
+                delta_left = config.BOARD_HEIGHT
+            if col < config.BOARD_WIDTH - 1:
+                delta_right = height[col + 1] - height[col]
+            else:
+                delta_right = config.BOARD_HEIGHT
+            if delta_left > 2 and delta_right > 2:
+                top_shape += 15 + 15 * (min(delta_left, delta_right) / 4)
+            elif delta_left > 2 or delta_right > 2:
+                top_shape += 2
+            elif abs(delta_left) == 2 and abs(delta_right) == 2:
+                top_shape += 2
+            elif abs(delta_left) == 2 or abs(delta_right) == 2:
+                top_shape += 3
+
+        close_to_top = pRow / config.BOARD_HEIGHT
+        close_to_top *= close_to_top
+
+        close_to_top *= 200
+        score = space + close_to_top + top_shape + fit_probs - lines_cleared * 10
+
+        return score
