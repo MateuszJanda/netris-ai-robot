@@ -41,6 +41,7 @@ import argparse
 import pickle
 from flatnn_model import FlatNnModel
 from envirement import Environment
+from heuristic_solver import HeuristicSolver
 from agent import Agent
 import config
 
@@ -140,7 +141,7 @@ def play_one_game(epsilon, env, agent):
     episode_reward = 0
 
     # Reset environment and get initial state
-    current_state = env.reset()
+    _, _, piece, raw_current_state, current_state = env.reset()
     current_state = agent.reshape_input(current_state)
 
     # Reset flag and start iterating until episode ends
@@ -148,17 +149,19 @@ def play_one_game(epsilon, env, agent):
 
     while not last_round:
         # Explore other actions with probability epsilon
-        if np.random.random() <= epsilon:
-            action = np.random.randint(0, config.ACTION_SPACE_SIZE)
-        else:
-            q_values = agent.q_values_for_state(current_state)
-            # Choose best action
-            action = np.argmax(q_values)
-            # log(action)
-            if action == 0:
-                print("Action:", action, ", Q values=", q_values)
+        # if np.random.random() <= epsilon:
+        #     action = np.random.randint(0, config.ACTION_SPACE_SIZE)
+        # else:
+        #     q_values = agent.q_values_for_state(current_state)
+        #     # Choose best action
+        #     action = np.argmax(q_values)
+        #     # log(action)
+        #     if action == 0:
+        #         print("Action:", action, ", Q values=", q_values)
 
-        last_round, reward, next_state = env.step(action)
+        action = HeuristicSolver.action(piece, raw_current_state)
+
+        last_round, reward, piece, raw_next_state, next_state = env.step(action)
         next_state = agent.reshape_input(next_state)
 
         # Transform new continuous state to new discrete state and count reward
@@ -170,6 +173,7 @@ def play_one_game(epsilon, env, agent):
         agent.train(last_round)
 
         current_state = next_state
+        raw_current_state = raw_next_state
 
         epsilon = adjust_epsilon(epsilon)
 

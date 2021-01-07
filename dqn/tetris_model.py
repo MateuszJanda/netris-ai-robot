@@ -72,6 +72,22 @@ class TetrisModel:
         """
         return self._lines_cleared**2
 
+    def piece(self):
+        """
+        Current piece.
+        """
+        return self._new_piece
+
+    def raw_board(self):
+        """
+        Create flat board raw board (without merged piece) with four blocks
+        representing pieces.
+        """
+        # Normalize board, all blocks are set to 1
+        out_board = (self._board > 0).astype(float)
+
+        return out_board
+
     def board(self):
         """
         Create flat board with four blocks representing pieces.

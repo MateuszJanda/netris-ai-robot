@@ -34,9 +34,9 @@ class Environment:
         self.game_tic = time.time()
         self.handling_time = []
         self._conn, addr = self._sock.accept()
-        last_round, reward, state = self._update_model()
+        last_round, reward, piece, raw_board, board = self.step()
 
-        return state
+        return last_round, reward, piece, raw_board, board
 
     def step(self, action):
         """Send action to robot and receive new feedback."""
@@ -50,10 +50,10 @@ class Environment:
         message = str(shift) + ' ' + str(rotate) + '\n'
         self._conn.sendall(message.encode())
 
-        last_round, reward, board_state = self._update_model()
+        last_round, reward, piece, raw_board, board = self._update_model()
         print("Reward:", reward)
 
-        return last_round, reward, board_state
+        return last_round, reward, piece, raw_board, board
 
     def close(self):
         """Close connection with robot."""
@@ -80,4 +80,5 @@ class Environment:
         # Parse status from robot
         self._model.parse(msg_status.decode())
 
-        return self._model.last_round(), self._model.reward(), self._model.board()
+        return self._model.last_round(), self._model.reward(), self._model.piece(), \
+            self._model.raw_board(), self._model.board()
