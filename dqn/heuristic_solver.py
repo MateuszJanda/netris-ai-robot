@@ -29,6 +29,16 @@ class HeuristicSolver:
             [0, 1, 1]],
     }
 
+    SART_COL = {
+        1: [4, 5, 4, 4],
+        2: [4, 5, 4, 5],
+        3: [4, 4, 4, 4],
+        4: [4, 5, 4, 4],
+        5: [4, 5, 4, 4],
+        6: [4, 5, 4, 5],
+        7: [4, 4, 4, 4],
+    }
+
     MAX_BOARD_WIDTH = 32
     MAX_BOARD_HEIGHT = 64
 
@@ -53,8 +63,7 @@ class HeuristicSolver:
                 if not min_score or min_score > score:
                     min_score = score
 
-                    start_pos = (config.BOARD_WIDTH - piece_blocks.shape[0]) // 2
-                    shift = col - start_pos
+                    shift = col - HeuristicSolver.SART_COL[piece_index][rot]
                     best_action = rot * config.BOARD_WIDTH + shift + config.SHFIT_OFFSET
 
             piece_blocks = np.rot90(piece_blocks)
