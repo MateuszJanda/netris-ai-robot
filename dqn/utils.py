@@ -9,7 +9,7 @@ Ad maiorem Dei gloriam
 
 def board_look(board, height, width):
     """Print board state. For debug only."""
-    look = "Board"
+    look = ""
     board = board.reshape(height, width)
     for line in board:
         blocks_line = "".join(["[]" if b else "  " for b in line])

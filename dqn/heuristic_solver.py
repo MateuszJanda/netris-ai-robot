@@ -8,6 +8,8 @@ Ad maiorem Dei gloriam
 
 import numpy as np
 import config
+import utils
+
 
 class HeuristicSolver:
 
@@ -50,19 +52,22 @@ class HeuristicSolver:
 
                 if not min_score or min_score > score:
                     min_score = score
-                    best_action = rot * config.BOARD_WIDTH + col
+
+                    start_pos = (config.BOARD_WIDTH - piece_blocks.shape[0]) // 2
+                    shift = col - start_pos
+                    best_action = rot * config.BOARD_WIDTH + shift + config.SHFIT_OFFSET
 
             piece_blocks = np.rot90(piece_blocks)
 
         return best_action
 
     def _fit(self, col, piece_blocks, board):
-        if col + piece_blocks.shape[1] >= config.BOARD_WIDTH:
+        if col + piece_blocks.shape[1] > config.BOARD_WIDTH:
             return None, None
 
         last_row = None
         merged_board = None
-        for row in range(config.BOARD_HEIGHT - piece_blocks.shape[0]):
+        for row in range(config.BOARD_HEIGHT - piece_blocks.shape[0] + 1):
             sub_board = board[row: row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]]
 
             if np.any(sub_board + piece_blocks == 2):

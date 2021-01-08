@@ -51,7 +51,6 @@ class Environment:
         self._conn.sendall(message.encode())
 
         last_round, reward, piece, raw_board, board = self._update_model()
-        print("Reward:", reward)
 
         return last_round, reward, piece, raw_board, board
 
