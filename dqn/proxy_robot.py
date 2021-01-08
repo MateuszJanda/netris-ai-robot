@@ -25,7 +25,9 @@ class ProxyRobot(asyncio.Protocol):
         self._buffer = bytes()
 
     def connection_made(self, transport):
-        """DQN agent established connection with robot."""
+        """
+        Agent established connection with robot.
+        """
         self._log("Connection from DQN agent")
         self._transport = transport
 
@@ -37,7 +39,9 @@ class ProxyRobot(asyncio.Protocol):
         self._future_stop.set_result(True)
 
     def data_received(self, data):
-        """Data received from DQN agent, determine next robot move."""
+        """
+        Data received from agent, translate commands and send to Netris.
+        """
         self._buffer += data
 
         if b'\n' not in self._buffer:
@@ -69,7 +73,9 @@ class ProxyRobot(asyncio.Protocol):
             self._send_to_game(cmd)
 
     async def _wait_for_robot_cmd(self):
-        """Wait for command from stdin."""
+        """
+        Wait for command from stdin.
+        """
         command = await self._queue.get()
         self._handle_command(command)
         self._queue.task_done()
@@ -78,7 +84,7 @@ class ProxyRobot(asyncio.Protocol):
         """
         Handle Netris (RobotCmd) commands.
         """
-        # log("[>] " + command.strip())
+        # self._log("[>] " + command.strip())
 
         handlers = {
             "Ext:LinesCleared": self._handle_cmd_lines_cleared,
@@ -106,13 +112,29 @@ class ProxyRobot(asyncio.Protocol):
         self._loop.create_task(self._wait_for_robot_cmd())
 
     def _handle_cmd_lines_cleared(self, params):
-        """Handle Ext:LinesCleared - available only in modified Netris."""
+        """
+        Handle Ext:LinesCleared - available only in netris-env.
+
+        Format:
+        Ext:LinesCleared <screen-id> <lines-cleared>
+
+        Example:
+        Ext:LinesCleared 0 0
+        """
         self._board_buffer.update_lines_cleared(params)
 
         return True
 
     def _handle_cmd_exit(self, params):
-        """Handle Exit command."""
+        """
+        Handle Exit command.
+
+        Format:
+        Exit <won> <lost> <my-lines-cleared> <enemy-lines-cleared>
+
+        Example:
+        Exit 0 1 2 0
+        """
         self._log("Exit command received")
         msg = self._board_buffer.flush_as_msg(game_is_over=True)
         self._send_to_agent(msg)
@@ -121,7 +143,15 @@ class ProxyRobot(asyncio.Protocol):
         return False
 
     def _handle_cmd_version(self, params):
-        """Handle Version command. Send to netris same command to start game."""
+        """
+        Handle Version command. Send to Netris same command to start game.
+
+        Format:
+        Version <number>
+
+        Example:
+        Version 1
+        """
         self._log("Version command received")
         self._send_to_game("Version 1")
 
@@ -129,7 +159,13 @@ class ProxyRobot(asyncio.Protocol):
 
     def _handle_cmd_new_piece(self, params):
         """
-        Handle NewPiece from netris.
+        Handle NewPiece from Netris.
+
+        Format:
+        NewPiece <sequence-number>
+
+        Example:
+        NewPiece 26
         """
         self._board_buffer.update_new_piece(params)
 
@@ -137,7 +173,13 @@ class ProxyRobot(asyncio.Protocol):
 
     def _handle_cmd_board_size(self, params):
         """
-        Handle BoardSize command from netris - validate height and width.
+        Handle BoardSize command from Netris - validate height and width.
+
+        Format:
+        BoardSize <screen-id> <height> <width>
+
+        Example:
+        BoardSize 1 20 10
         """
         scr_id, height, width = [int(p) for p in params]
 
@@ -149,8 +191,17 @@ class ProxyRobot(asyncio.Protocol):
 
     def _handle_cmd_row_update(self, params):
         """
-        Handle RowUpdate command from netris. Update board. This is the moment
+        Handle RowUpdate command from Netris. Update board. This is the moment
         when action can be taken for new piece.
+
+        Format:
+        RowUpdate <screen-id> <line> <color> * width
+        Note:
+        - negative color value describe moving, positive fixed blocks.
+        - top line has high number, bottom line is 0
+
+        Example:
+        RowUpdate 0 19 0 0 0 -3 -3 0 0 0 0 0
         """
         if self._board_buffer.update_row(params):
             msg = self._board_buffer.flush_as_msg(game_is_over=False)
@@ -160,9 +211,9 @@ class ProxyRobot(asyncio.Protocol):
 
     def _send_to_game(self, cmd):
         """
-        Send command to netris.
+        Send command to Netris.
         """
-        # log("[<] " + cmd.strip())
+        # self._log("[<] " + cmd.strip())
         try:
             sys.stdout.write(cmd + "\n")
             sys.stdout.flush()

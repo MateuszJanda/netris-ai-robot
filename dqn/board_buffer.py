@@ -8,6 +8,7 @@ Ad maiorem Dei gloriam
 
 import numpy as np
 import config
+import utils
 
 
 class BoardBuffer:
@@ -16,19 +17,25 @@ class BoardBuffer:
 
         self._board = np.zeros(shape=(config.BOARD_HEIGHT, config.BOARD_WIDTH), dtype=int)
         self._sequence_num = None
-        self._new_piece = 0
-        self._fresh_piece = False
+        self._piece_color = 0
+        self._read_piece = False
         self._round = 0
 
         self._lines_cleared = 0
 
     @property
     def sequence_num(self):
-        self._sequence_num
+        return self._sequence_num
 
     def update_lines_cleared(self, params):
         """
         Handle Ext:LinesCleared - available only in netris-env.
+
+        Format:
+        Ext:LinesCleared <screen-id> <lines-cleared>
+
+        Example:
+        Ext:LinesCleared 0 0
         """
         scr, lines_cleared = [int(p) for p in params]
 
@@ -42,14 +49,30 @@ class BoardBuffer:
         """
         Handle NewPiece from netris. Unfortunately game provide only
         sequence number not real piece id.
+
+        Format:
+        NewPiece <sequence-number>
+
+        Example:
+        NewPiece 26
         """
         self._sequence_num = params[0]
-        self._fresh_piece = True
+        self._read_piece = True
         self._round += 1
 
     def update_row(self, params):
         """
-        Handle RowUpdate command from netris. Update board.
+        Handle RowUpdate command from Netris. Update board. This is the moment
+        when action can be taken for new piece.
+
+        Format:
+        RowUpdate <screen-id> <line> <color> * width
+        Note:
+        - negative color value describe moving, positive fixed blocks.
+        - top line has high number, bottom line is 0
+
+        Example:
+        RowUpdate 0 19 0 0 0 -3 -3 0 0 0 0 0
         """
         scr, y, *row = [int(p) for p in params]
 
@@ -58,19 +81,19 @@ class BoardBuffer:
             return False
 
         # Netris inform about switch from "piece block" to "fixed block" starting
-        # from second RowUpdate command after NewPiece command. This is to late
-        # for prediction, so better is assume that first line is always empty.
+        # from second RowUpdate after NewPiece command. This is to late
+        # for prediction, so better is assume that first line is always empty,
+        # and mark "piece (moving) block" as "fixed".
         if y != config.TOP_LINE:
             for x, color in enumerate(row):
-                if color >= 0:
-                    self._board[config.BOARD_HEIGHT - 1 - y][x] = color
+                self._board[config.BOARD_HEIGHT - 1 - y][x] = abs(color)
 
-        # Create board status if this is new piece
-        if self._fresh_piece and y == config.TOP_LINE:
+        # Board ready to send if new piece in top line
+        if self._read_piece and y == config.TOP_LINE:
             for color in row:
                 if color < 0:
-                    self._new_piece = -color
-                    self._fresh_piece = False
+                    self._piece_color = abs(color)
+                    self._read_piece = False
                     return True
 
         return False
@@ -79,14 +102,14 @@ class BoardBuffer:
         """
         Create status message for agent.
         """
-        new_board = np.copy(self._board).flatten()
-        flat_board = "".join([("%d " % val) for val in new_board])
+        flat_board = self._board.flatten()
+        flat_values = "".join([("%d " % val) for val in flat_board])
 
         game_is_over = int(game_is_over)
 
         # Format status message
         status = str(game_is_over) + " " + str(self._lines_cleared) + " " + \
-            str(self._new_piece) + " " + flat_board + "\n"
+            str(self._piece_color) + " " + flat_values + "\n"
 
         self._reset()
         return status
@@ -98,7 +121,7 @@ class BoardBuffer:
         self._lines_cleared = 0
         self._new_piece = 0
 
-    def log(self, *args, **kwargs):
+    def _log(self, *args, **kwargs):
         """
         Print log to other terminal or file.
         """
