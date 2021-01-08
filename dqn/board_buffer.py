@@ -15,12 +15,16 @@ class BoardBuffer:
         self._log_file = log_file
 
         self._board = np.zeros(shape=(config.BOARD_HEIGHT, config.BOARD_WIDTH), dtype=int)
-        self.sequence_num = None # TODO: getter
+        self._sequence_num = None
         self._new_piece = 0
         self._fresh_piece = False
         self._round = 0
 
         self._lines_cleared = 0
+
+    @property
+    def sequence_num(self):
+        self._sequence_num
 
     def update_lines_cleared(self, params):
         """
@@ -39,7 +43,7 @@ class BoardBuffer:
         Handle NewPiece from netris. Unfortunately game provide only
         sequence number not real piece id.
         """
-        self.sequence_num = params[0]
+        self._sequence_num = params[0]
         self._fresh_piece = True
         self._round += 1
 
