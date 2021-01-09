@@ -54,13 +54,13 @@ class HeuristicSolver:
             for col in range(config.BOARD_WIDTH):
                 last_row, merged_board = self._fit(col, piece_blocks, board)
 
-                if not last_row:
+                if last_row is None:
                     continue
 
-                lines_cleared = self._lines_cleared(merged_board)
-                score = self._score(last_row, lines_cleared, merged_board)
+                lines_cleared, final_board = self._clear_full_lines(merged_board)
+                score = self._score(last_row, lines_cleared, final_board)
 
-                if not min_score or min_score > score:
+                if min_score is None or score < min_score:
                     min_score = score
 
                     shift = col - HeuristicSolver.SART_COL[piece_index][rot]
@@ -74,7 +74,7 @@ class HeuristicSolver:
         if col + piece_blocks.shape[1] > config.BOARD_WIDTH:
             return None, None
 
-        last_row = None
+        top_row = None
         merged_board = None
         for row in range(config.BOARD_HEIGHT - piece_blocks.shape[0] + 1):
             sub_board = board[row: row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]]
@@ -82,27 +82,39 @@ class HeuristicSolver:
             if np.any(sub_board + piece_blocks == 2):
                 break
 
-            last_row = row
+            top_row = row
 
-        if last_row is not None:
+        if top_row is not None:
             merged_board = np.copy(board)
-            merged_board[last_row: last_row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]] = piece_blocks
+            merged_board[top_row: top_row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]] += piece_blocks
 
-        return last_row, merged_board
+        return top_row + piece_blocks.shape[0] - 1, merged_board
 
-    def _lines_cleared(self, merged_board):
-        return np.sum(np.sum(merged_board, axis=1) == config.BOARD_WIDTH)
+    def _clear_full_lines(self, merged_board):
+        lines_cleared = 0
+        dst = merged_board.shape[0] - 1
+        for src in reversed(range(merged_board.shape[0])):
+            if np.all(merged_board[src]):
+                merged_board[src] = np.zeros(merged_board.shape[1])
+                lines_cleared += 1
+            else:
+                if src != dst:
+                    merged_board[dst] = merged_board[src]
+                    merged_board[src] = np.zeros(merged_board.shape[1])
+                dst -= 1
 
-    def _score(self, last_row, lines_cleared, merged_board):
+        return lines_cleared, merged_board
+
+    def _score(self, last_row, lines_cleared, final_board):
         # In Netris row indexing is flipped.
-        merged_board = np.flip(merged_board, axis=0)
+        final_board = np.flip(final_board, axis=0)
         last_row = config.BOARD_HEIGHT - last_row - 1
 
         max_height = 0
         height = np.zeros((HeuristicSolver.MAX_BOARD_WIDTH), dtype=int)
         for col in range(config.BOARD_WIDTH):
             for row in range(config.BOARD_HEIGHT):
-                if merged_board[row][col]:
+                if final_board[row][col]:
                     height[col] = row + 1
             if max_height < height[col]:
                 max_height = height[col]
@@ -112,7 +124,7 @@ class HeuristicSolver:
         depend = np.zeros((max_height), dtype=int)
         for row in reversed(range(max_height)):
             for col in range(config.BOARD_WIDTH):
-                if merged_board[row][col]:
+                if final_board[row][col]:
                     cover[col] |= 1 << row
                 else:
                     depend[row] |= cover[col]
@@ -130,7 +142,7 @@ class HeuristicSolver:
         for row in reversed(range(max_height)):
             count = 0
             for col in range(config.BOARD_WIDTH):
-                if merged_board[row][col]:
+                if final_board[row][col]:
                     space += 0.5
                 else:
                     count += 1
