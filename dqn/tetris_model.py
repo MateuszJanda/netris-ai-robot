@@ -51,7 +51,7 @@ class TetrisModel:
 
     def parse(self, msg):
         """
-        Parse message, extract if this is last round, lines cleared, and current
+        Parse message, extract info about last round, lines cleared, and current
         board state.
         """
         last_round, lines_cleared, new_piece, *board = msg.split()

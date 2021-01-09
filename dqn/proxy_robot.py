@@ -84,7 +84,7 @@ class ProxyRobot(asyncio.Protocol):
         """
         Handle Netris (RobotCmd) commands.
         """
-        self._log("[>] " + command.strip())
+        # self._log("[>] " + command.strip())
 
         handlers = {
             "Ext:LinesCleared": self._handle_cmd_lines_cleared,

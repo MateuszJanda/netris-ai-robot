@@ -17,8 +17,8 @@ class BoardBuffer:
 
         self._board = np.zeros(shape=(config.BOARD_HEIGHT, config.BOARD_WIDTH), dtype=int)
         self._sequence_num = None
-        self._piece_color = None
-        self._wait_for_piece_color = False
+        self._piece_color = 0
+        self._wait_for_piece_color = True
         self._wait_for_lines = set()
         self._round = 0
 
@@ -134,7 +134,7 @@ class BoardBuffer:
         Reset cleared lines counter, and new piece type (color)
         """
         self._lines_cleared = 0
-        self._piece_color = None
+        self._piece_color = 0
 
     def _log(self, *args, **kwargs):
         """
