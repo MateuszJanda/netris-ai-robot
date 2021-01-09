@@ -84,10 +84,11 @@ class HeuristicSolver:
 
             top_row = row
 
-        if top_row is not None:
-            merged_board = np.copy(board)
-            merged_board[top_row: top_row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]] += piece_blocks
+        if top_row is None:
+            return None, None
 
+        merged_board = np.copy(board)
+        merged_board[top_row: top_row + piece_blocks.shape[0], col: col + piece_blocks.shape[1]] += piece_blocks
         return top_row + piece_blocks.shape[0] - 1, merged_board
 
     def _clear_full_lines(self, merged_board):
