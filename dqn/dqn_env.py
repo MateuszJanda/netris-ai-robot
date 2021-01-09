@@ -150,17 +150,12 @@ def play_one_game(epsilon, env, agent):
 
     while not last_round:
         # Explore other actions with probability epsilon
-        # if np.random.random() <= epsilon:
-        #     action = np.random.randint(0, config.ACTION_SPACE_SIZE)
-        # else:
-        #     q_values = agent.q_values_for_state(current_state)
-        #     # Choose best action
-        #     action = np.argmax(q_values)
-        #     # log(action)
-        #     if action == 0:
-        #         print("Action:", action, ", Q values=", q_values)
-
-        action = solver.action(current_piece, raw_current_state)
+        if np.random.random() <= epsilon:
+            action = solver.action(current_piece, raw_current_state)
+        else:
+            q_values = agent.q_values_for_state(current_state)
+            # Choose best action
+            action = np.argmax(q_values)
 
         last_round, reward, next_piece, raw_next_state, next_state = env.step(action)
         next_state = agent.reshape_input(next_state)
