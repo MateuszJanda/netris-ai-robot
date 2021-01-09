@@ -17,8 +17,9 @@ class BoardBuffer:
 
         self._board = np.zeros(shape=(config.BOARD_HEIGHT, config.BOARD_WIDTH), dtype=int)
         self._sequence_num = None
-        self._piece_color = 0
-        self._read_piece = False
+        self._piece_color = None
+        self._wait_for_piece_color = False
+        self._wait_for_lines = set()
         self._round = 0
 
         self._lines_cleared = 0
@@ -32,22 +33,29 @@ class BoardBuffer:
         Handle Ext:LinesCleared - available only in netris-env.
 
         Format:
-        Ext:LinesCleared <screen-id> <lines-cleared>
+        Ext:LinesCleared <screen-id> <lines-cleared> <index1> <index2> <index3> <index4>
+        Note:
+        - index >= 0 point to line that was cleared
+        - -1 is placeholder
 
         Example:
-        Ext:LinesCleared 0 0
+        Ext:LinesCleared 0 0 -1 -1 -1 -1
         """
-        scr, lines_cleared = [int(p) for p in params]
+        scr, lines_cleared, *lines = [int(p) for p in params]
 
         # Skip data if they don't belong to robot
         if scr != config.SCREEN_ID:
             return
 
+        # After clearing lines, we need to wait for this specific row update
+        if lines_cleared > 0:
+            self._wait_for_lines = set([line for line in lines if line >= 0])
+
         self._lines_cleared = lines_cleared
 
     def update_new_piece(self, params):
         """
-        Handle NewPiece from netris. Unfortunately game provide only
+        Handle NewPiece from Netris. Unfortunately game provide only
         sequence number not real piece id.
 
         Format:
@@ -57,7 +65,7 @@ class BoardBuffer:
         NewPiece 26
         """
         self._sequence_num = params[0]
-        self._read_piece = True
+        self._wait_for_piece_color = True
         self._round += 1
 
     def update_row(self, params):
@@ -76,25 +84,32 @@ class BoardBuffer:
         """
         scr, y, *row = [int(p) for p in params]
 
+
         # Skip data if they don't belong to robot
         if scr != config.SCREEN_ID:
             return False
 
+        self._wait_for_lines.discard(y)
+
         # Netris inform about switch from "piece block" to "fixed block" starting
         # from second RowUpdate after NewPiece command. This is to late
         # for prediction, so better is assume that first line is always empty,
-        # and mark "piece (moving) block" as "fixed".
+        # and mark moving/piece block as "fixed".
         if y != config.TOP_LINE:
             for x, color in enumerate(row):
                 self._board[config.BOARD_HEIGHT - 1 - y][x] = abs(color)
 
-        # Board ready to send if new piece in top line
-        if self._read_piece and y == config.TOP_LINE:
+        # Read new piece type (color) from top line
+        if self._wait_for_piece_color and y == config.TOP_LINE:
             for color in row:
                 if color < 0:
                     self._piece_color = abs(color)
-                    self._read_piece = False
-                    return True
+                    self._wait_for_piece_color = False
+
+        # When cleared lines was updated and we have piece type (color), we are
+        # ready to generate status message for agent
+        if not self._wait_for_lines and self._piece_color:
+            return True
 
         return False
 
@@ -116,10 +131,10 @@ class BoardBuffer:
 
     def _reset(self):
         """
-        Reset lines cleared, and new piece.
+        Reset cleared lines counter, and new piece type (color)
         """
         self._lines_cleared = 0
-        self._new_piece = 0
+        self._piece_color = None
 
     def _log(self, *args, **kwargs):
         """

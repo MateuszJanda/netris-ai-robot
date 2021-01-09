@@ -28,7 +28,7 @@ class ProxyRobot(asyncio.Protocol):
         """
         Agent established connection with robot.
         """
-        self._log("Connection from DQN agent")
+        self._log("Connection from agent")
         self._transport = transport
 
         # Initialize game, send first command (version)
@@ -50,7 +50,7 @@ class ProxyRobot(asyncio.Protocol):
         msg = self._buffer[:self._buffer.find(b'\n')]
         self._buffer = self._buffer[self._buffer.find(b'\n') + 1:]
         shift, rotate = [int(d) for d in msg.decode().split()]
-        self._log("Data received: shift: %d, rotate: %d" % (shift, rotate))
+        # self._log("Data received: shift: %d, rotate: %d" % (shift, rotate))
 
         cmd_out = []
 
@@ -84,7 +84,7 @@ class ProxyRobot(asyncio.Protocol):
         """
         Handle Netris (RobotCmd) commands.
         """
-        # self._log("[>] " + command.strip())
+        self._log("[>] " + command.strip())
 
         handlers = {
             "Ext:LinesCleared": self._handle_cmd_lines_cleared,
@@ -116,10 +116,13 @@ class ProxyRobot(asyncio.Protocol):
         Handle Ext:LinesCleared - available only in netris-env.
 
         Format:
-        Ext:LinesCleared <screen-id> <lines-cleared>
+        Ext:LinesCleared <screen-id> <lines-cleared> <index1> <index2> <index3> <index4>
+        Note:
+        - index >= 0 point to line that was cleared
+        - -1 is placeholder
 
         Example:
-        Ext:LinesCleared 0 0
+        Ext:LinesCleared 0 0 -1 -1 -1 -1
         """
         self._board_buffer.update_lines_cleared(params)
 
