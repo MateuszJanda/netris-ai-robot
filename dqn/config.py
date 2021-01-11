@@ -85,6 +85,8 @@ def parse_args():
 
     parser.add_argument('-e', '--load_episode', required=False, action='store', dest='episode',
                         help='Load data from idicated episode')
+    parser.add_argument('-x', '--experiment', required=False, action='store', dest='episode',
+                        help='Setup experiment')
     parser.add_argument('-g', '--gpu', required=False, action='store_true', dest='gpu',
                         help='Use GPU (with fixed memory limit to prevent crashes).')
     parser.add_argument('-p', '--port', required=False, action='store', default=PORT, dest='port',
@@ -155,7 +157,6 @@ def start_learning(sock, episode, play_one_game, model):
     Learn through episodes.
     """
     env = Environment(sock)
-    model = model(episode)
     agent, epsilon, start_episode = create_agent(episode, model)
 
     for episode in range(start_episode, EPISODES + 1):
