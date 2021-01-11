@@ -11,8 +11,8 @@ import argparse
 import socket
 import time
 import pickle
-from agent import Agent
-from envirement import Environment
+from dqn.agent import Agent
+from dqn.envirement import Environment
 
 
 HOST = "127.0.0.1"
@@ -85,7 +85,7 @@ def parse_args():
 
     parser.add_argument('-e', '--load_episode', required=False, action='store', dest='episode',
                         help='Load data from idicated episode')
-    parser.add_argument('-x', '--experiment', required=False, action='store', dest='episode',
+    parser.add_argument('-x', '--experiment', required=False, action='store', dest='experiment',
                         help='Setup experiment')
     parser.add_argument('-g', '--gpu', required=False, action='store_true', dest='gpu',
                         help='Use GPU (with fixed memory limit to prevent crashes).')

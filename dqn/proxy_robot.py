@@ -8,8 +8,8 @@ Ad maiorem Dei gloriam
 
 import sys
 import asyncio
-from board_buffer import BoardBuffer
-import config
+from dqn.board_buffer import BoardBuffer
+from dqn import config
 
 
 class ProxyRobot(asyncio.Protocol):

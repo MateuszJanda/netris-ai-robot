@@ -13,8 +13,8 @@ import time
 import asyncio
 import datetime
 import argparse
-from proxy_robot import ProxyRobot
-import config
+from dqn.proxy_robot import ProxyRobot
+from dqn import config
 
 
 LOG_FILE = None

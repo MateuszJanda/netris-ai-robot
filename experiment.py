@@ -7,9 +7,9 @@ Ad maiorem Dei gloriam
 """
 
 import socket
-from flatnn_model import FlatNnModel
-import simple_dqn
-import config
+from dqn.flatnn_model import FlatNnModel
+from dqn import simple_dqn
+from dqn import config
 
 
 if __name__ == '__main__':

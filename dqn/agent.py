@@ -9,7 +9,7 @@ Ad maiorem Dei gloriam
 import numpy as np
 import random
 from collections import deque
-import config
+from dqn import config
 
 
 class Agent:

@@ -8,7 +8,7 @@ Ad maiorem Dei gloriam
 
 
 import numpy as np
-import config
+from dqn import config
 
 
 class TetrisModel:

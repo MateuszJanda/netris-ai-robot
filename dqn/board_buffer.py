@@ -7,8 +7,8 @@ Ad maiorem Dei gloriam
 """
 
 import numpy as np
-import config
-import utils
+from dqn import config
+from dqn import utils
 
 
 class BoardBuffer:

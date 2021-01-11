@@ -12,10 +12,8 @@ Reinforcement learning - Deep Q-Network/Learning.
 """
 
 import numpy as np
-import socket
-from flatnn_model import FlatNnModel
-from heuristic_solver import HeuristicSolver
-import config
+from dqn.heuristic_solver import HeuristicSolver
+from dqn import config
 
 
 def play_one_game(epsilon, env, agent):

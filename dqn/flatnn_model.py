@@ -7,7 +7,7 @@ Ad maiorem Dei gloriam
 """
 
 import tensorflow as tf
-import config
+from dqn import config
 
 
 class FlatNnModel:
@@ -56,9 +56,13 @@ class FlatNnModel:
             shuffle=shuffle)
 
     def get_tf_model(self):
-        """Getter to tensorflow model."""
+        """
+        Getter to tensorflow model.
+        """
         return self._model
 
     def reshape_input(self, state):
-        """Just return same state."""
+        """
+        Just return same state.
+        """
         return state
