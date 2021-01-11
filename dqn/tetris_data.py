@@ -11,7 +11,7 @@ import numpy as np
 from dqn import config
 
 
-class TetrisModel:
+class TetrisData:
     COLOR_TO_PIECE = {
         -1: 4,      # Piece Id: 11
         -2: 0,      # Piece Id: 0
@@ -99,7 +99,7 @@ class TetrisModel:
         # In top row set four middle block as new piece, and erase all other
         for x in range(config.BOARD_WIDTH):
             if 3 < x < 8:
-                out_board[x] = self._new_piece / len(TetrisModel.COLOR_TO_PIECE)
+                out_board[x] = self._new_piece / len(TetrisData.COLOR_TO_PIECE)
             else:
                 out_board[x] = config.EMPTY_BLOCK
 

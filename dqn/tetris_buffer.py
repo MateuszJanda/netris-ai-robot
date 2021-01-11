@@ -11,7 +11,7 @@ from dqn import config
 from dqn import utils
 
 
-class BoardBuffer:
+class TetrisBuffer:
     def __init__(self, log_file):
         self._log_file = log_file
 

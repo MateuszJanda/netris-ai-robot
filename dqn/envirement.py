@@ -8,7 +8,7 @@ Ad maiorem Dei gloriam
 
 import time
 from dqn import config
-from dqn.tetris_model import TetrisModel
+from dqn.tetris_data import TetrisData
 
 
 BUFFER_SIZE = 1024
@@ -20,7 +20,7 @@ class Environment:
         self._conn = None
         self._buffer = bytes()
 
-        self._model = TetrisModel()
+        self._model = TetrisData()
 
         self._step_tic = time.time()
         self.game_tic = time.time()

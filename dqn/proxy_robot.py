@@ -8,7 +8,7 @@ Ad maiorem Dei gloriam
 
 import sys
 import asyncio
-from dqn.board_buffer import BoardBuffer
+from dqn.tetris_buffer import TetrisBuffer
 from dqn import config
 
 
@@ -19,7 +19,7 @@ class ProxyRobot(asyncio.Protocol):
         self._queue = queue
         self._log_file = log_file
 
-        self._board_buffer = BoardBuffer(log_file)
+        self._board_buffer = TetrisBuffer(log_file)
 
         self._transport = None
         self._buffer = bytes()
