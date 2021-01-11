@@ -14,17 +14,17 @@ On first terminal run Netris server (at docker host)
 On second terminal, run DQN agent (with GPU support at guest)
 ```bash
 docker start tf_netris
-docker exec -it tf_netris python dqn_env.py -g -p 9800
+docker exec -it tf_netris python experiment.py -g -p 9800
 ```
 
-Alternatively, you can run dqn agent with CPU support (at host)
+Alternatively, you can run DQN agent with CPU support (at host)
 ```bash
-python dqn_env.py -p 9800
+python experiment.py -p 9800
 ```
 
-On third terminal, run proxy robot (at docker host). Note that interval (`-i`) must match value passed to Netris server
+On third terminal, run proxy (at docker host). Note that interval (`-i`) must match value passed to Netris server
 ```bash
-./netris-env -n -m -c localhost -i 0.1 -r 'python dqn_env_proxy.py -t /dev/pts/3 -p 9800'
+./netris-env -n -m -c localhost -i 0.1 -r 'python proxy.py -t /dev/pts/3 -p 9800'
 ```
 
 ## Example
