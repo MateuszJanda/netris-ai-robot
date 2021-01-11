@@ -13,6 +13,7 @@ import utils
 
 class HeuristicSolver:
 
+    # Map piece color to his basic block representation
     PIECE = {
         1: [[1, 1, 1],
             [0, 1, 0]],
@@ -29,7 +30,8 @@ class HeuristicSolver:
             [0, 1, 1]],
     }
 
-    SART_COL = {
+    # Starting column for piece
+    START_COL = {
         1: [4, 5, 4, 4],
         2: [4, 5, 4, 5],
         3: [4, 4, 4, 4],
@@ -43,6 +45,9 @@ class HeuristicSolver:
     MAX_BOARD_HEIGHT = 64
 
     def action(self, piece_index, board):
+        """
+        Choose action from ACTION_SPACE_SIZE.
+        """
         best_action = 0
         piece_blocks = np.array(HeuristicSolver.PIECE[piece_index])
 
@@ -63,7 +68,7 @@ class HeuristicSolver:
                 if min_score is None or score < min_score:
                     min_score = score
 
-                    shift = col - HeuristicSolver.SART_COL[piece_index][rot]
+                    shift = col - HeuristicSolver.START_COL[piece_index][rot]
                     best_action = rot * config.BOARD_WIDTH + shift + config.SHFIT_OFFSET
 
             piece_blocks = np.rot90(piece_blocks)
@@ -71,6 +76,9 @@ class HeuristicSolver:
         return best_action
 
     def _fit(self, col, piece_blocks, board):
+        """
+        Fit piece blocks with board.
+        """
         if col + piece_blocks.shape[1] > config.BOARD_WIDTH:
             return None, None
 
@@ -92,6 +100,10 @@ class HeuristicSolver:
         return top_row + piece_blocks.shape[0] - 1, merged_board
 
     def _clear_full_lines(self, merged_board):
+        """
+        Clear full lines from merged board (board with piece blocks).
+        Return number of cleared lines and final board.
+        """
         lines_cleared = 0
         dst = merged_board.shape[0] - 1
         for src in reversed(range(merged_board.shape[0])):
@@ -107,6 +119,9 @@ class HeuristicSolver:
         return lines_cleared, merged_board
 
     def _score(self, last_row, lines_cleared, final_board):
+        """
+        Calculate score. This is recreation of Netris simple robot algorithm.
+        """
         # In Netris row indexing is flipped.
         final_board = np.flip(final_board, axis=0)
         last_row = config.BOARD_HEIGHT - last_row - 1
