@@ -16,6 +16,11 @@ from dqn.heuristic_solver import HeuristicSolver
 from dqn import config
 
 
+# Exploration settings - try/explore random action with probability epsilon
+EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random action should be taken
+MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want to check something new
+
+
 def play_one_game(epsilon, env, agent):
     """
     Play one game.
@@ -63,7 +68,7 @@ def adjust_epsilon(epsilon):
     """
     Decay epsilon.
     """
-    if epsilon > config.MIN_EPSILON:
-        epsilon = epsilon * config.EPSILON_DECAY
+    if epsilon > MIN_EPSILON:
+        epsilon = epsilon * EPSILON_DECAY
 
     return epsilon

@@ -51,10 +51,6 @@ REPLAY_MEMORY_SIZE = 40_000                   # Last steps kept for model traini
 MIN_REPLAY_MEMORY_SIZE = 10 * MINIBATCH_SIZE  # Minimum number of steps in a memory to start training
 EPISODES = 20_000                             # Episodes == full games
 
-# Exploration settings - try/explore random action with probability epsilon
-EPSILON_DECAY = 0.99995                       # Decay epsilon. Smarter NN is, then less random action should be taken
-MIN_EPSILON = 0.02                            # Epsilon shouldn't less than this. We always want to check something new
-
 
 class Transition:
     def __init__(self, current_state, action, reward, next_state, last_round):

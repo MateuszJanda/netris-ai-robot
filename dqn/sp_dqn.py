@@ -16,6 +16,10 @@ from dqn.heuristic_solver import HeuristicSolver
 from dqn import config
 
 
+EPSILON_DECAY = 9 * 10**-7
+MIN_EPSILON = 0.1
+
+
 def play_one_game(epsilon, env, agent):
     """
     Play one game.
@@ -63,7 +67,7 @@ def adjust_epsilon(epsilon):
     """
     Decay epsilon.
     """
-    if epsilon > config.MIN_EPSILON:
-        epsilon = epsilon * config.EPSILON_DECAY
+    if epsilon > MIN_EPSILON:
+        epsilon -= EPSILON_DECAY
 
     return epsilon
