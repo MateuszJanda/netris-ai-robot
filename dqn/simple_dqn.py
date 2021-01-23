@@ -12,7 +12,6 @@ Reinforcement learning - Deep Q-Network/Learning.
 """
 
 import numpy as np
-from dqn.heuristic_solver import HeuristicSolver
 from dqn import config
 
 
@@ -26,10 +25,9 @@ def play_one_game(epsilon, env, agent):
     Play one game.
     """
     episode_reward = 0
-    solver = HeuristicSolver()
 
     # Reset environment and get initial state
-    _, _, current_piece, raw_current_state, current_state = env.reset()
+    _, _, _, _, current_state = env.reset()
     current_state = agent.reshape_input(current_state)
 
     # Reset flag and start iterating until episode ends
@@ -38,13 +36,13 @@ def play_one_game(epsilon, env, agent):
     while not last_round:
         # Explore other actions with probability epsilon
         if np.random.random() <= epsilon:
-            action = solver.action(current_piece, raw_current_state)
+            action = np.random.randint(0, config.ACTION_SPACE_SIZE)
         else:
             q_values = agent.q_values_for_state(current_state)
             # Choose best action
             action = np.argmax(q_values)
 
-        last_round, reward, next_piece, raw_next_state, next_state = env.step(action)
+        last_round, reward, _, _, next_state = env.step(action)
         next_state = agent.reshape_input(next_state)
 
         # Transform new continuous state to new discrete state and count reward
@@ -55,9 +53,7 @@ def play_one_game(epsilon, env, agent):
         agent.update_replay_memory(transition)
         agent.train(last_round)
 
-        current_piece = next_piece
         current_state = next_state
-        raw_current_state = raw_next_state
 
         epsilon = adjust_epsilon(epsilon)
 

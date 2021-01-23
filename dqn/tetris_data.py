@@ -81,8 +81,7 @@ class TetrisData:
 
     def raw_board(self):
         """
-        Create flat board raw board (without merged piece) with four blocks
-        representing pieces.
+        Create flat raw (without merged piece) board.
         """
         # Normalize board, all blocks are set to 1
         out_board = (self._board > 0).astype(float)
