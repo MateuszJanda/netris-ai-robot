@@ -9,7 +9,9 @@ Ad maiorem Dei gloriam
 import socket
 from dqn.flatnn_model import FlatNnModel
 from dqn.cnn_model import CnnModel
+from dqn.sp_model import SpModel
 from dqn import simple_dqn
+from dqn import sp_dqn
 from dqn import config
 
 
@@ -30,6 +32,10 @@ if __name__ == '__main__':
             print("Experiment: %d. Convolutional NN." % args.experiment)
             model = CnnModel(args.episode)
             config.start_learning(sock, args.episode, simple_dqn.play_one_game, model)
+        elif args.experiment == 3:
+            print("Experiment: %d. Stevens and Pradhan DQN" % args.experiment)
+            model = SpModel(args.episode)
+            config.start_learning(sock, args.episode, sp_dqn.play_one_game, model)
         else:
             print("Load default experiment")
             model = FlatNnModel(args.episode)
