@@ -8,6 +8,7 @@ Ad maiorem Dei gloriam
 
 import socket
 from dqn.flatnn_model import FlatNnModel
+from dqn.cnn_model import CnnModel
 from dqn import simple_dqn
 from dqn import config
 
@@ -24,6 +25,10 @@ if __name__ == '__main__':
         if args.experiment == 1:
             print("Experiment: %d. Flat NN." % args.experiment)
             model = FlatNnModel(args.episode)
+            config.start_learning(sock, args.episode, simple_dqn.play_one_game, model)
+        elif args.experiment == 2:
+            print("Experiment: %d. Convolutional NN." % args.experiment)
+            model = CnnModel(args.episode)
             config.start_learning(sock, args.episode, simple_dqn.play_one_game, model)
         else:
             print("Load default experiment")
