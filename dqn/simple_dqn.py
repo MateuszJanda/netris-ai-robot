@@ -20,7 +20,7 @@ EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random act
 MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want to check something new
 
 
-def play_one_game(epsilon, env, agent):
+def play_one_game(total_round, epsilon, env, agent):
     """
     Play one game.
     """
@@ -56,8 +56,9 @@ def play_one_game(epsilon, env, agent):
         current_state = next_state
 
         epsilon = adjust_epsilon(epsilon)
+        total_round += 1
 
-    return episode_reward, epsilon
+    return total_round, episode_reward, epsilon
 
 
 def adjust_epsilon(epsilon):

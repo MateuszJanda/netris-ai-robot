@@ -16,11 +16,12 @@ from dqn.heuristic_solver import HeuristicSolver
 from dqn import config
 
 
-EPSILON_DECAY = 9 * 10**-7
+EPSILON_DELTA = 9 * 10**-7
 MIN_EPSILON = 0.1
+UPDATE_MODEL_ROUND = 1000
 
 
-def play_one_game(epsilon, env, agent):
+def play_one_game(total_round, epsilon, env, agent):
     """
     Play one game.
     """
@@ -60,7 +61,13 @@ def play_one_game(epsilon, env, agent):
 
         epsilon = adjust_epsilon(epsilon)
 
-    return episode_reward, epsilon
+        # If counter reaches set value, update target network with weights of main network
+        if total_round % UPDATE_MODEL_ROUND == 0:
+            agent.update_caching_model()
+
+        total_round += 1
+
+    return total_round, episode_reward, epsilon
 
 
 def adjust_epsilon(epsilon):
@@ -68,6 +75,6 @@ def adjust_epsilon(epsilon):
     Decay epsilon.
     """
     if epsilon > MIN_EPSILON:
-        epsilon -= EPSILON_DECAY
+        epsilon -= EPSILON_DELTA
 
     return epsilon

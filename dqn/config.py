@@ -39,7 +39,7 @@ MAX_CLEARED_LINES = 4
 REWAD_THRESHOLDS = MAX_CLEARED_LINES + (MAX_CLEARED_LINES - 1)
 
 # Snapshot settings
-SNAPSHOT_MODULO = 50
+SNAPSHOT_MODULO = 100
 MODEL_SNAPSHOT = "%05d_model.h5"
 DATA_SNAPSHOT = "%05d_data.pickle"
 STATS_FILE = "stats.txt"
@@ -49,7 +49,7 @@ DISCOUNT = 0.95                               # Gamma (𝛾) parameter from Bell
 MINIBATCH_SIZE = 128                          # How many steps (samples) to use for training
 REPLAY_MEMORY_SIZE = 40_000                   # Last steps kept for model training
 MIN_REPLAY_MEMORY_SIZE = 10 * MINIBATCH_SIZE  # Minimum number of steps in a memory to start training
-EPISODES = 20_000                             # Episodes == full games
+EPISODES = 50_000                             # Episodes == full games
 
 
 class Transition:
@@ -120,49 +120,50 @@ def wait_for_connection(sock, port):
     return sock
 
 
-def create_agent(episode, model):
+def load_snapshot_metadata(episode, agent):
     """
-    Create agent from existing snapshot, or create new one.
+    Load snapshot metadata.
     """
-    agent = Agent(model)
-
     if episode:
         with open(DATA_SNAPSHOT % episode, "rb") as f:
-            epsilon, agent.replay_memory, _ = pickle.load(f)
+            total_round, epsilon, replay_memory, _ = pickle.load(f)
+            agent.load_replay_memory(replay_memory)
         start_episode = episode + 1
     else:
         epsilon = 1
         start_episode = 0
+        total_round = 0
 
-    return agent, epsilon, start_episode
+    return start_episode, total_round, epsilon
 
 
-def save_snapshot(agent, epsilon, episode, episode_reward, moves):
+def save_snapshot(agent, epsilon, episode, episode_reward, total_round, moves):
     """Save snapshot."""
     agent.get_tf_model().save(MODEL_SNAPSHOT % episode)
 
     with open(DATA_SNAPSHOT % episode, "wb") as f:
-        pickle.dump((epsilon, agent.replay_memory, episode_reward), f)
+        pickle.dump((total_round, epsilon, agent.replay_memory, episode_reward), f)
 
     with open(STATS_FILE, "a") as f:
-        f.write("Episode: %d, epsilon: %0.2f, moves: %d, reward: %0.2f\n" % (episode, epsilon, moves, episode_reward))
+        f.write("Episode: %d, round: %d, epsilon: %0.2f, moves: %d, reward: %0.2f\n"
+            % (episode, total_round, epsilon, moves, episode_reward))
 
 
-def start_learning(sock, episode, play_one_game, model):
+def start_learning(sock, start_episode, total_round, epsilon, play_one_game, agent):
     """
     Learn through episodes.
     """
     env = Environment(sock)
-    agent, epsilon, start_episode = create_agent(episode, model)
 
     for episode in range(start_episode, EPISODES + 1):
-        episode_reward, epsilon = play_one_game(epsilon, env, agent)
+        total_round, episode_reward, epsilon = play_one_game(total_round, epsilon, env, agent)
 
         if episode > 0 and episode % SNAPSHOT_MODULO == 0:
-            save_snapshot(agent, epsilon, episode, episode_reward, len(env.handling_time))
+            save_snapshot(agent, epsilon, episode, episode_reward, total_round, len(env.handling_time))
 
-        print("Episode %d, epsilon %0.3f, reward %0.2f, moves %d, avg handling time: %0.4f, game time: %0.4f"
+        print("Episode %d, round: %d, epsilon %0.3f, reward %0.2f, moves %d, avg handling time: %0.4f, game time: %0.4f"
             % (episode,
+                total_round,
                 epsilon,
                 episode_reward,
                 len(env.handling_time),

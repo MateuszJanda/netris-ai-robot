@@ -8,16 +8,18 @@ Ad maiorem Dei gloriam
 
 import numpy as np
 import random
+import copy
 from collections import deque
 from dqn import config
 
 
-class Agent:
+class CachingAgent:
     """DQN agent."""
 
     def __init__(self, model, episode=None):
         # Build NN model
-        self._model = model
+        self._training_model = model
+        self._caching_model = copy.deepcopy(model)
 
         # An array with last REPLAY_MEMORY_SIZE steps for training
         self.replay_memory = deque(maxlen=config.REPLAY_MEMORY_SIZE)
@@ -34,7 +36,7 @@ class Agent:
         """
         Query NN model for Q values for current observation (state).
         """
-        return self._model.predict(batch_size=1, state=state)[0]
+        return self._training_model.predict(batch_size=1, state=state)[0]
 
     def train(self, last_round):
         """Trains NN model every step during episode."""
@@ -69,7 +71,7 @@ class Agent:
             input_states.append(transition.current_state)
 
         # Fit with new Q values
-        self._model.fit(x=np.array(input_states), y=np.array(target_q_values),
+        self._training_model.fit(x=np.array(input_states), y=np.array(target_q_values),
             batch_size=config.MINIBATCH_SIZE, verbose=0, shuffle=False)
 
     def _q_values_for_historic(self, minibatch):
@@ -78,17 +80,22 @@ class Agent:
         for Q values.
         """
         current_states = np.array([transition.current_state for transition in minibatch])
-        current_q_values = self._model.predict(config.MINIBATCH_SIZE, current_states)
+        current_q_values = self._training_model.predict(config.MINIBATCH_SIZE, current_states)
 
         next_states = np.array([transition.next_state for transition in minibatch])
-        future_q_values = self._model.predict(config.MINIBATCH_SIZE, next_states)
+        future_q_values = self._caching_model.predict(config.MINIBATCH_SIZE, next_states)
 
         return current_q_values, future_q_values
 
+    def update_caching_model(self):
+        """Copy training model into caching model."""
+        self._caching_model.get_tf_model().set_weights(self._training_model.get_tf_model().get_weights())
+
     def get_tf_model(self):
         """Getter to tensorflow model."""
-        return self._model.get_tf_model()
+        return self._training_model.get_tf_model()
 
     def reshape_input(self, state):
         """Reshape input state if needed later by model."""
-        return self._model.reshape_input(state)
+        # Only one model is used, because both should by same type
+        return self._training_model.reshape_input(state)
