@@ -61,7 +61,7 @@ def play_one_game(total_round, epsilon, env, agent):
 
         epsilon = adjust_epsilon(epsilon)
 
-        # If counter reaches set value, update target network with weights of main network
+        # Update Q' model (this prevent instability when training)
         if total_round % UPDATE_MODEL_ROUND == 0:
             agent.update_caching_model()
 
