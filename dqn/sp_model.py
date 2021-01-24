@@ -12,32 +12,46 @@ from dqn import config
 
 class SpModel:
     def __init__(self, episode=None):
-        # Build NN model
+        """
+        Build NN model.
+        """
         if episode:
             self._model = tf.keras.models.load_model(config.MODEL_SNAPSHOT % episode)
         else:
-            self._model = self.create_model(config.BOARD_HEIGHT * config.BOARD_WIDTH)
+            self._model = self.create_model(config.BOARD_HEIGHT, config.BOARD_WIDTH)
 
         print(self._model.summary())
 
     @staticmethod
-    def create_model(size):
+    def create_model(height, width):
         """Create tensorflow model."""
         model = tf.keras.models.Sequential()
 
-        model.add(tf.keras.layers.Input(shape=(size,)))
-        model.add(tf.keras.layers.Dense(units=256, activation='relu'))
+        model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3),
+            input_shape=(height, width, 1), activation='relu'))
+
+        model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu'))
+
+        model.add(tf.keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu'))
+
+        # ???
+        # followed by a layer that collapses each column into a single pixel with 64 feature channels
+
+        model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=(3, 3), activation='relu'))
+
+        # ? - (1, 1) kernel make any sense?
+        model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=(1, 1), activation='relu'))
+
+        model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=(3, 3), activation='relu'))
 
         model.add(tf.keras.layers.Dense(units=128, activation='relu'))
 
-        model.add(tf.keras.layers.Dense(units=128, activation='relu'))
-
-        model.add(tf.keras.layers.Dense(units=64, activation='relu'))
+        model.add(tf.keras.layers.Dense(units=512, activation='relu'))
 
         model.add(tf.keras.layers.Dense(units=config.ACTION_SPACE_SIZE, activation='linear'))
 
         # Compile model
-        model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.001), loss='mse',
+        model.compile(optimizer=tf.keras.optimizers.RMSprop(lr=0.001), loss='mse',
             metrics=['accuracy'])
 
         return model
@@ -46,12 +60,12 @@ class SpModel:
         """
         Queries NN model for Q values given current observation (state).
         """
-        state = state.reshape(batch_size, config.BOARD_HEIGHT * config.BOARD_WIDTH)
+        state = state.reshape(batch_size, config.BOARD_HEIGHT, config.BOARD_WIDTH, 1)
         return self._model.predict(state)
 
     def fit(self, x, y, batch_size, verbose, shuffle):
         """Wrapper around fit."""
-        x = x.reshape(batch_size, config.BOARD_HEIGHT * config.BOARD_WIDTH)
+        x = x.reshape(batch_size, config.BOARD_HEIGHT, config.BOARD_WIDTH, 1)
         self._model.fit(x=x, y=y, batch_size=batch_size, verbose=verbose,
             shuffle=shuffle)
 
@@ -63,6 +77,6 @@ class SpModel:
 
     def reshape_input(self, state):
         """
-        Just return same state.
+        Board as 2D array.
         """
-        return state
+        return state.reshape(config.BOARD_HEIGHT, config.BOARD_WIDTH)
