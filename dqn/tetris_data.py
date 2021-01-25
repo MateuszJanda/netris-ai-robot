@@ -69,9 +69,9 @@ class TetrisData:
 
     def reward(self):
         """
-        Return reward, lines_cleared**2.
+        Return reward (lines_cleared)
         """
-        return self._lines_cleared**2
+        return self._lines_cleared
 
     def piece(self):
         """

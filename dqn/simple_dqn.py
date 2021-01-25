@@ -43,6 +43,7 @@ def play_one_game(total_round, epsilon, env, agent):
             action = np.argmax(q_values)
 
         last_round, reward, _, _, next_state = env.step(action)
+        reward = adjust_reward(reward)
         next_state = agent.reshape_input(next_state)
 
         # Transform new continuous state to new discrete state and count reward
@@ -59,6 +60,13 @@ def play_one_game(total_round, epsilon, env, agent):
         total_round += 1
 
     return total_round, episode_reward, epsilon
+
+
+def adjust_reward(reward):
+    """
+    Adjust reward - lines_cleared**2
+    """
+    return reward**2
 
 
 def adjust_epsilon(epsilon):

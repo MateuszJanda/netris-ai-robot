@@ -20,7 +20,7 @@ class Environment:
         self._conn = None
         self._buffer = bytes()
 
-        self._model = TetrisData()
+        self._tetris_data = TetrisData()
 
         self._step_tic = time.time()
         self.game_tic = time.time()
@@ -77,7 +77,8 @@ class Environment:
         self._buffer = self._buffer[self._buffer.find(b'\n') + 1:]
 
         # Parse status from robot
-        self._model.parse(msg_status.decode())
+        self._tetris_data.parse(msg_status.decode())
 
-        return self._model.last_round(), self._model.reward(), self._model.piece(), \
-            self._model.raw_board(), self._model.board()
+        return self._tetris_data.last_round(), self._tetris_data.reward(), \
+            self._tetris_data.piece(), self._tetris_data.raw_board(), \
+            self._tetris_data.board()
