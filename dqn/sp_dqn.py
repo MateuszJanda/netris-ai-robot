@@ -71,11 +71,11 @@ def play_one_game(total_round, epsilon, env, agent):
     return total_round, episode_reward, epsilon
 
 
-def adjust_reward(reward):
+def adjust_reward(lines):
     """
-    Adjust reward - lines_cleared**2
+    Adjust reward
     """
-    return reward**2
+    return -0.51 * height + 0.76 * lines - 0.36 * holes - 0.18 * bumpiness
 
 
 def adjust_epsilon(epsilon):
