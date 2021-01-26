@@ -8,7 +8,7 @@ Ad maiorem Dei gloriam
 
 
 """
-Stevens and Pradhan  Deep Reinforcement Learning
+Stevens and Pradhan - Deep Reinforcement Learning
 """
 
 import numpy as np
