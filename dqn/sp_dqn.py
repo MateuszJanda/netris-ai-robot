@@ -14,6 +14,7 @@ Stevens and Pradhan  Deep Reinforcement Learning
 import numpy as np
 from dqn.heuristic_solver import HeuristicSolver
 from dqn import config
+from dqn import utils
 
 
 EPSILON_DELTA = 9 * 10**-7
@@ -45,7 +46,7 @@ def play_one_game(total_round, epsilon, env, agent):
             action = np.argmax(q_values)
 
         last_round, reward, next_piece, raw_next_state, next_state = env.step(action)
-        reward = adjust_reward(reward)
+        reward = adjust_reward(raw_next_state, reward)
         next_state = agent.reshape_input(next_state)
 
         # Transform new continuous state to new discrete state and count reward
@@ -71,11 +72,12 @@ def play_one_game(total_round, epsilon, env, agent):
     return total_round, episode_reward, epsilon
 
 
-def adjust_reward(lines):
+def adjust_reward(board, lines):
     """
-    Adjust reward
+    Adjust reward - intermediate scoring function.
     """
-    return -0.51 * height + 0.76 * lines - 0.36 * holes - 0.18 * bumpiness
+    return -0.51 * utils.height(board) + 0.76 * lines \
+        - 0.36 * utils.holes(board) - 0.18 * utils.bumpiness(board)
 
 
 def adjust_epsilon(epsilon):
