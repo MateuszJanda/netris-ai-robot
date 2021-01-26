@@ -20,17 +20,31 @@ def board_look(board, height, width):
     return look
 
 
-def agregate_height(board):
+def columns_height(board):
+    """
+    Calculate height for each column.
+    """
     columns_height = [0 for _ in range(config.BOARD_WIDTH)]
     for x in range(config.BOARD_WIDTH):
-        for y, block in enumerate(range(board[:, x])):
+        for y, block in enumerate(board[:, x]):
             if block:
-                columns_height[x] = config.BOARD_HEIGHT - y + 1
+                columns_height[x] = config.BOARD_HEIGHT - y
+                break
 
-    return sum(columns_height)
+    return columns_height
 
 
-def holes(borad):
+def aggregate_height(board):
+    """
+    Calculate aggregate height of all columns.
+    """
+    return sum(columns_height(board))
+
+
+def holes(board):
+    """
+    Calculate all holes in board.
+    """
     columns_roof = [False for _ in range(config.BOARD_WIDTH)]
     holes_counter = 0
 
@@ -44,16 +58,16 @@ def holes(borad):
     return holes_counter
 
 
-def  bumpiness(board):
-    columns_height = [0 for _ in range(config.BOARD_WIDTH)]
-    for x in range(config.BOARD_WIDTH):
-        for y, block in enumerate(range(board[:, x])):
-            if block:
-                columns_height[x] = config.BOARD_HEIGHT - y + 1
+def bumpiness(board):
+    """
+    Calculate bumpiness - sum of the absolute differences in height between
+    adjacent columns.
 
+    """
+    col_height = columns_height(board)
     counter = 0
-    for x in range(len(columns_height)):
+    for x in range(len(col_height)):
         if x + 1 < config.BOARD_WIDTH:
-            counter += abs(columns_height[x] - columns_height[x + 1])
+            counter += abs(col_height[x] - col_height[x + 1])
 
     return counter
