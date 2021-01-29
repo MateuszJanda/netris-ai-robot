@@ -18,17 +18,17 @@ class SpModel:
         if episode:
             self._model = tf.keras.models.load_model(config.MODEL_SNAPSHOT % episode)
         else:
-            self._model = self.create_model(config.BOARD_HEIGHT, config.BOARD_WIDTH)
+            self._model = self.create_model()
 
         print(self._model.summary())
 
     @staticmethod
-    def create_model(height, width):
+    def create_model():
         """Create tensorflow model."""
         model = tf.keras.models.Sequential()
 
         model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3),
-            input_shape=(height, width, 1), activation='relu'))
+            input_shape=(config.BOARD_HEIGHT, config.BOARD_WIDTH, 1), activation='relu'))
 
         model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu'))
 
@@ -40,10 +40,11 @@ class SpModel:
         model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=(3, 3), activation='relu'))
 
         # ? - (1, 1) kernel make any sense?
-        model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=(1, 1), activation='relu'))
+        # model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=(1, 1), activation='relu'))
 
-        model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=(3, 3), activation='relu'))
+        # model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=(3, 3), activation='relu'))
 
+        model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(units=128, activation='relu'))
 
         model.add(tf.keras.layers.Dense(units=512, activation='relu'))

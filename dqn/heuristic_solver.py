@@ -8,7 +8,6 @@ Ad maiorem Dei gloriam
 
 import numpy as np
 from dqn import config
-from dqn import utils
 
 
 class HeuristicSolver:
