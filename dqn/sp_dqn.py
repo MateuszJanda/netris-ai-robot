@@ -18,6 +18,7 @@ from dqn import utils
 
 
 EPSILON_DELTA = 9 * 10**-7
+EPSILON_RAND = 0.3
 MIN_EPSILON = 0.1
 UPDATE_MODEL_ROUND = 1000
 
@@ -37,8 +38,12 @@ def play_one_game(total_round, epsilon, env, agent):
 
     while not last_round:
         # Explore other actions with probability epsilon
-        if np.random.random() <= epsilon:
-            action = solver.action(current_piece, raw_current_state)
+        r = np.random.random()
+        if r < epsilon:
+            if r < EPSILON_RAND:
+                action = np.random.randint(0, config.ACTION_SPACE_SIZE)
+            else:
+                action = solver.action(current_piece, raw_current_state)
         else:
             q_values = agent.q_values_for_state(current_state)
             # Choose best action
