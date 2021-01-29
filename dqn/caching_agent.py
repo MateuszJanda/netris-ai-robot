@@ -94,8 +94,3 @@ class CachingAgent:
     def get_tf_model(self):
         """Getter to tensorflow model."""
         return self._training_model.get_tf_model()
-
-    def reshape_input(self, state):
-        """Reshape input state if needed later by model."""
-        # Only one model is used, because both should by same type
-        return self._training_model.reshape_input(state)

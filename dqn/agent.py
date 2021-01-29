@@ -88,7 +88,3 @@ class Agent:
     def get_tf_model(self):
         """Getter to tensorflow model."""
         return self._model.get_tf_model()
-
-    def reshape_input(self, state):
-        """Reshape input state if needed later by model."""
-        return self._model.reshape_input(state)

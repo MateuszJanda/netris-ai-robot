@@ -28,7 +28,6 @@ def play_one_game(total_round, epsilon, env, agent):
 
     # Reset environment and get initial state
     _, _, _, _, current_state = env.reset()
-    current_state = agent.reshape_input(current_state)
 
     # Reset flag and start iterating until episode ends
     last_round = False
@@ -44,7 +43,6 @@ def play_one_game(total_round, epsilon, env, agent):
 
         last_round, reward, _, _, next_state = env.step(action)
         reward = adjust_reward(reward)
-        next_state = agent.reshape_input(next_state)
 
         # Transform new continuous state to new discrete state and count reward
         episode_reward += reward

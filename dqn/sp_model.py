@@ -74,9 +74,3 @@ class SpModel:
         Getter to tensorflow model.
         """
         return self._model
-
-    def reshape_input(self, state):
-        """
-        Board as 2D array.
-        """
-        return state.reshape(config.BOARD_HEIGHT, config.BOARD_WIDTH)

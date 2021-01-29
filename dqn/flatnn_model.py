@@ -60,9 +60,3 @@ class FlatNnModel:
         Getter to tensorflow model.
         """
         return self._model
-
-    def reshape_input(self, state):
-        """
-        Just return same state.
-        """
-        return state

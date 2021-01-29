@@ -7,29 +7,25 @@ Ad maiorem Dei gloriam
 """
 
 import tensorflow as tf
-import numpy as np
 import config
 
 
 class CnnModel:
     def __init__(self, episode=None):
-        # Board size with extra padding
-        self._height = config.BOARD_HEIGHT + 2
-        self._width = config.BOARD_WIDTH + 2
-
         if episode:
             self._model = tf.keras.models.load_model(config.MODEL_SNAPSHOT % episode)
         else:
-            self._model = self.create_model(self._height, self._width)
+            self._model = self.create_model()
 
         print(self._model.summary())
 
     @staticmethod
-    def create_model(height, width):
+    def create_model():
         """Create tensorflow model."""
         model = tf.keras.models.Sequential()
 
         # Conv2D:
+        # - https://towardsdatascience.com/conv2d-to-finally-understand-what-happens-in-the-forward-pass-1bbaafb0b148e
         # - https://missinglink.ai/guides/tensorflow/tensorflow-conv2d-layers-practical-guide/
         # - https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D#arguments
         #
@@ -38,8 +34,8 @@ class CnnModel:
         #
         # filters: (integer) the dimensionality of the output space. Here for
         #   each pixel there will be generated 256 features.
-        model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=(3, 3),
-            input_shape=(height, width, 1), activation='relu'))
+        model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=(3, 3), padding='same',
+            input_shape=(config.BOARD_HEIGHT, config.BOARD_WIDTH, 1), activation='relu'))
 
         model.add(tf.keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu'))
 
@@ -70,11 +66,3 @@ class CnnModel:
     def get_tf_model(self):
         """Getter to tensorflow model."""
         return self._model
-
-    def reshape_input(self, state):
-        """
-        Board state with extra padding, because CNN remove boarded where
-        piece data are stored.
-        """
-        state = state.reshape(config.BOARD_HEIGHT, config.BOARD_WIDTH)
-        return np.pad(state, pad_width=1, mode='constant', constant_values=0)
