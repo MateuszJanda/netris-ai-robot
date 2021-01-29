@@ -159,11 +159,11 @@ class Tour:
         right = 0
 
         for line in matrix:
-            l = next(idx for idx, val in enumerate(line) if val != 0)
-            left = min(l, left)
+            l_idx = next(idx for idx, val in enumerate(line) if val != 0)
+            left = min(l_idx, left)
 
-            r = next(idx for idx, val in enumerate(reversed(line)) if val != 0)
-            right = max(len(line) - r, right)
+            r_idx = next(idx for idx, val in enumerate(reversed(line)) if val != 0)
+            right = max(len(line) - r_idx, right)
 
         return left, right
 
@@ -176,7 +176,7 @@ class Tour:
         for line in self.piece_as_matrix():
             print("".join(["1" if piece else "0" for piece in line]))
 
-    def print_board(self, fill: bool=True) -> None:
+    def print_board(self, fill: bool = True) -> None:
         """
         Print board for given tour. When fill=True empty spaces are filled
         by zeros.
@@ -254,7 +254,7 @@ class Action:
             # If collision then revoke actual board
             for row, line in enumerate(piece):
                 for col, block in enumerate(line):
-                    if self.tour.board[y+row][col] and block:
+                    if self.tour.board[y + row][col] and block:
                         return board
 
             # Fill board with piece blocks
@@ -262,10 +262,10 @@ class Action:
             for row, line in enumerate(piece):
                 for col, block in enumerate(line):
                     if block:
-                        board[y+row][col] = BLOCK
+                        board[y + row][col] = BLOCK
 
             # If next move is out of border then break
-            if (y+1) + len(piece) > BORAD_HEIGHT:
+            if (y + 1) + len(piece) > BORAD_HEIGHT:
                 break
 
         return board
@@ -360,7 +360,7 @@ class Game:
     def __next__(self) -> Action:
         """Return valid Action."""
         while self._idx < len(self.tours) - 1:
-            action = Action(self.tours[self._idx], self.tours[self._idx+1])
+            action = Action(self.tours[self._idx], self.tours[self._idx + 1])
             self._idx += 1
             if action.valid():
                 return action
@@ -393,7 +393,7 @@ class Game:
                 tour.points = int(packet[2].split("=")[1])
             elif packet[0] == "[<]" and packet[1] == "NP_boardDump":
                 tour.dump = packet[3].split("=")[1]
-                lines = [tour.dump[i:i+BYTES_PER_LINE] for i in range(0, len(tour.dump), BYTES_PER_LINE)]
+                lines = [tour.dump[i:i + BYTES_PER_LINE] for i in range(0, len(tour.dump), BYTES_PER_LINE)]
                 tour.raw_board = list(reversed([int(line, 16) for line in lines]))
 
         return game
@@ -409,11 +409,11 @@ class Game:
         """Return percentage of tours reconstructed in game."""
         correct = 0
         for idx in range(len(self.tours) - 1):
-            action = Action(self.tours[idx], self.tours[idx+1])
+            action = Action(self.tours[idx], self.tours[idx + 1])
             if action.valid():
                 correct += 1
 
-        return correct / (len(self.tours)-1)
+        return correct / (len(self.tours) - 1)
 
 
 def column_height(col: int, board: Board) -> int:
@@ -443,7 +443,7 @@ class Reader:
         """Return Action from all games."""
         try:
             return next(self._game)
-        except StopIteration as e:
+        except StopIteration:
             if self._idx + 1 < len(self._file_names):
                 self._idx += 1
                 self._game = iter(Game(self._file_names[self._idx]))
