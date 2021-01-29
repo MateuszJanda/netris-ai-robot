@@ -10,7 +10,7 @@ import numpy as np
 from dqn import config
 
 
-class HeuristicSolver:
+class NetrisSolver:
 
     # Map piece color to his basic block representation
     PIECE = {
@@ -48,7 +48,7 @@ class HeuristicSolver:
         Choose action from ACTION_SPACE_SIZE.
         """
         best_action = 0
-        piece_blocks = np.array(HeuristicSolver.PIECE[piece_index])
+        piece_blocks = np.array(NetrisSolver.PIECE[piece_index])
 
         board = board.reshape(config.BOARD_HEIGHT, config.BOARD_WIDTH) > 0
         board = board.astype(int)
@@ -67,7 +67,7 @@ class HeuristicSolver:
                 if min_score is None or score < min_score:
                     min_score = score
 
-                    shift = col - HeuristicSolver.START_COL[piece_index][rot]
+                    shift = col - NetrisSolver.START_COL[piece_index][rot]
                     best_action = rot * config.BOARD_WIDTH + shift + config.SHFIT_OFFSET
 
             piece_blocks = np.rot90(piece_blocks)
@@ -126,7 +126,7 @@ class HeuristicSolver:
         last_row = config.BOARD_HEIGHT - last_row - 1
 
         max_height = 0
-        height = np.zeros((HeuristicSolver.MAX_BOARD_WIDTH), dtype=int)
+        height = np.zeros((NetrisSolver.MAX_BOARD_WIDTH), dtype=int)
         for col in range(config.BOARD_WIDTH):
             for row in range(config.BOARD_HEIGHT):
                 if final_board[row][col]:
@@ -170,12 +170,12 @@ class HeuristicSolver:
                     if col > 0:
                         delta_left = height[col - 1] - row
                     else:
-                        delta_left = HeuristicSolver.MAX_BOARD_HEIGHT
+                        delta_left = NetrisSolver.MAX_BOARD_HEIGHT
 
                     if col < config.BOARD_HEIGHT - 1:
                         delta_right = height[col + 1] - row
                     else:
-                        delta_right = HeuristicSolver.MAX_BOARD_HEIGHT
+                        delta_right = NetrisSolver.MAX_BOARD_HEIGHT
 
                     if delta_left > 2 and delta_right > 2:
                         hard_fit[row] += 7
@@ -199,12 +199,12 @@ class HeuristicSolver:
             if col > 0:
                 delta_left = height[col - 1] - height[col]
             else:
-                delta_left = HeuristicSolver.MAX_BOARD_HEIGHT
+                delta_left = NetrisSolver.MAX_BOARD_HEIGHT
 
             if col < config.BOARD_WIDTH - 1:
                 delta_right = height[col + 1] - height[col]
             else:
-                delta_right = HeuristicSolver.MAX_BOARD_HEIGHT
+                delta_right = NetrisSolver.MAX_BOARD_HEIGHT
 
             if delta_left > 2 and delta_right > 2:
                 top_shape += 15 + 15 * (min(delta_left, delta_right) // 4)

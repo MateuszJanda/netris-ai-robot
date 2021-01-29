@@ -12,7 +12,7 @@ Stevens and Pradhan - Deep Reinforcement Learning
 """
 
 import numpy as np
-from dqn.heuristic_solver import HeuristicSolver
+from dqn.netris_solver import NetrisSolver
 from dqn import config
 from dqn import utils
 
@@ -27,7 +27,7 @@ def play_one_game(total_round, epsilon, env, agent):
     Play one game.
     """
     episode_reward = 0
-    solver = HeuristicSolver()
+    solver = NetrisSolver()
 
     # Reset environment and get initial state
     _, _, current_piece, raw_current_state, current_state = env.reset()
