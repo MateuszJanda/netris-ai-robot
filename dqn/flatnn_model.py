@@ -16,17 +16,16 @@ class FlatNnModel:
         if episode:
             self._model = tf.keras.models.load_model(config.MODEL_SNAPSHOT % episode)
         else:
-            self._model = self.create_model(config.BOARD_HEIGHT * config.BOARD_WIDTH)
+            self._model = self.create_model()
 
         print(self._model.summary())
 
     @staticmethod
-    def create_model(size):
+    def create_model():
         """Create tensorflow model."""
         model = tf.keras.models.Sequential()
 
-        model.add(tf.keras.layers.Flatten())
-        model.add(tf.keras.layers.Input(shape=(size,)))
+        model.add(tf.keras.layers.Input(shape=(config.BOARD_HEIGHT * config.BOARD_WIDTH,)))
         model.add(tf.keras.layers.Dense(units=256, activation='relu'))
 
         model.add(tf.keras.layers.Dense(units=128, activation='relu'))

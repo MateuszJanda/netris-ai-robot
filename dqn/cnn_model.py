@@ -54,12 +54,12 @@ class CnnModel:
         """
         Queries NN model for Q values given current observation (state).
         """
-        state = state.reshape(batch_size, self._height, self._width, 1)
+        state = state.reshape(batch_size, config.BOARD_HEIGHT, config.BOARD_WIDTH, 1)
         return self._model.predict(state)
 
     def fit(self, x, y, batch_size, verbose, shuffle):
         """Wrapper around fit."""
-        x = x.reshape(batch_size, self._height, self._width, 1)
+        x = x.reshape(batch_size, config.BOARD_HEIGHT, config.BOARD_WIDTH, 1)
         self._model.fit(x=x, y=y, batch_size=batch_size, verbose=verbose,
             shuffle=shuffle)
 
