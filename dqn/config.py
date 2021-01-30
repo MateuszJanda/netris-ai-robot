@@ -11,7 +11,6 @@ import argparse
 import socket
 import time
 import pickle
-from dqn.agent import Agent
 from dqn.envirement import Environment
 
 
