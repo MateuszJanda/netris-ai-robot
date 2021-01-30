@@ -44,7 +44,7 @@ if __name__ == '__main__':
             config.start_learning(sock, start_episode, total_round, epsilon, simple_dqn.play_one_game, agent)
         elif args.experiment == 3:
             assert sp_dqn.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
-                "Caching and training model will dfiffer when snapshot will be saved"
+                "Caching and training model can't differ when snapshot is saved"
             print("Experiment: %d. Stevens and Pradhan DQN" % args.experiment)
 
             training_model = SpModel(args.episode)
