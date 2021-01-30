@@ -25,6 +25,7 @@ class FlatNnModel:
         """Create tensorflow model."""
         model = tf.keras.models.Sequential()
 
+        model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Input(shape=(size,)))
         model.add(tf.keras.layers.Dense(units=256, activation='relu'))
 

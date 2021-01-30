@@ -8,7 +8,6 @@ Ad maiorem Dei gloriam
 
 import numpy as np
 import random
-import copy
 from collections import deque
 from dqn import config
 
@@ -16,10 +15,10 @@ from dqn import config
 class CachingAgent:
     """DQN agent."""
 
-    def __init__(self, model, episode=None):
+    def __init__(self, training_model, caching_model, episode=None):
         # Build NN model
-        self._training_model = model
-        self._caching_model = copy.deepcopy(model)
+        self._training_model = training_model
+        self._caching_model = caching_model
 
         # An array with last REPLAY_MEMORY_SIZE steps for training
         self.replay_memory = deque(maxlen=config.REPLAY_MEMORY_SIZE)

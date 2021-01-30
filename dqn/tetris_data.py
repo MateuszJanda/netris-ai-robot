@@ -12,35 +12,7 @@ from dqn import config
 
 
 class TetrisData:
-    COLOR_TO_PIECE = {
-        -1: 4,      # Piece Id: 11
-        -2: 0,      # Piece Id: 0
-        -3: 1,      # Piece Id: 2
-        -4: 2,      # Piece Id: 3
-        -5: 3,      # Piece Id: 7
-        -6: 5,      # Piece Id: 15
-        -7: 6,      # Piece Id: 17
-    }
-
-    PIECE_TO_PIECE_ID = {
-        4: 11,
-        0: 0,
-        1: 2,
-        2: 3,
-        3: 7,
-        5: 15,
-        6: 17,
-    }
-
-    PIECE_ID_TO_NAME = {
-        11: "white pyramid",
-         0: "blue log",
-         2: "violet square",
-         3: "azure L",
-         7: "yellow mirror L",
-        15: "green S",
-        17: "red Z",
-    }
+    NUM_OF_COLORS = 7
 
     def __init__(self):
         self._last_round = False
@@ -59,7 +31,7 @@ class TetrisData:
         self._last_round = True if int(last_round) else False
         self._lines_cleared = float(lines_cleared)
         self._new_piece = int(new_piece)
-        self._board = np.array([float(block_color) for block_color in board])
+        self._board = np.array([float(block_color) for block_color in board]).reshape(config.BOARD_HEIGHT, config.BOARD_WIDTH)
 
     def last_round(self):
         """
@@ -98,8 +70,8 @@ class TetrisData:
         # In top row set four middle block as new piece, and erase all other
         for x in range(config.BOARD_WIDTH):
             if 3 < x < 8:
-                out_board[x] = self._new_piece / len(TetrisData.COLOR_TO_PIECE)
+                out_board[0][x] = self._new_piece / TetrisData.NUM_OF_COLORS
             else:
-                out_board[x] = config.EMPTY_BLOCK
+                out_board[0][x] = config.EMPTY_BLOCK
 
         return out_board

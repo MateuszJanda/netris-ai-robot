@@ -47,8 +47,9 @@ if __name__ == '__main__':
                 "Caching and training model will dfiffer when snapshot will be saved"
             print("Experiment: %d. Stevens and Pradhan DQN" % args.experiment)
 
-            model = SpModel(args.episode)
-            agent = CachingAgent(model)
+            training_model = SpModel(args.episode)
+            caching_model = SpModel(args.episode)
+            agent = CachingAgent(training_model, caching_model)
             start_episode, total_round, epsilon = config.load_snapshot_metadata(args.episode, agent)
 
             config.start_learning(sock, start_episode, total_round, epsilon, sp_dqn.play_one_game, agent)

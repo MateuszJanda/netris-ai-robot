@@ -79,7 +79,7 @@ def adjust_reward(board, lines):
     """
     Adjust reward - intermediate scoring function.
     """
-    return -0.51 * utils.height(board) + 0.76 * lines \
+    return -0.51 * utils.aggregate_height(board) + 0.76 * lines \
         - 0.36 * utils.holes(board) - 0.18 * utils.bumpiness(board)
 
 
