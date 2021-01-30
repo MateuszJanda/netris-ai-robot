@@ -6,7 +6,7 @@ docker run -v $PWD:/tmp -w /tmp --gpus all -it --name tf_netris --network host t
 ```
 
 ## DQN learning setup
-On first terminal run Netris server (at docker host)
+On first terminal run Netris environment server (at docker host)
 ```bash
 ./netris-env -w -u -i 0.1
 ```
@@ -22,14 +22,14 @@ Alternatively, you can run DQN agent with CPU support (at host)
 python experiment.py -p 9800
 ```
 
-On third terminal, run proxy (at docker host). Note that interval (`-i`) must match value passed to Netris server
+On third terminal, run proxy (at docker host). Note that interval (`-i`) must match value passed to Netris environment server
 ```bash
 ./netris-env -n -m -c localhost -i 0.1 -r 'python proxy.py -t /dev/pts/3 -p 9800'
 ```
 
 ## Example
-Learned model, can be used by robot with normal netris instance
-On first termianl, run game in server mode and wait for **robot**
+Learned model, can be used by robot with standard Netris instance
+On first terminal, run game in server mode and wait for **robot**
 ```bash
 netris -w
 ```
