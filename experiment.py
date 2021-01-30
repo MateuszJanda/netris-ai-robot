@@ -52,3 +52,5 @@ if __name__ == '__main__':
             start_episode, total_round, epsilon = config.load_snapshot_metadata(args.episode, agent)
 
             config.start_learning(sock, start_episode, total_round, epsilon, sp_dqn.play_one_game, agent)
+        else:
+            print("Experiment %d is missing check docs" % args.experiment)

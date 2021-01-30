@@ -6,7 +6,7 @@ Site: github.com/MateuszJanda/netris-ai-robot
 Ad maiorem Dei gloriam
 """
 
-import config
+from dqn import config
 
 
 def board_look(board, height, width):
