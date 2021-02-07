@@ -38,7 +38,7 @@ class SpModel:
 
         model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(units=128, activation='relu'))
-        model.add(tf.keras.layers.Dropout(rate=0.75))
+        model.add(tf.keras.layers.Dropout(rate=0.25))
 
         model.add(tf.keras.layers.Dense(units=512, activation='relu'))
 
