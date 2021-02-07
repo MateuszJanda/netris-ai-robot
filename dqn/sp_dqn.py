@@ -23,11 +23,12 @@ MIN_EPSILON = 0.1
 UPDATE_MODEL_ROUND = 1000
 
 
-def play_one_game(total_round, epsilon, env, agent):
+def play_one_game(total_rounds, epsilon, env, agent):
     """
     Play one game.
     """
     episode_reward = 0
+    episode_lines = 0
     solver = NetrisSolver()
 
     # Reset environment and get initial state
@@ -51,6 +52,8 @@ def play_one_game(total_round, epsilon, env, agent):
             action = np.argmax(q_values)
 
         last_round, lines, next_piece, raw_next_state, next_state = env.step(action)
+        episode_lines += lines
+
         current_score = adjust_score(raw_next_state, lines)
         reward = current_score - last_score
         last_score = current_score
@@ -70,12 +73,12 @@ def play_one_game(total_round, epsilon, env, agent):
         epsilon = adjust_epsilon(epsilon)
 
         # Update Q' model (this prevent instability when training)
-        if total_round % UPDATE_MODEL_ROUND == 0:
+        if total_rounds % UPDATE_MODEL_ROUND == 0:
             agent.update_caching_model()
 
-        total_round += 1
+        total_rounds += 1
 
-    return total_round, episode_reward, epsilon
+    return total_rounds, episode_reward, episode_lines, epsilon
 
 
 def adjust_score(board, lines):

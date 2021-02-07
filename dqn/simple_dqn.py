@@ -20,11 +20,12 @@ EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random act
 MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want to check something new
 
 
-def play_one_game(total_round, epsilon, env, agent):
+def play_one_game(total_rounds, epsilon, env, agent):
     """
     Play one game.
     """
     episode_reward = 0
+    episode_lines = 0
 
     # Reset environment and get initial state
     _, _, _, _, current_state = env.reset()
@@ -41,10 +42,11 @@ def play_one_game(total_round, epsilon, env, agent):
             # Choose best action
             action = np.argmax(q_values)
 
-        last_round, reward, _, _, next_state = env.step(action)
-        reward = adjust_reward(reward)
+        last_round, lines, _, _, next_state = env.step(action)
+        episode_lines += lines
 
         # Transform new continuous state to new discrete state and count reward
+        reward = adjust_reward(lines)
         episode_reward += reward
 
         # Every step update replay memory and train NN model
@@ -55,16 +57,16 @@ def play_one_game(total_round, epsilon, env, agent):
         current_state = next_state
 
         epsilon = adjust_epsilon(epsilon)
-        total_round += 1
+        total_rounds += 1
 
-    return total_round, episode_reward, epsilon
+    return total_rounds, episode_reward, episode_lines, epsilon
 
 
-def adjust_reward(reward):
+def adjust_reward(lines):
     """
     Adjust reward - lines_cleared**2
     """
-    return reward**2
+    return lines**2
 
 
 def adjust_epsilon(epsilon):
