@@ -35,6 +35,7 @@ def play_one_game(total_round, epsilon, env, agent):
 
     # Reset flag and start iterating until episode ends
     last_round = False
+    last_score = 0
 
     while not last_round:
         # Explore other actions with probability epsilon
@@ -49,8 +50,10 @@ def play_one_game(total_round, epsilon, env, agent):
             # Choose best action
             action = np.argmax(q_values)
 
-        last_round, reward, next_piece, raw_next_state, next_state = env.step(action)
-        reward = adjust_reward(raw_next_state, reward)
+        last_round, lines, next_piece, raw_next_state, next_state = env.step(action)
+        current_score = adjust_score(raw_next_state, lines)
+        reward = current_score - last_score
+        last_score = current_score
 
         # Transform new continuous state to new discrete state and count reward
         episode_reward += reward
@@ -75,7 +78,7 @@ def play_one_game(total_round, epsilon, env, agent):
     return total_round, episode_reward, epsilon
 
 
-def adjust_reward(board, lines):
+def adjust_score(board, lines):
     """
     Adjust reward - intermediate scoring function.
     """
