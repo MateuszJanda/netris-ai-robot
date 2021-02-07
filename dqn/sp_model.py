@@ -34,18 +34,11 @@ class SpModel:
 
         model.add(tf.keras.layers.Conv2D(filters=64, kernel_size=(3, 3), activation='relu'))
 
-        # ???
-        # followed by a layer that collapses each column into a single pixel with 64 feature channels
-
         model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=(3, 3), activation='relu'))
-
-        # ? - (1, 1) kernel make any sense?
-        # model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=(1, 1), activation='relu'))
-
-        # model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=(3, 3), activation='relu'))
 
         model.add(tf.keras.layers.Flatten())
         model.add(tf.keras.layers.Dense(units=128, activation='relu'))
+        model.add(tf.keras.layers.Dense(rate=0.75))
 
         model.add(tf.keras.layers.Dense(units=512, activation='relu'))
 
