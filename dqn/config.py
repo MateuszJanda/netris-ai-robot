@@ -41,6 +41,9 @@ REWAD_THRESHOLDS = MAX_CLEARED_LINES + (MAX_CLEARED_LINES - 1)
 SNAPSHOT_MODULO = 100
 MODEL_SNAPSHOT = "%05d_model.h5"
 DATA_SNAPSHOT = "%05d_data.pickle"
+
+# Stats settings
+STATS_MODULO = 10
 STATS_FILE = "stats.txt"
 
 # DQN parameters
@@ -136,16 +139,33 @@ def load_snapshot_metadata(episode, agent):
     return start_episode, total_rounds, epsilon
 
 
-def save_snapshot(agent, epsilon, episode, episode_reward, episode_lines, total_rounds, moves):
+def save_snapshot(agent, epsilon, episode, episode_reward, episode_lines, total_rounds):
     """Save snapshot."""
-    agent.get_tf_model().save(MODEL_SNAPSHOT % episode)
+    if episode > 0 and episode % SNAPSHOT_MODULO == 0:
+        agent.get_tf_model().save(MODEL_SNAPSHOT % episode)
 
-    with open(DATA_SNAPSHOT % episode, "wb") as f:
-        pickle.dump((total_rounds, epsilon, agent.replay_memory, episode_reward), f)
+        with open(DATA_SNAPSHOT % episode, "wb") as f:
+            pickle.dump((total_rounds, epsilon, agent.replay_memory, episode_reward, episode_lines), f)
 
-    with open(STATS_FILE, "a") as f:
-        f.write("Episode: %d, round: %d, epsilon: %0.2f, moves: %d, reward: %0.2f, lines %d\n"
-            % (episode, total_rounds, epsilon, moves, episode_reward, episode_lines))
+
+def save_stats(epsilon, episode, episode_reward, episode_lines, total_rounds, moves, avg_handling_time, game_time):
+    """
+    Log and save statistics.
+    """
+    if episode > 0 and episode % STATS_MODULO == 0:
+        with open(STATS_FILE, "a") as f:
+            f.write("Episode: %d, round: %d, epsilon: %0.2f, moves: %d, reward: %0.2f, lines %d\n"
+                % (episode, total_rounds, epsilon, moves, episode_reward, episode_lines))
+
+    print("Episode %d, rounds: %d, epsilon %0.3f, reward %0.2f, lines %d, moves %d, avg handling time: %0.4f, game time: %0.4f"
+        % (episode,
+            total_rounds,
+            epsilon,
+            episode_reward,
+            episode_lines,
+            moves,
+            avg_handling_time,
+            game_time))
 
 
 def start_learning(sock, start_episode, total_rounds, epsilon, play_one_game, agent):
@@ -157,17 +177,11 @@ def start_learning(sock, start_episode, total_rounds, epsilon, play_one_game, ag
     for episode in range(start_episode, EPISODES + 1):
         total_rounds, episode_reward, episode_lines, epsilon = play_one_game(total_rounds, epsilon, env, agent)
 
-        if episode > 0 and episode % SNAPSHOT_MODULO == 0:
-            save_snapshot(agent, epsilon, episode, episode_reward, episode_lines, total_rounds, len(env.handling_time))
+        save_snapshot(agent, epsilon, episode, episode_reward, episode_lines, total_rounds)
 
-        print("Episode %d, round: %d, epsilon %0.3f, reward %0.2f, lines %d, moves %d, avg handling time: %0.4f, game time: %0.4f"
-            % (episode,
-                total_rounds,
-                epsilon,
-                episode_reward,
-                episode_lines,
-                len(env.handling_time),
-                sum(env.handling_time) / len(env.handling_time),
-                time.time() - env.game_tic))
+        game_time = time.time() - env.game_tic
+        moves = len(env.handling_time)
+        avg_handling_time = sum(env.handling_time) / moves
+        save_stats(epsilon, episode, episode_reward, episode_lines, total_rounds, moves, avg_handling_time, game_time)
 
     env.close()
