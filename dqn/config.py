@@ -160,7 +160,7 @@ def start_learning(sock, start_episode, total_rounds, epsilon, play_one_game, ag
         if episode > 0 and episode % SNAPSHOT_MODULO == 0:
             save_snapshot(agent, epsilon, episode, episode_reward, episode_lines, total_rounds, len(env.handling_time))
 
-        print("Episode %d, round: %d, epsilon %0.3f, reward %0.2f, moves %d, lines %d, avg handling time: %0.4f, game time: %0.4f"
+        print("Episode %d, round: %d, epsilon %0.3f, reward %0.2f, lines %d, moves %d, avg handling time: %0.4f, game time: %0.4f"
             % (episode,
                 total_rounds,
                 epsilon,
