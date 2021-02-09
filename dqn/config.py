@@ -43,7 +43,7 @@ MODEL_SNAPSHOT = "%05d_model.h5"
 DATA_SNAPSHOT = "%05d_data.pickle"
 
 # Stats settings
-STATS_MODULO = 10
+STATS_MODULO = 5
 STATS_FILE = "stats.txt"
 
 # DQN parameters
