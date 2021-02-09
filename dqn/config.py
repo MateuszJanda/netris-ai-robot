@@ -128,7 +128,7 @@ def load_snapshot_metadata(episode, agent):
     """
     if episode:
         with open(DATA_SNAPSHOT % episode, "rb") as f:
-            total_rounds, epsilon, replay_memory, _ = pickle.load(f)
+            total_rounds, epsilon, replay_memory, _, _ = pickle.load(f)
             agent.load_replay_memory(replay_memory)
         start_episode = episode + 1
     else:
