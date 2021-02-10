@@ -51,6 +51,10 @@ def play_one_game(total_rounds, epsilon, env, agent):
             # Choose best action
             action = np.argmax(q_values)
 
+            if np.isnan(q_values[action]) or np.isinf(q_values[action]):
+                print("Error: Q value = ", q_values[action])
+                exit()
+
         last_round, lines, next_piece, raw_next_state, next_state = env.step(action)
         episode_lines += lines
 
