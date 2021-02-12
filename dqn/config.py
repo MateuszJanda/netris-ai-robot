@@ -139,7 +139,7 @@ def load_snapshot_metadata(episode, agent):
     return start_episode, total_rounds, epsilon
 
 
-def save_snapshot(agent, epsilon, episode, episode_reward, episode_lines, total_rounds):
+def save_snapshot(agent, episode, total_rounds, epsilon, episode_reward, episode_lines):
     """Save snapshot."""
     if episode > 0 and episode % SNAPSHOT_MODULO == 0:
         agent.get_tf_model().save(MODEL_SNAPSHOT % episode)
@@ -148,16 +148,16 @@ def save_snapshot(agent, epsilon, episode, episode_reward, episode_lines, total_
             pickle.dump((total_rounds, epsilon, agent.replay_memory, episode_reward, episode_lines), f)
 
 
-def save_stats(epsilon, episode, episode_reward, episode_lines, total_rounds, moves, avg_handling_time, game_time):
+def save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, moves, avg_handling_time, game_time):
     """
     Log and save statistics.
     """
-    if episode > 0 and episode % STATS_MODULO == 0:
-        with open(STATS_FILE, "a") as f:
-            f.write("Episode: %d, round: %d, epsilon: %0.2f, moves: %d, reward: %0.2f, lines %d\n"
-                % (episode, total_rounds, epsilon, moves, episode_reward, episode_lines))
+    # if episode > 0 and episode % STATS_MODULO == 0:
+    with open(STATS_FILE, "a") as f:
+        f.write("Episode: %d, rounds: %d, epsilon: %0.2f, reward: %0.2f, lines: %d, moves: %d\n"
+            % (episode, total_rounds, epsilon, episode_reward, episode_lines, moves))
 
-    print("Episode %d, rounds: %d, epsilon %0.3f, reward %0.2f, lines %d, moves %d, avg handling time: %0.4f, game time: %0.4f"
+    print("Episode: %d, rounds: %d, epsilon: %0.3f, reward: %0.2f, lines: %d, moves: %d, avg handling time: %0.4f, game time: %0.4f"
         % (episode,
             total_rounds,
             epsilon,
@@ -177,11 +177,11 @@ def start_learning(sock, start_episode, total_rounds, epsilon, play_one_game, ag
     for episode in range(start_episode, EPISODES + 1):
         total_rounds, episode_reward, episode_lines, epsilon = play_one_game(total_rounds, epsilon, env, agent)
 
-        save_snapshot(agent, epsilon, episode, episode_reward, episode_lines, total_rounds)
+        save_snapshot(agent, episode, total_rounds, epsilon, episode_reward, episode_lines)
 
         game_time = time.time() - env.game_tic
         moves = len(env.handling_time)
         avg_handling_time = sum(env.handling_time) / moves
-        save_stats(epsilon, episode, episode_reward, episode_lines, total_rounds, moves, avg_handling_time, game_time)
+        save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, moves, avg_handling_time, game_time)
 
     env.close()
