@@ -27,6 +27,7 @@ def play_one_game(total_rounds, epsilon, env, agent):
     """
     episode_reward = 0
     episode_lines = 0
+    prev_lines = 0
 
     # Reset environment and get initial state
     _, _, _, _, current_state = env.reset()
@@ -45,9 +46,10 @@ def play_one_game(total_rounds, epsilon, env, agent):
 
         last_round, lines, _, raw_next_state, next_state = env.step(action)
         episode_lines += lines
+        prev_lines = lines
 
         # Transform new continuous state to new discrete state and count reward
-        reward = adjust_reward(raw_next_state, lines)
+        reward = adjust_reward(raw_next_state, prev_lines, lines)
         episode_reward += reward
 
         # Every step update replay memory and train NN model
@@ -63,12 +65,15 @@ def play_one_game(total_rounds, epsilon, env, agent):
     return total_rounds, episode_reward, episode_lines, epsilon
 
 
-def adjust_reward(board, lines):
+def adjust_reward(board, prev_lines, lines):
     """
     Adjust reward.
     """
-    return -0.51 * utils.aggregate_height(board) + 0.76 * lines \
-        - 0.36 * utils.holes(board) - 0.18 * utils.bumpiness(board)
+    if prev_lines > 0 and lines == 0:
+        return - 0.36 * utils.holes(board) - 0.18 * utils.bumpiness(board)
+    else:
+        return -0.51 * utils.aggregate_height(board) + 0.76 * lines \
+            - 0.36 * utils.holes(board) - 0.18 * utils.bumpiness(board)
 
 
 def adjust_epsilon(epsilon):
