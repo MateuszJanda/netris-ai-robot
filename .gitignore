@@ -1,5 +1,6 @@
 venv/
 __pycache__/
+.vscode/
 .mypy_cache/
 checkpoints/
 only_wins_checkpoint/
