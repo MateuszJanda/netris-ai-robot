@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
             config.start_learning(sock, start_episode, total_round, epsilon, sp_dqn.play_one_game, agent)
         elif args.experiment == 4:
-            print("Experiment: %d. Flat NN and soring based on mistakes." % args.experiment)
+            print("Experiment: %d. Flat NN and scoring based on mistakes." % args.experiment)
 
             model = FlatNnModel(args.episode)
             agent = Agent(model)
