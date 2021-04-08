@@ -14,6 +14,7 @@ from dqn.agent import Agent
 from dqn.caching_agent import CachingAgent
 from dqn import simple_dqn
 from dqn import inter_scoring_dqn
+from dqn import inter_scoring_cache_dqn
 from dqn import sp_dqn
 from dqn import config
 
@@ -62,5 +63,16 @@ if __name__ == '__main__':
             start_episode, total_round, epsilon = config.load_snapshot_metadata(args.episode, agent)
 
             config.start_learning(sock, start_episode, total_round, epsilon, inter_scoring_dqn.play_one_game, agent)
+        elif args.experiment == 5:
+            assert inter_scoring_cache_dqn.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
+                "Caching and training model can't differ when snapshot is saved"
+            print("Experiment: %d. Flat NN with caching and with scoring based on mistakes." % args.experiment)
+
+            training_model = FlatNnModel(args.episode)
+            caching_model = FlatNnModel(args.episode)
+            agent = CachingAgent(training_model, caching_model)
+            start_episode, total_round, epsilon = config.load_snapshot_metadata(args.episode, agent)
+
+            config.start_learning(sock, start_episode, total_round, epsilon, inter_scoring_cache_dqn.play_one_game, agent)
         else:
             print("Experiment %d is missing check docs" % args.experiment)
