@@ -13,6 +13,7 @@ from dqn.sp_model import SpModel
 from dqn.agent import Agent
 from dqn.caching_agent import CachingAgent
 from dqn import simple_dqn
+from dqn import simple_with_solver_dqn
 from dqn import inter_scoring_dqn
 from dqn import inter_scoring_cache_dqn
 from dqn import sp_dqn
@@ -74,5 +75,13 @@ if __name__ == '__main__':
             start_episode, total_round, epsilon = config.load_snapshot_metadata(args.episode, agent)
 
             config.start_learning(sock, start_episode, total_round, epsilon, inter_scoring_cache_dqn.play_one_game, agent)
+        elif args.experiment == 6:
+            print("Experiment: %d. Flat NN with solver" % args.experiment)
+
+            model = FlatNnModel(args.episode)
+            agent = Agent(model)
+            start_episode, total_round, epsilon = config.load_snapshot_metadata(args.episode, agent)
+
+            config.start_learning(sock, start_episode, total_round, epsilon, simple_with_solver_dqn.play_one_game, agent)
         else:
             print("Experiment %d is missing check docs" % args.experiment)
