@@ -16,6 +16,7 @@ from dqn import simple_dqn
 from dqn import simple_with_solver_dqn
 from dqn import inter_scoring_dqn
 from dqn import inter_scoring_cache_dqn
+from dqn import simple_episode_espsilon
 from dqn import sp_dqn
 from dqn import config
 
