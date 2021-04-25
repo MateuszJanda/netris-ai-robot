@@ -165,6 +165,15 @@ def save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, mo
             avg_handling_time,
             game_time))
 
+def log_in_stats(text):
+    """
+    Log in stats file.
+    """
+    with open(STATS_FILE, "a") as f:
+        f.write(text)
+
+    print(text)
+
 
 def start_learning(sock, start_episode, total_rounds, epsilon, play_one_game, agent):
     """
