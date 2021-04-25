@@ -83,5 +83,13 @@ if __name__ == '__main__':
             start_episode, total_round, epsilon = config.load_snapshot_metadata(args.episode, agent)
 
             config.start_learning(sock, start_episode, total_round, epsilon, simple_with_solver_dqn.play_one_game, agent)
+        elif args.experiment == 7:
+            config.log_in_stats("Experiment: %d. Flat NN with epsilon calculated after episode" % args.experiment)
+
+            model = FlatNnModel(args.episode)
+            agent = Agent(model)
+            start_episode, total_round, epsilon = config.load_snapshot_metadata(args.episode, agent)
+
+            config.start_learning(sock, start_episode, total_round, epsilon, simple_episode_espsilon.play_one_game, agent)
         else:
             print("Experiment %d is missing, check docs" % args.experiment)
