@@ -16,7 +16,6 @@ from dqn.netris_solver import NetrisSolver
 from dqn import config
 
 
-# Exploration settings - try/explore random action with probability epsilon
 EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random action should be taken
 MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want to check something new
 
@@ -39,7 +38,7 @@ def play_one_game(total_rounds, epsilon, env, agent):
         # Explore other actions with probability epsilon
         r = np.random.random()
         if r < epsilon:
-            if r < EPSILON_RAND:
+            if r < MIN_EPSILON:
                 action = np.random.randint(0, config.ACTION_SPACE_SIZE)
             else:
                 action = solver.action(current_piece, raw_current_state)
