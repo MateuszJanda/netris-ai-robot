@@ -18,6 +18,7 @@ from dqn import config
 
 EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random action should be taken
 MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want to check something new
+RAND_TRESHOLD = 0.005
 
 
 def play_one_game(total_rounds, epsilon, env, agent):
@@ -38,7 +39,7 @@ def play_one_game(total_rounds, epsilon, env, agent):
         # Explore other actions with probability epsilon
         r = np.random.random()
         if r < epsilon:
-            if r < MIN_EPSILON:
+            if r < RAND_TRESHOLD:
                 action = np.random.randint(0, config.ACTION_SPACE_SIZE)
             else:
                 action = solver.action(current_piece, raw_current_state)
