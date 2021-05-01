@@ -36,13 +36,21 @@ def play_one_game(total_rounds, epsilon, env, agent):
     last_round = False
 
     while not last_round:
-        # Learn from solver with probability epsilon
-        if np.random.random() <= epsilon:
-            action = solver.action(current_piece, raw_current_state)
+        # Explore other actions with probability epsilon
+        r = np.random.random()
+        if r < epsilon:
+            if r < EPSILON_RAND:
+                action = np.random.randint(0, config.ACTION_SPACE_SIZE)
+            else:
+                action = solver.action(current_piece, raw_current_state)
         else:
             q_values = agent.q_values_for_state(current_state)
             # Choose best action
             action = np.argmax(q_values)
+
+        if np.isnan(q_values[action]) or np.isinf(q_values[action]):
+            print("Error: Q value = ", q_values[action])
+            exit()
 
         last_round, lines, next_piece, raw_next_state, next_state = env.step(action)
         episode_lines += lines
