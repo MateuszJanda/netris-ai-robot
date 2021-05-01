@@ -170,7 +170,7 @@ def log_in_stats(text):
     Log in stats file.
     """
     with open(STATS_FILE, "a") as f:
-        f.write(text)
+        f.write(text + "\n")
 
     print(text)
 
