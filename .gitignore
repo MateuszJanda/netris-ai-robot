@@ -7,6 +7,11 @@ only_wins_checkpoint/
 tb_logs/
 netris-env
 netris-ai-robot.*
+
 *.h5
 *.pickle
 stats.txt
+
+*.mp4
+tmp_pallete.png
+output.gif
