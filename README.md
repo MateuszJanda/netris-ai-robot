@@ -1,3 +1,9 @@
+# DQN for single tetrimino/piece "O"
+
+<p align="center">
+<img src="./gallery/demo.gif"/>
+</p>
+
 # Setup
 ## Docker setup
 Create docker container
