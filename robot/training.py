@@ -6,7 +6,7 @@ Site: github.com/MateuszJanda/netris-ai-robot
 Ad maiorem Dei gloriam
 """
 
-from robot.envirement import Environment
+from robot.environment.environment import Environment
 from robot import config
 from robot import utils
 import time

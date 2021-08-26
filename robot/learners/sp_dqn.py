@@ -12,7 +12,7 @@ Stevens and Pradhan - Deep Reinforcement Learning
 """
 
 import numpy as np
-from robot.netris_solver import NetrisSolver
+from robot.models.netris_solver import NetrisSolver
 from robot import config
 from robot import utils
 
