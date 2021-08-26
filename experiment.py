@@ -8,17 +8,17 @@ Ad maiorem Dei gloriam
 
 import socket
 import argparse
-from robot.model.flatnn_model import FlatNnModel
-from robot.model.cnn_model import CnnModel
-from robot.model.sp_model import SpModel
-from robot.agent import Agent
-from robot.agent.caching_agent import CachingAgent
-from robot.learner import simple_dqn
-from robot.learner import simple_with_solver_dqn
-from robot.learner import inter_scoring_dqn
-from robot.learner import inter_scoring_cache_dqn
-from robot.learner import simple_episode_espsilon
-from robot.learner import sp_dqn
+from robot.models.flatnn_model import FlatNnModel
+from robot.models.cnn_model import CnnModel
+from robot.models.sp_model import SpModel
+from robot.agents import Agent
+from robot.agents.caching_agent import CachingAgent
+from robot.learners import simple_dqn
+from robot.learners import simple_with_solver_dqn
+from robot.learners import inter_scoring_dqn
+from robot.learners import inter_scoring_cache_dqn
+from robot.learners import simple_episode_espsilon
+from robot.learners import sp_dqn
 from robot import config
 
 
