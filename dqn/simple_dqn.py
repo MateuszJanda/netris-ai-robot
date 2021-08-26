@@ -55,10 +55,10 @@ def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
             agent.update_replay_memory(transition)
             agent.train(last_round)
 
-        current_state = next_state
+            epsilon = adjust_epsilon(epsilon)
 
-        epsilon = adjust_epsilon(epsilon)
         total_rounds += 1
+        current_state = next_state
 
     return total_rounds, episode_reward, episode_lines, epsilon
 

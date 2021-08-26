@@ -21,7 +21,7 @@ MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want t
 UPDATE_MODEL_ROUND = 400
 
 
-def play_one_game(total_rounds, epsilon, env, agent):
+def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
     """
     Play one game.
     """
@@ -37,7 +37,7 @@ def play_one_game(total_rounds, epsilon, env, agent):
 
     while not last_round:
         # Explore other actions with probability epsilon
-        if np.random.random() <= epsilon:
+        if enable_learning and np.random.random() <= epsilon:
             action = np.random.randint(0, config.ACTION_SPACE_SIZE)
         else:
             q_values = agent.q_values_for_state(current_state)
@@ -53,19 +53,19 @@ def play_one_game(total_rounds, epsilon, env, agent):
         episode_reward += reward
 
         # Every step update replay memory and train NN model
-        transition = config.Transition(current_state, action, reward, next_state, last_round)
-        agent.update_replay_memory(transition)
-        agent.train(last_round)
+        if enable_learning:
+            transition = config.Transition(current_state, action, reward, next_state, last_round)
+            agent.update_replay_memory(transition)
+            agent.train(last_round)
 
-        current_state = next_state
-
-        epsilon = adjust_epsilon(epsilon)
+            epsilon = adjust_epsilon(epsilon)
 
         # Update Q' model (this prevent instability when training)
-        if total_rounds % UPDATE_MODEL_ROUND == 0:
+        if enable_learning and total_rounds % UPDATE_MODEL_ROUND == 0:
             agent.update_caching_model()
 
         total_rounds += 1
+        current_state = next_state
 
     return total_rounds, episode_reward, episode_lines, epsilon
 

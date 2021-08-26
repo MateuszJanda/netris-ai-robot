@@ -21,7 +21,7 @@ MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want t
 RAND_TRESHOLD = 0.005
 
 
-def play_one_game(total_rounds, epsilon, env, agent):
+def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
     """
     Play one game.
     """
@@ -38,7 +38,7 @@ def play_one_game(total_rounds, epsilon, env, agent):
     while not last_round:
         # Explore other actions with probability epsilon
         r = np.random.random()
-        if r < epsilon:
+        if enable_learning and r < epsilon:
             if r < RAND_TRESHOLD:
                 action = np.random.randint(0, config.ACTION_SPACE_SIZE)
             else:
@@ -60,15 +60,16 @@ def play_one_game(total_rounds, epsilon, env, agent):
         episode_reward += reward
 
         # Every step update replay memory and train NN model
-        transition = config.Transition(current_state, action, reward, next_state, last_round)
-        agent.update_replay_memory(transition)
-        agent.train(last_round)
+        if enable_learning:
+            transition = config.Transition(current_state, action, reward, next_state, last_round)
+            agent.update_replay_memory(transition)
+            agent.train(last_round)
+            epsilon = adjust_epsilon(epsilon)
 
         current_piece = next_piece
         current_state = next_state
         raw_current_state = raw_next_state
 
-        epsilon = adjust_epsilon(epsilon)
         total_rounds += 1
 
     return total_rounds, episode_reward, episode_lines, epsilon
