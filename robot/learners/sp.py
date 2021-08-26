@@ -13,6 +13,7 @@ Stevens and Pradhan - Deep Reinforcement Learning
 
 import numpy as np
 from robot.models.netris_solver import NetrisSolver
+from robot.models import board_helpers
 from robot import config
 from robot import utils
 
@@ -67,7 +68,7 @@ def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
 
         # Every step update replay memory and train NN model
         if enable_learning:
-            transition = config.Transition(current_state, action, reward, next_state, last_round)
+            transition = utils.Transition(current_state, action, reward, next_state, last_round)
             agent.update_replay_memory(transition)
             agent.train(last_round)
 
@@ -90,8 +91,8 @@ def adjust_score(board, lines):
     """
     Adjust reward - intermediate scoring function.
     """
-    return -0.51 * utils.aggregate_height(board) + 0.76 * lines \
-        - 0.36 * utils.holes(board) - 0.18 * utils.bumpiness(board)
+    return -0.51 * board_helpers.aggregate_height(board) + 0.76 * lines \
+        - 0.36 * board_helpers.holes(board) - 0.18 * board_helpers.bumpiness(board)
 
 
 def adjust_epsilon(epsilon):

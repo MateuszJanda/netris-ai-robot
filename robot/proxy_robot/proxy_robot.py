@@ -8,7 +8,7 @@ Ad maiorem Dei gloriam
 
 import sys
 import asyncio
-from robot.tetris_buffer import TetrisBuffer
+from robot.proxy_robot.tetris_buffer import TetrisBuffer
 from robot import config
 
 

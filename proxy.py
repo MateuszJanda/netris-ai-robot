@@ -13,7 +13,7 @@ import time
 import asyncio
 import datetime
 import argparse
-from robot.proxy_robot import ProxyRobot
+from robot.proxy_robot.proxy_robot import ProxyRobot
 from robot import config
 
 

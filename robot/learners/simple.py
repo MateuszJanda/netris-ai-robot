@@ -13,6 +13,7 @@ Reinforcement learning - Deep Q-Network/Learning.
 
 import numpy as np
 from robot import config
+from robot import utils
 
 
 # Exploration settings - try/explore random action with probability epsilon
@@ -51,7 +52,7 @@ def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
 
         # Every step update replay memory and train NN model
         if enable_learning:
-            transition = config.Transition(current_state, action, reward, next_state, last_round)
+            transition = utils.Transition(current_state, action, reward, next_state, last_round)
             agent.update_replay_memory(transition)
             agent.train(last_round)
 
