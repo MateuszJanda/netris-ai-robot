@@ -81,16 +81,19 @@ def parse_args():
         formatter_class=CustomFormatter)
 
     parser.add_argument('-e', '--load_episode', required=False, action='store', dest='episode',
-                        help='Load data from idicated episode')
+                        help='Load data from idicated episode.')
     parser.add_argument('-x', '--experiment', required=True, action='store', dest='experiment', type=int,
-                        help='Setup experiment')
+                        help='Setup experiment.')
     parser.add_argument('-g', '--gpu', required=False, action='store_true', dest='gpu',
                         help='Use GPU (with fixed memory limit to prevent crashes).')
     parser.add_argument('-p', '--port', required=False, action='store', default=PORT, dest='port',
-                        help='Listen at port')
+                        help='Listen at port.')
+    parser.add_argument('-d', '--disable-learning', required=False, action='store_true', dest='disable_learning',
+                        help='Disable learning. All actions from model without update.')
 
     args = parser.parse_args()
     args.port = int(args.port)
+    args.enable_learning = not args.disable_learning
 
     if args.episode:
         args.episode = int(args.episode)
@@ -165,6 +168,7 @@ def save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, mo
             avg_handling_time,
             game_time))
 
+
 def log_in_stats(text):
     """
     Log in stats file.
@@ -175,14 +179,15 @@ def log_in_stats(text):
     print(text)
 
 
-def start_learning(sock, start_episode, total_rounds, epsilon, play_one_game, agent):
+def start_learning(sock, start_episode, total_rounds, epsilon, play_one_game, agent, enable_learning):
     """
     Learn through episodes.
     """
     env = Environment(sock)
 
     for episode in range(start_episode, EPISODES + 1):
-        total_rounds, episode_reward, episode_lines, epsilon = play_one_game(total_rounds, epsilon, env, agent)
+        total_rounds, episode_reward, episode_lines, epsilon = play_one_game(total_rounds,
+            epsilon, env, agent, enable_learning)
 
         save_snapshot(agent, episode, total_rounds, epsilon, episode_reward, episode_lines)
 
