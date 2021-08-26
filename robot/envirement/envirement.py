@@ -8,7 +8,7 @@ Ad maiorem Dei gloriam
 
 import time
 from robot import config
-from robot.tetris_data import TetrisData
+from robot.envirement.tetris_data import TetrisData
 
 
 BUFFER_SIZE = 1024
