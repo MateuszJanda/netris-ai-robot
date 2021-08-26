@@ -20,7 +20,7 @@ EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random act
 MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want to check something new
 
 
-def play_one_game(total_rounds, epsilon, env, agent):
+def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
     """
     Play one game.
     """
@@ -35,7 +35,7 @@ def play_one_game(total_rounds, epsilon, env, agent):
 
     while not last_round:
         # Explore other actions with probability epsilon
-        if np.random.random() <= epsilon:
+        if enable_learning and np.random.random() <= epsilon:
             action = np.random.randint(0, config.ACTION_SPACE_SIZE)
         else:
             q_values = agent.q_values_for_state(current_state)
@@ -50,15 +50,16 @@ def play_one_game(total_rounds, epsilon, env, agent):
         episode_reward += reward
 
         # Every step update replay memory and train NN model
-        transition = config.Transition(current_state, action, reward, next_state, last_round)
-        agent.update_replay_memory(transition)
-        agent.train(last_round)
+        if enable_learning:
+            transition = config.Transition(current_state, action, reward, next_state, last_round)
+            agent.update_replay_memory(transition)
+            agent.train(last_round)
+
+            epsilon = adjust_epsilon(epsilon)
 
         current_state = next_state
-
         total_rounds += 1
 
-    epsilon = adjust_epsilon(epsilon)
     return total_rounds, episode_reward, episode_lines, epsilon
 
 

@@ -64,6 +64,7 @@ def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
             transition = config.Transition(current_state, action, reward, next_state, last_round)
             agent.update_replay_memory(transition)
             agent.train(last_round)
+
             epsilon = adjust_epsilon(epsilon)
 
         current_piece = next_piece
