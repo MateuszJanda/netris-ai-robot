@@ -7,7 +7,6 @@ Ad maiorem Dei gloriam
 """
 
 import tensorflow as tf
-import argparse
 import socket
 import time
 import pickle
@@ -60,45 +59,6 @@ class Transition:
         self.reward = reward
         self.next_state = next_state
         self.last_round = last_round
-
-
-class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
-    pass
-
-
-def parse_args():
-    """
-    Parse command line arguments.
-    """
-    parser = argparse.ArgumentParser(
-        description='Netris proxy robot for reinforcement learning (DQN)\n'
-                'Mateusz Janda (c) <mateusz janda at gmail com>\n'
-                'netris-ai-robot project github.com/MateuszJanda/netris-ai-robot\n'
-                '\n'
-                'Robot is waiting for connection from Agent at ' + HOST + ':' + str(PORT) + '\n',
-        usage='Please try to use -h, --help for more informations',
-        epilog=' \n',
-        formatter_class=CustomFormatter)
-
-    parser.add_argument('-e', '--load_episode', required=False, action='store', dest='episode',
-                        help='Load data from idicated episode.')
-    parser.add_argument('-x', '--experiment', required=True, action='store', dest='experiment', type=int,
-                        help='Setup experiment.')
-    parser.add_argument('-g', '--gpu', required=False, action='store_true', dest='gpu',
-                        help='Use GPU (with fixed memory limit to prevent crashes).')
-    parser.add_argument('-p', '--port', required=False, action='store', default=PORT, dest='port',
-                        help='Listen at port.')
-    parser.add_argument('-d', '--disable-learning', required=False, action='store_true', dest='disable_learning',
-                        help='Disable learning. All actions from model without update.')
-
-    args = parser.parse_args()
-    args.port = int(args.port)
-    args.enable_learning = not args.disable_learning
-
-    if args.episode:
-        args.episode = int(args.episode)
-
-    return args
 
 
 def set_fixed_memory():
