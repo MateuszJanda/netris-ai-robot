@@ -24,6 +24,7 @@ def start(sock, start_episode, total_rounds, epsilon, play_one_game, agent, enab
 
         utils.save_snapshot(agent, episode, total_rounds, epsilon, episode_reward, episode_lines)
 
+        # Count stats
         game_time = time.time() - env.game_tic
         moves = len(env.handling_time)
         avg_handling_time = sum(env.handling_time) / moves
