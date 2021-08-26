@@ -11,7 +11,7 @@ import argparse
 from robot.models.flatnn_model import FlatNnModel
 from robot.models.cnn_model import CnnModel
 from robot.models.sp_model import SpModel
-from robot.agents import Agent
+from robot.agents.agent import Agent
 from robot.agents.caching_agent import CachingAgent
 from robot.learners import simple_dqn
 from robot.learners import simple_with_solver_dqn

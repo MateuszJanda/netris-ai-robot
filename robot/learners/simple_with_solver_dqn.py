@@ -12,7 +12,7 @@ Reinforcement learning - Deep Q-Network/Learning. Simple flat NN with NetrisSolv
 """
 
 import numpy as np
-from robot.netris_solver import NetrisSolver
+from robot.environment.netris_solver import NetrisSolver
 from robot import config
 
 
