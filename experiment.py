@@ -121,7 +121,7 @@ if __name__ == '__main__':
             agent = Agent(model)
             play_one_game = simple_episode_espsilon.play_one_game
         else:
-            raise Exception("Experiment %d is missing, check docs" % args.experiment)
+            raise Exception("Experiment %d is missing. Please check documentation." % args.experiment)
 
         start_episode, total_round, epsilon = utils.load_snapshot_metadata(args.episode, agent)
         training.start(sock, start_episode, total_round, epsilon, play_one_game, agent, args.enable_learning)
