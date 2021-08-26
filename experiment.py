@@ -124,4 +124,4 @@ if __name__ == '__main__':
             raise Exception("Experiment %d is missing, check docs" % args.experiment)
 
         start_episode, total_round, epsilon = utils.load_snapshot_metadata(args.episode, agent)
-        training.start_learning(sock, start_episode, total_round, epsilon, play_one_game, agent, args.enable_learning)
+        training.start(sock, start_episode, total_round, epsilon, play_one_game, agent, args.enable_learning)

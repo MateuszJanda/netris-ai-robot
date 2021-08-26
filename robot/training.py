@@ -12,9 +12,9 @@ from robot import utils
 import time
 
 
-def start_learning(sock, start_episode, total_rounds, epsilon, play_one_game, agent, enable_learning):
+def start(sock, start_episode, total_rounds, epsilon, play_one_game, agent, enable_learning):
     """
-    Learn through episodes.
+    Start learning through episodes.
     """
     env = Environment(sock)
 
