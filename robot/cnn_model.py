@@ -7,7 +7,7 @@ Ad maiorem Dei gloriam
 """
 
 import tensorflow as tf
-from dqn import config
+from robot import config
 
 
 class CnnModel:

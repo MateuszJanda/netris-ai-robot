@@ -12,8 +12,8 @@ Reinforcement learning - Deep Q-Network/Learning.
 """
 
 import numpy as np
-from dqn import config
-from dqn import utils
+from robot import config
+from robot import utils
 
 
 EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random action should be taken

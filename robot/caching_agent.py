@@ -9,7 +9,7 @@ Ad maiorem Dei gloriam
 import numpy as np
 import random
 from collections import deque
-from dqn import config
+from robot import config
 
 
 class CachingAgent:

@@ -12,7 +12,7 @@ Reinforcement learning - Deep Q-Network/Learning.
 """
 
 import numpy as np
-from dqn import config
+from robot import config
 
 
 # Exploration settings - try/explore random action with probability epsilon

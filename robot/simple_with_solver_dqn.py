@@ -12,8 +12,8 @@ Reinforcement learning - Deep Q-Network/Learning. Simple flat NN with NetrisSolv
 """
 
 import numpy as np
-from dqn.netris_solver import NetrisSolver
-from dqn import config
+from robot.netris_solver import NetrisSolver
+from robot import config
 
 
 EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random action should be taken

@@ -12,9 +12,9 @@ Stevens and Pradhan - Deep Reinforcement Learning
 """
 
 import numpy as np
-from dqn.netris_solver import NetrisSolver
-from dqn import config
-from dqn import utils
+from robot.netris_solver import NetrisSolver
+from robot import config
+from robot import utils
 
 
 EPSILON_DELTA = 9 * 10**-7

@@ -11,7 +11,7 @@ import argparse
 import socket
 import time
 import pickle
-from dqn.envirement import Environment
+from robot.envirement import Environment
 
 # Server settings
 HOST = "127.0.0.1"

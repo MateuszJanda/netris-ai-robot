@@ -7,8 +7,8 @@ Ad maiorem Dei gloriam
 """
 
 import time
-from dqn import config
-from dqn.tetris_data import TetrisData
+from robot import config
+from robot.tetris_data import TetrisData
 
 
 BUFFER_SIZE = 1024

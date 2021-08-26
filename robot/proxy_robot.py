@@ -8,8 +8,8 @@ Ad maiorem Dei gloriam
 
 import sys
 import asyncio
-from dqn.tetris_buffer import TetrisBuffer
-from dqn import config
+from robot.tetris_buffer import TetrisBuffer
+from robot import config
 
 
 class ProxyRobot(asyncio.Protocol):
