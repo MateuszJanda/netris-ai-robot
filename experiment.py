@@ -13,12 +13,12 @@ from robot.models.cnn_model import CnnModel
 from robot.models.sp_model import SpModel
 from robot.agents.agent import Agent
 from robot.agents.caching_agent import CachingAgent
-from robot.learners import simple_dqn
-from robot.learners import simple_with_solver_dqn
-from robot.learners import inter_scoring_dqn
-from robot.learners import inter_scoring_cache_dqn
+from robot.learners import simple
+from robot.learners import simple_with_solver
+from robot.learners import inter_scoring
+from robot.learners import inter_scoring_cache
 from robot.learners import simple_episode_espsilon
-from robot.learners import sp_dqn
+from robot.learners import sp
 from robot import config
 from robot import utils
 from robot import training
@@ -77,43 +77,43 @@ if __name__ == '__main__':
 
             model = FlatNnModel(args.episode)
             agent = Agent(model)
-            play_one_game = simple_dqn.play_one_game
+            play_one_game = simple.play_one_game
         elif args.experiment == 2:
             utils.log_in_stats("Experiment: %d. Convolutional NN." % args.experiment)
 
             model = CnnModel(args.episode)
             agent = Agent(model)
-            play_one_game = simple_dqn.play_one_game
+            play_one_game = simple.play_one_game
         elif args.experiment == 3:
-            assert sp_dqn.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
+            assert sp.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
                 "Caching and training model can't differ when snapshot is saved"
             utils.log_in_stats("Experiment: %d. Stevens and Pradhan robot" % args.experiment)
 
             training_model = SpModel(args.episode)
             caching_model = SpModel(args.episode)
             agent = CachingAgent(training_model, caching_model)
-            play_one_game = sp_dqn.play_one_game
+            play_one_game = sp.play_one_game
         elif args.experiment == 4:
             utils.log_in_stats("Experiment: %d. Flat NN and scoring based on mistakes." % args.experiment)
 
             model = FlatNnModel(args.episode)
             agent = Agent(model)
-            play_one_game = inter_scoring_dqn.play_one_game
+            play_one_game = inter_scoring.play_one_game
         elif args.experiment == 5:
-            assert inter_scoring_cache_dqn.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
+            assert inter_scoring_cache.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
                 "Caching and training model can't differ when snapshot is saved"
             utils.log_in_stats("Experiment: %d. Flat NN with caching and with scoring based on mistakes." % args.experiment)
 
             training_model = FlatNnModel(args.episode)
             caching_model = FlatNnModel(args.episode)
             agent = CachingAgent(training_model, caching_model)
-            play_one_game = inter_scoring_cache_dqn.play_one_game
+            play_one_game = inter_scoring_cache.play_one_game
         elif args.experiment == 6:
             utils.log_in_stats("Experiment: %d. Flat NN with solver" % args.experiment)
 
             model = FlatNnModel(args.episode)
             agent = Agent(model)
-            play_one_game = simple_with_solver_dqn.play_one_game
+            play_one_game = simple_with_solver.play_one_game
         elif args.experiment == 7:
             utils.log_in_stats("Experiment: %d. Flat NN with epsilon calculated after episode" % args.experiment)
 
