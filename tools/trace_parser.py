@@ -453,10 +453,10 @@ class Reader:
 
     def _all_files_in_path(self, dir_path: str) -> List[str]:
         """List all files with .trace extension."""
-        _file_names = []
+        file_names = []
         for r, _, f in os.walk(dir_path):
             for file_name in f:
                 if file_name.endswith(".trace"):
-                    _file_names.append(os.path.join(r, file_name))
+                    file_names.append(os.path.join(r, file_name))
 
-        return sorted(_file_names)
+        return sorted(file_names)
