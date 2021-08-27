@@ -65,6 +65,9 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
 
+    if args.gpu:
+        utils.set_fixed_memory()
+
     if args.experiment == 1:
         utils.log_in_stats("Experiment: %d. Flat NN." % args.experiment)
 
@@ -115,9 +118,6 @@ if __name__ == '__main__':
         play_one_game = simple_episode_espsilon.play_one_game
     else:
         raise Exception("Experiment %d is missing. Please check documentation." % args.experiment)
-
-    if args.gpu:
-        utils.set_fixed_memory()
 
     start_episode, total_round, epsilon = utils.load_snapshot_metadata(args.episode, agent)
     training.start(args.port, start_episode, total_round, epsilon, play_one_game, agent, args.enable_learning)
