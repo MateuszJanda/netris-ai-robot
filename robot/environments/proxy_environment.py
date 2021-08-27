@@ -8,13 +8,13 @@ Ad maiorem Dei gloriam
 
 import time
 from robot import config
-from robot.environment.tetris_data import TetrisData
+from robot.environments.tetris_data import TetrisData
 
 
 BUFFER_SIZE = 1024
 
 
-class Environment:
+class ProxyEnvironment:
     def __init__(self, sock):
         self._sock = sock
         self._conn = None
