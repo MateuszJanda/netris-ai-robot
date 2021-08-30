@@ -44,7 +44,7 @@ def start(args, play_one_game, agent):
 
             utils.save_snapshot(agent, episode, total_rounds, epsilon, episode_reward, episode_lines)
 
-            # Count stats
+            # Calculate stats
             game_time = time.time() - env.game_tic
             moves = len(env.handling_time)
             avg_handling_time = sum(env.handling_time) / moves
