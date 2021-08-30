@@ -13,19 +13,34 @@ from robot import config
 from robot import utils
 
 
-def start(port, start_episode, total_rounds, epsilon, play_one_game, agent, enable_learning):
+def wait_for_connection(sock, port):
+    """
+    Open port for incoming game status.
+    """
+    # Allow port reuse. Useful for testing, when server is killed many times
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind((config.HOST, port))
+    sock.listen()
+    print("Starting server at %s:%d" % (config.HOST, port))
+
+    return sock
+
+
+def start(args, play_one_game, agent):
     """
     Start learning through episodes.
     """
 
+    start_episode, total_rounds, epsilon = utils.load_snapshot_metadata(args.episode, agent)
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        utils.wait_for_connection(sock, port)
+        wait_for_connection(sock, args.port)
 
         env = ProxyEnvironment(sock)
 
         for episode in range(start_episode, config.EPISODES + 1):
             total_rounds, episode_reward, episode_lines, epsilon = play_one_game(total_rounds,
-                epsilon, env, agent, enable_learning)
+                epsilon, env, agent, args.enable_learning)
 
             utils.save_snapshot(agent, episode, total_rounds, epsilon, episode_reward, episode_lines)
 

@@ -32,19 +32,6 @@ def set_fixed_memory():
     tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
 
 
-def wait_for_connection(sock, port):
-    """
-    Open port for incoming game status.
-    """
-    # Allow reuse port. Useful for testing, when server is killed many times
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.bind((config.HOST, port))
-    sock.listen()
-    print("Starting server at %s:%d" % (config.HOST, port))
-
-    return sock
-
-
 def load_snapshot_metadata(episode, agent):
     """
     Load snapshot metadata.
