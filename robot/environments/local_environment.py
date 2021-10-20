@@ -12,89 +12,204 @@ import numpy as np
 from robot import config
 
 
+# Piece index and it representation. Counterclockwise rotation.
+PIECE = {
+    1: [
+        [[0, 0, 0, 0, 1, 1, 1, 1, 0, 0]],
+
+        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]]
+    ],
+    2: [
+        [[0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 1, 1, 0, 0, 0, 0]]
+    ],
+    3: [
+        [[0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 1, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+         [0, 0, 0, 0, 1, 1, 1, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]]
+    ],
+    4: [
+        [[0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+         [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+         [0, 0, 0, 0, 1, 1, 1, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 1, 1, 0, 0, 0, 0]],
+    ],
+    5: [
+        [[0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 1, 1, 1, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]],
+    ],
+    6: [
+        [[0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+         [0, 0, 0, 0, 1, 1, 0, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+         [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]],
+    ],
+    7: [
+        [[0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 1, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]]
+    ]
+}
+
 class LocalEnvironment:
     def __init__(self):
-        self.piece = 0
-        self.shift = 0
-        self.rotate = 0
-        self.points = 0
-
         self._board = None
+        self._piece_index = 0
 
         self._step_tic = time.time()
         self.game_tic = time.time()
         self.handling_time = []
 
     def reset(self):
-        """
-        Reset game, clear board.
-        """
+        """Reset game, clear board."""
+        self.game_tic = time.time()
+        self.handling_time = []
+
         self._board = np.zeros(shape=(config.BOARD_HEIGHT, config.BOARD_WIDTH), dtype=int)
 
         last_round = False
         reward = 0
-        piece = random.randint(1, config.NUM_OF_PIECES + 1)
+        self._piece_index = random.randrange(1, config.NUM_OF_PIECES + 1)
 
         raw_board = (self._board > 0).astype(float)
+        return last_round, reward, self._piece_index, raw_board, self._board_with_flat_piece(self._piece_index)
 
-        return last_round, reward, piece, raw_board, self._merge_piece_with_board(piece, piece)
+    def step(self, action):
+        """Apply action from agent and return current game state."""
+        if action >= config.ACTION_SPACE_SIZE:
+            raise Exception("Action not in action space:", action)
 
-    def _merge_piece_with_board(self, new_piece):
-        """
-        Create board with four blocks representing pieces.
-        """
-        # Normalize board, all blocks are set to 1
+        self._step_tic = time.time()
+
+        last_round, reward = self._apply_action(action)
+
+        self._piece_index = random.randrange(1, config.NUM_OF_PIECES + 1)
+        raw_board = (self._board > 0).astype(float)
+
+        self.handling_time.append(time.time() - self._step_tic)
+        return last_round, reward, self._piece_index, raw_board, self._board_with_flat_piece(self._piece_index)
+
+    def _apply_action(self, action):
+        """Apply agent action."""
+        shift = action % config.BOARD_WIDTH - config.SHFIT_OFFSET
+        rotate = action // config.BOARD_WIDTH
+
+        piece, piece_height = self._position_piece_before_drop(self._piece_index, rotate, shift)
+        self._board = self._board_with_dropped_piece(piece, piece_height)
+
+        reward = self._count_full_lines()
+        self._remove_full_lines()
+
+        return self._is_last_round(), reward
+
+    def _position_piece_before_drop(self, piece_index, rotate, shift):
+        """Position (roate and shift) piece before drop."""
+        piece = np.array(PIECE[piece_index][rotate])
+
+        piece_height = len(PIECE[piece_index][rotate])
+        piece = np.pad(piece, pad_width=[(0,0), (0, config.BOARD_HEIGHT - piece_height)], mode='constant', constant_values=0)
+
+        for _ in range(abs(shift)):
+            if shift < 0:
+                shifted_piece = np.roll(piece, shift=-1)
+            else:
+                shifted_piece = np.roll(piece, shift=1)
+
+            if self._is_collision(shifted_piece):
+                break
+
+            piece = shifted_piece
+
+        return piece, piece_height
+
+    def _board_with_dropped_piece(self, piece, piece_height):
+        """Position piece during drop and return with merged piece."""
+        for _ in range(config.BOARD_HEIGHT - piece_height):
+            dropped_piece = np.roll(piece, shift=1, axis=0)
+
+            if self._is_collision(dropped_piece):
+                break
+
+            piece = dropped_piece
+
+        return self._board + piece
+
+    def _count_full_lines(self):
+        """Count full lines (agent reward)."""
+        return np.sum(np.sum(self._board, axis=1) == config.BOARD_WIDTH)
+
+    def _remove_full_lines(self):
+        """Remove full lines from board."""
+        for y, count in enumerate(np.sum(self._board, axis=1)):
+            if count != config.BOARD_WIDTH:
+                continue
+
+            # Copy previous rows except first
+            self._board[1:y+1] = self._board[:y]
+
+            # Zero out first row
+            self._board[:1] = 0
+
+    def _is_collision(self, piece):
+        """Check for collision with blocks on current board."""
+        return np.any(self._board + piece >= 2)
+
+    def _is_last_round(self):
+        """True if there is any block in first line."""
+        return np.any(self._board[:1])
+
+    def _board_with_flat_piece(self, new_piece_index):
+        """Create board with four blocks representing pieces."""
+        # Normalize board, all blocks are set to 1.0
         out_board = (self._board > 0).astype(float)
 
         # In top row set four middle block as new piece, and erase all others
         for x in range(config.BOARD_WIDTH):
             if 3 < x < 8:
-                out_board[0][x] = new_piece / config.NUM_OF_COLORS
+                out_board[0][x] = new_piece_index / config.NUM_OF_COLORS
             else:
                 out_board[0][x] = config.EMPTY_BLOCK
 
         return out_board
 
-    def step(self, action):
-        """Send action to robot and receive new feedback."""
-        if action >= config.ACTION_SPACE_SIZE:
-            raise Exception("Action not in action space:", action)
-
-        self.handling_time.append(time.time() - self._step_tic)
-        shift = action % config.BOARD_WIDTH - config.SHFIT_OFFSET
-        rotate = action // config.BOARD_WIDTH
-
-        message = str(shift) + ' ' + str(rotate) + '\n'
-        self._conn.sendall(message.encode())
-
-        last_round, reward, piece, raw_board, board = self._update_model()
-
-        return last_round, reward, piece, raw_board, board
-
     def close(self):
         """Only to fulfill API requirements."""
         pass
-
-    def _update_model(self):
-        """Receive data from robot."""
-        if not self._conn:
-            raise Exception('Connection not established')
-
-        # Ensure that new full data is received (single line with \n at the end)
-        while True:
-            self._buffer += self._conn.recv(BUFFER_SIZE)
-
-            if b'\n' in self._buffer:
-                break
-
-        self._step_tic = time.time()
-
-        msg_status = self._buffer[:self._buffer.find(b'\n')]
-        self._buffer = self._buffer[self._buffer.find(b'\n') + 1:]
-
-        # Parse status from robot
-        self._tetris_data.parse(msg_status.decode())
-
-        return self._tetris_data.last_round(), self._tetris_data.reward(), \
-            self._tetris_data.piece(), self._tetris_data.raw_board(), \
-            self._tetris_data.board()

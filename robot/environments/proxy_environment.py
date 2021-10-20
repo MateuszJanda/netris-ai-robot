@@ -33,6 +33,7 @@ class ProxyEnvironment:
         """
         self.game_tic = time.time()
         self.handling_time = []
+
         self._conn, addr = self._sock.accept()
         last_round, reward, piece, raw_board, board = self._update_model()
 

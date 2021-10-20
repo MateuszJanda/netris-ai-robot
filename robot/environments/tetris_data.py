@@ -21,7 +21,7 @@ class TetrisData:
 
     def parse(self, msg):
         """
-        Parse message, extract info about last round, lines cleared, and current
+        Parse message, extract info about last round, cleared lines, and current
         board state.
         """
         last_round, lines_cleared, new_piece, *board = msg.split()
@@ -39,7 +39,7 @@ class TetrisData:
 
     def reward(self):
         """
-        Return reward (lines_cleared)
+        Return reward (cleared lines)
         """
         return self._lines_cleared
 
@@ -53,7 +53,7 @@ class TetrisData:
         """
         Create raw (without merged piece) board.
         """
-        # Normalize board, all blocks are set to 1
+        # Normalize board, all blocks are set to 1.0
         out_board = (self._board > 0).astype(float)
 
         return out_board
@@ -65,7 +65,7 @@ class TetrisData:
         # Normalize board, all blocks are set to 1
         out_board = (self._board > 0).astype(float)
 
-        # In top row set four middle block as new piece, and erase all others
+        # In top row set four middle block as new piece and erase all others
         for x in range(config.BOARD_WIDTH):
             if 3 < x < 8:
                 out_board[0][x] = self._new_piece / config.NUM_OF_COLORS
