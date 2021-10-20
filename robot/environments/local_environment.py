@@ -131,6 +131,7 @@ class LocalEnvironment:
         """Apply agent action."""
         shift = action % config.BOARD_WIDTH - config.SHFIT_OFFSET
         rotate = action // config.BOARD_WIDTH
+        rotate = rotate % len(PIECE[self._piece_index])
 
         piece, piece_height = self._position_piece_before_drop(self._piece_index, rotate, shift)
         self._board = self._board_with_dropped_piece(piece, piece_height)
@@ -145,7 +146,7 @@ class LocalEnvironment:
         piece = np.array(PIECE[piece_index][rotate])
 
         piece_height = len(PIECE[piece_index][rotate])
-        piece = np.pad(piece, pad_width=[(0,0), (0, config.BOARD_HEIGHT - piece_height)], mode='constant', constant_values=0)
+        piece = np.pad(piece, pad_width=[(0, config.BOARD_HEIGHT - piece_height), (0, 0)], mode='constant', constant_values=0)
 
         for _ in range(abs(shift)):
             if shift < 0:
@@ -204,7 +205,7 @@ class LocalEnvironment:
         # In top row set four middle block as new piece, and erase all others
         for x in range(config.BOARD_WIDTH):
             if 3 < x < 8:
-                out_board[0][x] = new_piece_index / config.NUM_OF_COLORS
+                out_board[0][x] = new_piece_index / config.NUM_OF_PIECES
             else:
                 out_board[0][x] = config.EMPTY_BLOCK
 

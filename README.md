@@ -12,7 +12,7 @@ docker run -v $PWD:/tmp -w /tmp --gpus all -it --name tf_netris --network host t
 ```
 
 ## DQN learning setup
-On first terminal run Netris environment server
+On first terminal run Netris (environment) server
 ```bash
 ./netris-env -w -u -i 0.1
 ```

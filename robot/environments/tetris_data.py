@@ -68,7 +68,7 @@ class TetrisData:
         # In top row set four middle block as new piece and erase all others
         for x in range(config.BOARD_WIDTH):
             if 3 < x < 8:
-                out_board[0][x] = self._new_piece / config.NUM_OF_COLORS
+                out_board[0][x] = self._new_piece / config.NUM_OF_PIECES
             else:
                 out_board[0][x] = config.EMPTY_BLOCK
 
