@@ -22,9 +22,9 @@ class ProxyEnvironment:
 
         self._tetris_data = TetrisData()
 
-        self._step_tic = time.time()
+        self._start_tic = time.time()
         self.game_tic = time.time()
-        self.handling_time = []
+        self.handle_times = []
 
     def reset(self):
         """
@@ -32,19 +32,22 @@ class ProxyEnvironment:
         connection with new one.
         """
         self.game_tic = time.time()
-        self.handling_time = []
+        self.handle_times = []
 
         self._conn, addr = self._sock.accept()
         last_round, reward, piece, raw_board, board = self._update_model()
 
+        self._start_tic = time.time()
         return last_round, reward, piece, raw_board, board
 
     def step(self, action):
         """Send action to robot and receive new feedback."""
+        self.handle_times.append(time.time() - self._start_tic)
+        self._start_tic = time.time()
+
         if action >= config.ACTION_SPACE_SIZE:
             raise Exception("Action not in action space:", action)
 
-        self.handling_time.append(time.time() - self._step_tic)
         shift = action % config.BOARD_WIDTH - config.SHFIT_OFFSET
         rotate = action // config.BOARD_WIDTH
 
@@ -71,8 +74,6 @@ class ProxyEnvironment:
 
             if b'\n' in self._buffer:
                 break
-
-        self._step_tic = time.time()
 
         msg_status = self._buffer[:self._buffer.find(b'\n')]
         self._buffer = self._buffer[self._buffer.find(b'\n') + 1:]

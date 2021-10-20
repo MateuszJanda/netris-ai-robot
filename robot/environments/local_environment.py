@@ -94,14 +94,14 @@ class LocalEnvironment:
         self._board = None
         self._piece_index = 0
 
-        self._step_tic = time.time()
         self.game_tic = time.time()
-        self.handling_time = []
+        self._start_tic = time.time()
+        self.handle_times = []
 
     def reset(self):
         """Reset game, clear board."""
         self.game_tic = time.time()
-        self.handling_time = []
+        self.step_times = []
 
         self._board = np.zeros(shape=(config.BOARD_HEIGHT, config.BOARD_WIDTH), dtype=int)
 
@@ -110,21 +110,23 @@ class LocalEnvironment:
         self._piece_index = random.randrange(1, config.NUM_OF_PIECES + 1)
 
         raw_board = (self._board > 0).astype(float)
+
+        self._start_tic = time.time()
         return last_round, reward, self._piece_index, raw_board, self._board_with_flat_piece(self._piece_index)
 
     def step(self, action):
         """Apply action from agent and return current game state."""
+        self.handle_times.append(time.time() - self._start_tic)
+        self._start_tic = time.time()
+
         if action >= config.ACTION_SPACE_SIZE:
             raise Exception("Action not in action space:", action)
-
-        self._step_tic = time.time()
 
         last_round, reward = self._apply_action(action)
 
         self._piece_index = random.randrange(1, config.NUM_OF_PIECES + 1)
         raw_board = (self._board > 0).astype(float)
 
-        self.handling_time.append(time.time() - self._step_tic)
         return last_round, reward, self._piece_index, raw_board, self._board_with_flat_piece(self._piece_index)
 
     def _apply_action(self, action):

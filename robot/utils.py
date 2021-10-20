@@ -58,7 +58,7 @@ def save_snapshot(agent, episode, total_rounds, epsilon, episode_reward, episode
             pickle.dump((total_rounds, epsilon, agent.replay_memory, episode_reward, episode_lines), f)
 
 
-def save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, moves, avg_handling_time, game_time):
+def save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, moves, one_step_time, game_time):
     """
     Log and save statistics.
     """
@@ -66,14 +66,14 @@ def save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, mo
         f.write("Episode: %d, rounds: %d, epsilon: %0.2f, reward: %0.2f, lines: %d, moves: %d\n"
             % (episode, total_rounds, epsilon, episode_reward, episode_lines, moves))
 
-    print("Episode: %d, rounds: %d, epsilon: %0.3f, reward: %0.2f, lines: %d, moves: %d, avg handling time: %0.4f, game time: %0.4f"
+    print("Episode: %d, rounds: %d, epsilon: %0.3f, reward: %0.2f, lines: %d, moves: %d, one step time: %0.4f, game time: %0.4f"
         % (episode,
             total_rounds,
             epsilon,
             episode_reward,
             episode_lines,
             moves,
-            avg_handling_time,
+            one_step_time,
             game_time))
 
 

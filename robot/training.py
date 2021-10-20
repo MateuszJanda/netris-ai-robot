@@ -46,8 +46,8 @@ def start(args, play_one_game, agent):
 
             # Calculate stats
             game_time = time.time() - env.game_tic
-            moves = len(env.handling_time)
-            avg_handling_time = sum(env.handling_time) / moves
-            utils.save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, moves, avg_handling_time, game_time)
+            moves = len(env.handle_times)
+            one_step_time = sum(env.handle_times) / moves
+            utils.save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, moves, one_step_time, game_time)
 
         env.close()
