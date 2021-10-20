@@ -12,8 +12,6 @@ from robot import config
 
 
 class TetrisData:
-    NUM_OF_COLORS = 7
-
     def __init__(self):
         self._last_round = False
         self._lines_cleared = 0
@@ -53,7 +51,7 @@ class TetrisData:
 
     def raw_board(self):
         """
-        Create flat raw (without merged piece) board.
+        Create raw (without merged piece) board.
         """
         # Normalize board, all blocks are set to 1
         out_board = (self._board > 0).astype(float)
@@ -62,15 +60,15 @@ class TetrisData:
 
     def board(self):
         """
-        Create flat board with four blocks representing pieces.
+        Create board with four blocks representing pieces.
         """
         # Normalize board, all blocks are set to 1
         out_board = (self._board > 0).astype(float)
 
-        # In top row set four middle block as new piece, and erase all other
+        # In top row set four middle block as new piece, and erase all others
         for x in range(config.BOARD_WIDTH):
             if 3 < x < 8:
-                out_board[0][x] = self._new_piece / TetrisData.NUM_OF_COLORS
+                out_board[0][x] = self._new_piece / config.NUM_OF_COLORS
             else:
                 out_board[0][x] = config.EMPTY_BLOCK
 

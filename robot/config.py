@@ -13,6 +13,7 @@ PORT = 9800
 # Netris/environment parameters
 BOARD_HEIGHT = 20
 BOARD_WIDTH = 10
+NUM_OF_PIECES = 7
 ACTION_SPACE_SIZE = 4 * 10
 SHFIT_OFFSET = 5
 
