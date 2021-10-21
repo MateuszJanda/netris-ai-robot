@@ -45,7 +45,7 @@ class ProxyEnvironment:
         self.handle_times = []
 
         self._conn, addr = self._sock.accept()
-        last_round, reward, piece_index, raw_board, board = self._update_model()
+        last_round, reward, piece_index, raw_board, board = self._receive_data()
 
         self._start_tic = time.time()
         return last_round, reward, piece_index, raw_board, board
@@ -64,7 +64,7 @@ class ProxyEnvironment:
         message = str(shift) + ' ' + str(rotate) + '\n'
         self._conn.sendall(message.encode())
 
-        last_round, reward, piece_index, raw_board, board = self._update_model()
+        last_round, reward, piece_index, raw_board, board = self._receive_data()
 
         return last_round, reward, piece_index, raw_board, board
 
@@ -73,7 +73,7 @@ class ProxyEnvironment:
         if self._conn:
             self._conn.close()
 
-    def _update_model(self):
+    def _receive_data(self):
         """Receive data from robot."""
         if not self._conn:
             raise Exception('Connection not established')
