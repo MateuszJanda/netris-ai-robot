@@ -13,7 +13,7 @@ from robot import config
 class NetrisSolver:
 
     # Map piece color to his basic block representation
-    PIECE = {
+    INDEX_TO_PIECE = {
         1: [[1, 1, 1],
             [0, 1, 0]],
         2: [[1, 1, 1, 1]],
@@ -48,7 +48,7 @@ class NetrisSolver:
         Choose action from ACTION_SPACE_SIZE.
         """
         best_action = 0
-        piece_blocks = np.array(NetrisSolver.PIECE[piece_index])
+        piece_blocks = np.array(NetrisSolver.INDEX_TO_PIECE[piece_index])
 
         board = board.reshape(config.BOARD_HEIGHT, config.BOARD_WIDTH) > 0
         board = board.astype(int)

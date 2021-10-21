@@ -14,6 +14,16 @@ from robot.environments.tetris_data import TetrisData
 BUFFER_SIZE = 1024
 
 
+def print_board(board, descripiton):
+    """Print current board state. For debug purpose."""
+    print("Board: ", descripiton)
+    for row in board:
+        line = "".join(["1" if b else "0" for b in row])
+        print(line)
+    print('')
+
+
+
 class ProxyEnvironment:
     def __init__(self, sock):
         self._sock = sock
@@ -35,10 +45,10 @@ class ProxyEnvironment:
         self.handle_times = []
 
         self._conn, addr = self._sock.accept()
-        last_round, reward, piece, raw_board, board = self._update_model()
+        last_round, reward, piece_index, raw_board, board = self._update_model()
 
         self._start_tic = time.time()
-        return last_round, reward, piece, raw_board, board
+        return last_round, reward, piece_index, raw_board, board
 
     def step(self, action):
         """Send action to robot and receive new feedback."""
@@ -54,9 +64,9 @@ class ProxyEnvironment:
         message = str(shift) + ' ' + str(rotate) + '\n'
         self._conn.sendall(message.encode())
 
-        last_round, reward, piece, raw_board, board = self._update_model()
+        last_round, reward, piece_index, raw_board, board = self._update_model()
 
-        return last_round, reward, piece, raw_board, board
+        return last_round, reward, piece_index, raw_board, board
 
     def close(self):
         """Close connection with robot."""
@@ -82,5 +92,5 @@ class ProxyEnvironment:
         self._tetris_data.parse(msg_status.decode())
 
         return self._tetris_data.last_round(), self._tetris_data.reward(), \
-            self._tetris_data.piece(), self._tetris_data.raw_board(), \
+            self._tetris_data.piece_index(), self._tetris_data.raw_board(), \
             self._tetris_data.board()

@@ -13,8 +13,23 @@ from robot import config
 
 
 # Piece index and it representation. Counterclockwise rotation.
-PIECE = {
+INDEX_TO_PIECE = {
     1: [
+        [[0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 1, 1, 1, 0, 0, 0]],
+
+        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]],
+    ],
+    2: [
         [[0, 0, 0, 0, 1, 1, 1, 1, 0, 0]],
 
         [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
@@ -22,11 +37,11 @@ PIECE = {
          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]]
     ],
-    2: [
+    3: [
         [[0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
          [0, 0, 0, 0, 1, 1, 0, 0, 0, 0]]
     ],
-    3: [
+    4: [
         [[0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
          [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]],
 
@@ -41,7 +56,7 @@ PIECE = {
          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]]
     ],
-    4: [
+    5: [
         [[0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
          [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]],
 
@@ -55,21 +70,6 @@ PIECE = {
         [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
          [0, 0, 0, 0, 1, 1, 0, 0, 0, 0]],
-    ],
-    5: [
-        [[0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]],
-
-        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]],
-
-        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-         [0, 0, 0, 0, 1, 1, 1, 0, 0, 0]],
-
-        [[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-         [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]],
     ],
     6: [
         [[0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
@@ -132,8 +132,7 @@ class LocalEnvironment:
     def _apply_action(self, action):
         """Apply agent action."""
         shift = action % config.BOARD_WIDTH - config.SHFIT_OFFSET
-        rotate = action // config.BOARD_WIDTH
-        rotate = rotate % len(PIECE[self._piece_index])
+        rotate = (action // config.BOARD_WIDTH) % len(INDEX_TO_PIECE[self._piece_index])
 
         piece, piece_height = self._position_piece_before_drop(self._piece_index, rotate, shift)
         self._board = self._board_with_dropped_piece(piece, piece_height)
@@ -145,9 +144,9 @@ class LocalEnvironment:
 
     def _position_piece_before_drop(self, piece_index, rotate, shift):
         """Position (roate and shift) piece before drop."""
-        piece = np.array(PIECE[piece_index][rotate])
+        piece = np.array(INDEX_TO_PIECE[piece_index][rotate])
 
-        piece_height = len(PIECE[piece_index][rotate])
+        piece_height = len(INDEX_TO_PIECE[piece_index][rotate])
         piece = np.pad(piece, pad_width=[(0, config.BOARD_HEIGHT - piece_height), (0, 0)], mode='constant', constant_values=0)
 
         for _ in range(abs(shift)):
@@ -160,6 +159,9 @@ class LocalEnvironment:
                 break
 
             piece = shifted_piece
+
+            if self._is_touching_wall(piece):
+                break
 
         return piece, piece_height
 
@@ -191,13 +193,17 @@ class LocalEnvironment:
             # Zero out first row
             self._board[:1] = 0
 
+    def _is_touching_wall(self, piece):
+        """Check if piece is touching board walls."""
+        return np.any(piece[:,0]) or np.any(piece[:,-1])
+
     def _is_collision(self, piece):
         """Check for collision with blocks on current board."""
         return np.any(self._board + piece >= 2)
 
     def _is_last_round(self):
         """True if there is any block in first line."""
-        return np.any(self._board[:1])
+        return np.any(self._board[0,:])
 
     def _board_with_flat_piece(self, new_piece_index):
         """Create board with four blocks representing pieces."""
