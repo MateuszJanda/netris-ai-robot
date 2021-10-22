@@ -66,7 +66,7 @@ def save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, mo
         f.write("Episode: %d, rounds: %d, epsilon: %0.2f, reward: %0.2f, lines: %d, moves: %d\n"
             % (episode, total_rounds, epsilon, episode_reward, episode_lines, moves))
 
-    print("Episode: %d, rounds: %d, epsilon: %0.3f, reward: %0.2f, lines: %d, moves: %d, one step time: %0.4f, game time: %0.4f"
+    print("[+] Episode: %d, rounds: %d, epsilon: %0.3f, reward: %0.2f, lines: %d, moves: %d, one step time: %0.4f, game time: %0.4f"
         % (episode,
             total_rounds,
             epsilon,
@@ -84,4 +84,4 @@ def log_in_stats(text):
     with open(config.STATS_FILE, "a") as f:
         f.write(text + "\n")
 
-    print(text)
+    print('[+]' + text)

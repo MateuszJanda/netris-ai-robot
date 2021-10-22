@@ -18,9 +18,9 @@ from robot.strategy import inter_scoring_strategy
 from robot.strategy import inter_scoring_cache_strategy
 from robot.strategy import simple_episode_espsilon_strategy
 from robot.strategy import sp_strategy
+from robot.training import Training
 from robot import config
 from robot import utils
-from robot import training
 
 
 class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
@@ -36,24 +36,25 @@ def parse_args():
                 'Mateusz Janda (c) <mateusz janda at gmail com>\n'
                 'netris-ai-robot project github.com/MateuszJanda/netris-ai-robot\n'
                 '\n'
-                'Robot is waiting for connection from Agent at ' + config.HOST + ':' + str(config.PORT) + '\n',
+                'If -p/--proxy-agent-port is passed robot is waiting for connection\n' +
+                'from proxy agent at ' + config.HOST + ':' + '<PORT>\n',
         usage='Please try to use -h, --help for more informations',
         epilog=' \n',
         formatter_class=CustomFormatter)
 
-    parser.add_argument('-e', '--load_episode', required=False, action='store', dest='episode',
+    parser.add_argument('-e', '--load-episode', required=False, action='store', dest='episode',
                         help='Load data from idicated episode.')
     parser.add_argument('-x', '--experiment', required=True, action='store', dest='experiment', type=int,
                         help='Setup experiment.')
-    parser.add_argument('-g', '--gpu', required=False, action='store_true', dest='gpu',
+    parser.add_argument('-g', '--use-gpu', required=False, action='store_true', dest='use_gpu',
                         help='Use GPU (with fixed memory limit to prevent crashes).')
-    parser.add_argument('-p', '--port', required=False, action='store', default=config.PORT, dest='port',
-                        help='Listen at port.')
+    parser.add_argument('-p', '--proxy-agent-port', required=False, action='store', dest='proxy_agent_port', type=int,
+                        help='Run proxy envirement, and listen at port from proxy agent. If this paramet not passed ' \
+                            'local envirement is used.')
     parser.add_argument('-d', '--disable-learning', required=False, action='store_true', dest='disable_learning',
-                        help='Disable learning. All actions from model without update.')
+                        help='Disable learning. All actions are predicted from model.')
 
     args = parser.parse_args()
-    args.port = int(args.port)
     args.enable_learning = not args.disable_learning
 
     if args.episode:
@@ -65,7 +66,7 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
 
-    if args.gpu:
+    if args.use_gpu:
         utils.set_fixed_memory()
 
     if args.experiment == 1:
@@ -73,13 +74,13 @@ if __name__ == '__main__':
 
         model = FlatNnModel(args.episode)
         agent = Agent(model)
-        play_one_game = simple_strategy.play_one_game
+        play_one_game_func = simple_strategy.play_one_game
     elif args.experiment == 2:
         utils.log_in_stats("Experiment: %d. Convolutional NN." % args.experiment)
 
         model = CnnModel(args.episode)
         agent = Agent(model)
-        play_one_game = simple_strategy.play_one_game
+        play_one_game_func = simple_strategy.play_one_game
     elif args.experiment == 3:
         assert sp_strategy.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
             "Caching and training model can't differ when snapshot is saved"
@@ -88,13 +89,13 @@ if __name__ == '__main__':
         training_model = SpModel(args.episode)
         caching_model = SpModel(args.episode)
         agent = CachingAgent(training_model, caching_model)
-        play_one_game = sp_strategy.play_one_game
+        play_one_game_func = sp_strategy.play_one_game
     elif args.experiment == 4:
         utils.log_in_stats("Experiment: %d. Flat NN and scoring based on mistakes." % args.experiment)
 
         model = FlatNnModel(args.episode)
         agent = Agent(model)
-        play_one_game = inter_scoring_strategy.play_one_game
+        play_one_game_func = inter_scoring_strategy.play_one_game
     elif args.experiment == 5:
         assert inter_scoring_cache_strategy.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
             "Caching and training model can't differ when snapshot is saved"
@@ -103,20 +104,21 @@ if __name__ == '__main__':
         training_model = FlatNnModel(args.episode)
         caching_model = FlatNnModel(args.episode)
         agent = CachingAgent(training_model, caching_model)
-        play_one_game = inter_scoring_cache_strategy.play_one_game
+        play_one_game_func = inter_scoring_cache_strategy.play_one_game
     elif args.experiment == 6:
         utils.log_in_stats("Experiment: %d. Flat NN with solver" % args.experiment)
 
         model = FlatNnModel(args.episode)
         agent = Agent(model)
-        play_one_game = simple_with_solver_strategy.play_one_game
+        play_one_game_func = simple_with_solver_strategy.play_one_game
     elif args.experiment == 7:
         utils.log_in_stats("Experiment: %d. Flat NN with epsilon calculated after episode" % args.experiment)
 
         model = FlatNnModel(args.episode)
         agent = Agent(model)
-        play_one_game = simple_episode_espsilon_strategy.play_one_game
+        play_one_game_func = simple_episode_espsilon_strategy.play_one_game
     else:
         raise Exception("Experiment %d is missing. Please check documentation." % args.experiment)
 
-    training.start(args, play_one_game, agent)
+    training = Training(args, play_one_game_func, agent)
+    training.start()
