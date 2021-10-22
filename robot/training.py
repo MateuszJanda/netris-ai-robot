@@ -20,18 +20,6 @@ class Training:
         self.play_one_game_func = play_one_game_func
         self.agent = agent
 
-    def wait_for_connection(self, sock, port):
-        """
-        Open port for incoming game status.
-        """
-        # Allow port reuse. Useful for testing, when server is killed many times
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind((config.HOST, port))
-        sock.listen()
-        print("[!] Starting server for proxy agent at %s:%d" % (config.HOST, port))
-
-        return sock
-
     def start(self):
         """
         Create environment and start learning.
@@ -43,10 +31,21 @@ class Training:
         else:
             print("[!] Run ProxyEnvironment")
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                self.wait_for_connection(sock, self.args.proxy_agent_port)
+                self._wait_for_connection(sock, self.args.proxy_agent_port)
                 env = ProxyEnvironment(sock)
                 self._start_environment(env)
 
+    def _wait_for_connection(self, sock, port):
+        """
+        Open port for incoming game status.
+        """
+        # Allow port reuse. Useful for testing, when server is killed many times
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind((config.HOST, port))
+        sock.listen()
+        print("[!] Starting server for proxy agent at %s:%d" % (config.HOST, port))
+
+        return sock
 
     def _start_environment(self, env):
         """
