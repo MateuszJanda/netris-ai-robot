@@ -5,6 +5,13 @@
 </p>
 
 # Setup
+## Project setup
+Create Python virtual environment
+```bash
+virtualenv -p python3 venv
+pip install -r requirements.txt
+```
+
 ## Docker setup
 Create docker container
 ```bash
