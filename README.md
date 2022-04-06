@@ -6,16 +6,19 @@
 
 # Setup
 ## Project setup
-Create Python virtual environment
+Download project and create environment
 ```bash
+git clone https://github.com/MateuszJanda/netris-ai-robot.git
+cd netris-ai-robot
 virtualenv -p python3 venv
 pip install -r requirements.txt
+ln -s ~/netris/netris-env
 ```
 
 ## Docker setup
 Create docker container
 ```bash
-docker run -v $PWD:/tmp -w /tmp --gpus all -it --name tf_netris --network host tensorflow/tensorflow:latest-gpu-py3
+docker run -v $PWD:/tmp -w /tmp --gpus all -it --name tf_netris --network host tensorflow/tensorflow:latest-gpu
 ```
 
 ## DQN learning setup
