@@ -27,12 +27,6 @@ def set_fixed_memory():
     Fixed memory limit to prevent crash.
     """
     gpus = tf.config.experimental.list_physical_devices('GPU')
-    # gpus = tf.config.experimental.list_physical_devices()
-    # print(gpus)
-
-    # from tensorflow.python.client import device_lib
-    # print(device_lib.list_local_devices())
-
 
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
