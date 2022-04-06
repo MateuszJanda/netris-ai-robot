@@ -22,28 +22,44 @@ docker run -v $PWD:/tmp -w /tmp --gpus all -it --name tf_netris --network host t
 ```
 
 ## DQN learning setup
-On first terminal run Netris (environment) server
+
+### Learning setup with local (build in) environment
+Use build in *etris game environment.
+```bash
+docker start tf_netris
+docker exec -it tf_netris python experiment.py --experiment 3 --use-gpu --local-env
+```
+### Learning setup with Netris environment
+Netris by default spawn new robot every time game end, so to overcome this we need three elements:
+- game envirement/server - (Netris itself) in this case tuned version for faster learning - `netris-env`
+- proxy robot (`proxy.py` ), a middleware that is run by second Netris client, and translate and pass communication
+between Netris envirement and machine learning code.
+- machine learning code (`experiment.py`)
+
+1. On first terminal run Netris (environment) server
 ```bash
 ./netris-env -w -u -i 0.1
 ```
 
-On second terminal, run DQN agent (with GPU support at guest) in docker
-```bash
-docker start tf_netris
-docker exec -it tf_netris python experiment.py -x 3 -g -p 9800
-```
+2. On second terminal run machine learning code
 
-Alternatively, you can run DQN agent with CPU support (at host)
-```bash
-python experiment.py -x 3 -p 9800
-```
+    1. With GPU support (in guest/container)
+    ```bash
+    docker start tf_netris
+    docker exec -it tf_netris python experiment.py --experiment 3 --use-gpu --proxy-env-port 9800
+    ```
 
-On third terminal, run proxy. Note that interval (`-i`) must match value passed to Netris environment server
+    2. Alternatively, you can run DQN agent with CPU support (at host)
+    ```bash
+    python experiment.py --experiment 3 --proxy-env-port 9800
+    ```
+
+3. On third terminal, run proxy. Note that interval (`-i`) must match value passed to Netris environment server
 ```bash
 ./netris-env -n -m -c localhost -i 0.1 -r 'python proxy.py -t /dev/pts/3 -p 9800'
 ```
 
-## Example
+# Running game with learned robot.
 Learned model, can be used by robot with standard Netris instance
 On first terminal, run game in server mode and wait for **robot**
 ```bash

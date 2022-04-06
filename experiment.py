@@ -36,8 +36,8 @@ def parse_args():
                 'Mateusz Janda (c) <mateusz janda at gmail com>\n'
                 'netris-ai-robot project github.com/MateuszJanda/netris-ai-robot\n'
                 '\n'
-                'If -p/--proxy-agent-port is passed robot is waiting for connection\n' +
-                'from proxy agent at ' + config.HOST + ':' + '<PORT>\n',
+                'If -p/--proxy-env-port is passed robot is waiting for connection\n' +
+                'from proxy envirement at ' + config.HOST + ':' + '<PORT>\n',
         usage='Please try to use -h, --help for more informations',
         epilog=' \n',
         formatter_class=CustomFormatter)
@@ -48,11 +48,15 @@ def parse_args():
                         help='Setup experiment.')
     parser.add_argument('-g', '--use-gpu', required=False, action='store_true', dest='use_gpu',
                         help='Use GPU (with fixed memory limit to prevent crashes).')
-    parser.add_argument('-p', '--proxy-agent-port', required=False, action='store', dest='proxy_agent_port', type=int,
-                        help='Run proxy envirement, and listen at port from proxy agent. If this paramet not passed ' \
-                            'local envirement is used.')
     parser.add_argument('-d', '--disable-learning', required=False, action='store_true', dest='disable_learning',
                         help='Disable learning. All actions are predicted from model.')
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-p', '--proxy-env-port', required=False, action='store', dest='proxy_env_port', type=int,
+                        help='Run proxy envirement, and listen at port from Netris proxy robot. If this paramet not ' \
+                             'passed local envirement is used.')
+    group.add_argument('-l', '--local-env', required=False, action='store_true', dest='local_env',
+                        help='Run local envirement')
 
     args = parser.parse_args()
     args.enable_learning = not args.disable_learning

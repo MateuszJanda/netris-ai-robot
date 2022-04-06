@@ -24,14 +24,14 @@ class Training:
         """
         Create environment and start learning.
         """
-        if self.args.proxy_agent_port is None:
+        if self.args.local_env:
             print("[!] Run LocalEnvironment")
             env = LocalEnvironment()
             self._start_environment(env)
-        else:
+        elif self.args.proxy_env_port:
             print("[!] Run ProxyEnvironment")
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                self._wait_for_connection(sock, self.args.proxy_agent_port)
+                self._wait_for_connection(sock, self.args.proxy_env_port)
                 env = ProxyEnvironment(sock)
                 self._start_environment(env)
 
