@@ -54,9 +54,10 @@ between Netris envirement and machine learning code.
     python experiment.py --experiment 3 --proxy-env-port 9800
     ```
 
-3. On third terminal, run proxy. Note that interval (`-i`) must match value passed to Netris environment server
+3. Run third and fourth (in this case `/dev/pts/3`) terminal for proxy robot and debug logging. Note that interval
+(`-i`) must match value passed to Netris environment server
 ```bash
-./netris-env -n -m -c localhost -i 0.1 -r 'python proxy.py -t /dev/pts/3 -p 9800'
+./netris-env -n -m -c localhost -i 0.1 -r 'python proxy.py --log-in-terminal /dev/pts/3 --port 9800'
 ```
 
 # Running game with learned robot.
