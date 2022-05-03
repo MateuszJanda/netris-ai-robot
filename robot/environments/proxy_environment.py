@@ -76,7 +76,7 @@ class ProxyEnvironment:
     def _receive_data(self):
         """Receive data from robot."""
         if not self._conn:
-            raise Exception('Connection not established')
+            raise Exception("Connection not established")
 
         # Ensure that new full data is received (single line with \n at the end)
         while True:

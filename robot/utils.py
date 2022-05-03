@@ -7,8 +7,6 @@ Ad maiorem Dei gloriam
 """
 
 import tensorflow as tf
-import socket
-import time
 import pickle
 from robot import config
 
@@ -26,7 +24,7 @@ def set_fixed_memory():
     """
     Fixed memory limit to prevent crash.
     """
-    gpus = tf.config.experimental.list_physical_devices('GPU')
+    gpus = tf.config.experimental.list_physical_devices("GPU")
 
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
@@ -50,7 +48,7 @@ def load_snapshot_metadata(episode, agent):
     return start_episode, total_rounds, epsilon
 
 
-def save_snapshot(agent, episode, total_rounds, epsilon, episode_reward, episode_lines):
+def save_snapshot(episode, agent, total_rounds, epsilon, episode_reward, episode_lines):
     """Save snapshot."""
     if episode > 0 and episode % config.SNAPSHOT_MODULO == 0:
         agent.get_tf_model().save(config.MODEL_SNAPSHOT % episode)
@@ -78,6 +76,21 @@ def save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, mo
             game_time))
 
 
+def print_board(episode, env):
+    """Print board from raw_board (flat without piece)."""
+    if episode == 0 or episode % config.PRINT_BOARD_MODULO != 0:
+        return
+
+    print("Board at episode: ", episode)
+    look = ""
+    board = env.raw_board().reshape(config.BOARD_HEIGHT, config.BOARD_WIDTH)
+    for line in board:
+        blocks_line = "".join(["[]" if b else "  " for b in line])
+        look += "|" + blocks_line + "|\n"
+
+    print(look)
+
+
 def log_in_stats(text):
     """
     Log in stats file.
@@ -85,4 +98,4 @@ def log_in_stats(text):
     with open(config.STATS_FILE, "a") as f:
         f.write(text + "\n")
 
-    print('[+]' + text)
+    print("[+]" + text)
