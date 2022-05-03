@@ -32,31 +32,31 @@ def parse_args():
     Parse command line arguments.
     """
     parser = argparse.ArgumentParser(
-        description='Netris proxy robot for reinforcement learning (DQN)\n'
-                'Mateusz Janda (c) <mateusz janda at gmail com>\n'
-                'netris-ai-robot project github.com/MateuszJanda/netris-ai-robot\n'
-                '\n'
-                'If -p/--proxy-env-port is passed robot is waiting for connection\n' +
-                'from proxy envirement at ' + config.HOST + ':' + '<PORT>\n',
-        usage='Please try to use -h, --help for more informations',
-        epilog=' \n',
+        description="Netris proxy robot for reinforcement learning (DQN)\n"
+                "Mateusz Janda (c) <mateusz janda at gmail com>\n"
+                "netris-ai-robot project github.com/MateuszJanda/netris-ai-robot\n"
+                "\n"
+                "If -p/--proxy-env-port is passed robot is waiting for connection\n" +
+                "from proxy envirement at " + config.HOST + ":" + "<PORT>\n",
+        usage="Please try to use -h, --help for more informations",
+        epilog=" \n",
         formatter_class=CustomFormatter)
 
-    parser.add_argument('-e', '--load-episode', required=False, action='store', dest='episode',
-                        help='Load data from idicated episode.')
-    parser.add_argument('-x', '--experiment', required=True, action='store', dest='experiment', type=int,
-                        help='Setup experiment.')
-    parser.add_argument('-g', '--use-gpu', required=False, action='store_true', dest='use_gpu',
-                        help='Use GPU (with fixed memory limit to prevent crashes).')
-    parser.add_argument('-d', '--disable-learning', required=False, action='store_true', dest='disable_learning',
-                        help='Disable learning. All actions are predicted from model.')
+    parser.add_argument("-e", "--load-episode", required=False, action="store", dest="episode",
+                        help="Load data from idicated episode.")
+    parser.add_argument("-x", "--experiment", required=True, action="store", dest="experiment", type=int,
+                        help="Setup experiment.")
+    parser.add_argument("-g", "--use-gpu", required=False, action="store_true", dest="use_gpu",
+                        help="Use GPU (with fixed memory limit to prevent crashes).")
+    parser.add_argument("-d", "--disable-learning", required=False, action="store_true", dest="disable_learning",
+                        help="Disable learning. All actions are predicted from model.")
 
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('-p', '--proxy-env-port', required=False, action='store', dest='proxy_env_port', type=int,
-                        help='Run proxy envirement, and listen at port from Netris proxy robot. If this paramet not ' \
-                             'passed local envirement is used.')
-    group.add_argument('-l', '--local-env', required=False, action='store_true', dest='local_env',
-                        help='Run local envirement')
+    group.add_argument("-p", "--proxy-env-port", required=False, action="store", dest="proxy_env_port", type=int,
+                        help="Run proxy envirement, and listen at port from Netris proxy robot. If this paramet not " \
+                             "passed local envirement is used.")
+    group.add_argument("-l", "--local-env", required=False, action="store_true", dest="local_env",
+                        help="Run local envirement")
 
     args = parser.parse_args()
     args.enable_learning = not args.disable_learning
@@ -67,7 +67,7 @@ def parse_args():
     return args
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = parse_args()
 
     if args.use_gpu:
