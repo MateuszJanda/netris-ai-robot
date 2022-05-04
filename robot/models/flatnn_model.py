@@ -11,6 +11,10 @@ from robot import config
 
 
 class FlatNnModel:
+    """
+    Flat model with small number of layers.
+    """
+
     def __init__(self, episode=None):
         # Build NN model
         if episode:

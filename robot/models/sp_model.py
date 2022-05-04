@@ -11,6 +11,10 @@ from robot import config
 
 
 class SpModel:
+    """
+    Rough Stevens and Pradhan model (I don't know if it is correct).
+    """
+
     def __init__(self, episode=None):
         """
         Build NN model.

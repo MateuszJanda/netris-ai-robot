@@ -24,7 +24,7 @@ RAND_TRESHOLD = 0.005
 
 def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
     """
-    Play one game.
+    Play one game. Scoring: lines with solver support.
     """
     episode_reward = 0
     episode_lines = 0

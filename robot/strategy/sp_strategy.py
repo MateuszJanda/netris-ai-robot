@@ -26,7 +26,7 @@ UPDATE_MODEL_ROUND = 1000
 
 def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
     """
-    Play one game.
+    Play one game. Stevens and Pradhan scoring (based on mistakes).
     """
     episode_reward = 0
     episode_lines = 0

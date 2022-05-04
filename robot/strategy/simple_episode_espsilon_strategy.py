@@ -23,7 +23,7 @@ MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want t
 
 def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
     """
-    Play one game. Epsilon calculated after end of episode.
+    Play one game. Scoring: lines with epsilon calculated after episode.
     """
     episode_reward = 0
     episode_lines = 0

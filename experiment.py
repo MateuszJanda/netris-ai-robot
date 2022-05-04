@@ -75,13 +75,13 @@ if __name__ == "__main__":
         utils.set_fixed_memory()
 
     if args.experiment == 1:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Flat NN.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: FlatNN, scoring: lines.")
 
         model = FlatNnModel(args.episode)
         agent = Agent(model)
         play_one_game_func = simple_strategy.play_one_game
     elif args.experiment == 2:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Convolutional NN.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: ConvolutionalNN, scoring: lines.")
 
         model = CnnModel(args.episode)
         agent = Agent(model)
@@ -89,14 +89,14 @@ if __name__ == "__main__":
     elif args.experiment == 3:
         assert sp_strategy.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
             "Caching and training model can't differ when snapshot is saved"
-        utils.log_in_stats(f"Experiment: {args.experiment}. Stevens and Pradhan robot")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: Stevens and Pradhan, scoring: Stevens and Pradhan.")
 
         training_model = SpModel(args.episode)
         caching_model = SpModel(args.episode)
         agent = CachingAgent(training_model, caching_model)
         play_one_game_func = sp_strategy.play_one_game
     elif args.experiment == 4:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Flat NN and scoring based on mistakes.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: FlatNN, scoring: based on mistakes.")
 
         model = FlatNnModel(args.episode)
         agent = Agent(model)
@@ -104,26 +104,26 @@ if __name__ == "__main__":
     elif args.experiment == 5:
         assert inter_scoring_cache_strategy.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
             "Caching and training model can't differ when snapshot is saved"
-        utils.log_in_stats(f"Experiment: {args.experiment}. Flat NN with caching and with scoring based on mistakes.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: FlatNN, scoring: based on mistakes.")
 
         training_model = FlatNnModel(args.episode)
         caching_model = FlatNnModel(args.episode)
         agent = CachingAgent(training_model, caching_model)
         play_one_game_func = inter_scoring_cache_strategy.play_one_game
     elif args.experiment == 6:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Flat NN with solver")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: FlatNN, scoring: lines with solver support.")
 
         model = FlatNnModel(args.episode)
         agent = Agent(model)
         play_one_game_func = simple_with_solver_strategy.play_one_game
     elif args.experiment == 7:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Flat NN with epsilon calculated after episode")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: FlatNN, scoring: lines with epsilon calculated after episode.")
 
         model = FlatNnModel(args.episode)
         agent = Agent(model)
         play_one_game_func = simple_episode_espsilon_strategy.play_one_game
     elif args.experiment == 8:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Flat2 NN with epsilon calculated after episode")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat2NN, scoring: lines with epsilon calculated after episode.")
 
         model = Flat2NnModel(args.episode)
         agent = Agent(model)

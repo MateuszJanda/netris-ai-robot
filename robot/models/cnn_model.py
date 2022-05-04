@@ -11,6 +11,10 @@ from robot import config
 
 
 class CnnModel:
+    """
+    Model with 2D convolution layers.
+    """
+
     def __init__(self, episode=None):
         if episode:
             self._model = tf.keras.models.load_model(config.MODEL_SNAPSHOT % episode)
@@ -25,7 +29,7 @@ class CnnModel:
         model = tf.keras.models.Sequential()
 
         # Conv2D:
-        # - https://towardsdatascience.com/conv2d-to-finally-understand-what-happens-in-the-forward-pass-1bbaafb0b148e
+        # - https://towardsdatascience.com/conv2d-to-finally-understand-what-happens-in-the-forward-pass-1bbaafb0b148
         # - https://missinglink.ai/guides/tensorflow/tensorflow-conv2d-layers-practical-guide/
         # - https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D#arguments
         #

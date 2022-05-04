@@ -23,7 +23,7 @@ UPDATE_MODEL_ROUND = 400
 
 def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
     """
-    Play one game.
+    Play one game. Scoring based on mistakes (holes, bumpiness).
     """
     episode_reward = 0
     episode_lines = 0

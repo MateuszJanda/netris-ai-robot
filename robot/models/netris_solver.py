@@ -11,6 +11,9 @@ from robot import config
 
 
 class NetrisSolver:
+    """
+    Solver (same as in Netris) for learning support.
+    """
 
     # Map piece color to his basic block representation
     INDEX_TO_PIECE = {
