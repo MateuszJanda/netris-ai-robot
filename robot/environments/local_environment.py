@@ -150,7 +150,7 @@ class LocalEnvironment:
         piece = np.array(INDEX_TO_PIECE[piece_index][rotate])
 
         piece_height = len(INDEX_TO_PIECE[piece_index][rotate])
-        piece = np.pad(piece, pad_width=[(0, config.BOARD_HEIGHT - piece_height), (0, 0)], mode='constant', constant_values=0)
+        piece = np.pad(piece, pad_width=[(0, config.BOARD_HEIGHT - piece_height), (0, 0)], mode="constant", constant_values=0)
 
         for _ in range(abs(shift)):
             if shift < 0:
