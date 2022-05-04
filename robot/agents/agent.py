@@ -13,7 +13,7 @@ from robot import config
 
 
 class Agent:
-    """DQN agent."""
+    """DQN agent with one model for training and prediction."""
 
     def __init__(self, model, episode=None):
         # Build NN model

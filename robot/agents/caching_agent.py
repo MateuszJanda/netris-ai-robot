@@ -13,7 +13,10 @@ from robot import config
 
 
 class CachingAgent:
-    """DQN agent."""
+    """
+    DQN agent with two models, one for training and second for prediction
+    (caching - copied from training model every few episodes).
+    """
 
     def __init__(self, training_model, caching_model, episode=None):
         # Build NN model
