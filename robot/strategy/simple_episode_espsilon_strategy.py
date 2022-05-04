@@ -23,7 +23,7 @@ MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want t
 
 def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
     """
-    Play one game.
+    Play one game. Epsilon calculated after end of episode.
     """
     episode_reward = 0
     episode_lines = 0
@@ -56,11 +56,10 @@ def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
             agent.update_replay_memory(transition)
             agent.train(last_round)
 
-            epsilon = adjust_epsilon(epsilon)
-
-        current_state = next_state
         total_rounds += 1
+        current_state = next_state
 
+    epsilon = adjust_epsilon(epsilon)
     return total_rounds, episode_reward, episode_lines, epsilon
 
 
