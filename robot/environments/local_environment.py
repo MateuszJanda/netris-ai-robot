@@ -90,6 +90,10 @@ INDEX_TO_PIECE = {
 }
 
 class LocalEnvironment:
+    """
+    Local environment with build in *etris logic.
+    """
+
     def __init__(self):
         self._board = None
         self._piece_index = 0
@@ -101,7 +105,6 @@ class LocalEnvironment:
     def reset(self):
         """Reset game, clear board."""
         self.game_tic = time.time()
-        self.step_times = []
 
         self._board = np.zeros(shape=(config.BOARD_HEIGHT, config.BOARD_WIDTH), dtype=int)
 
