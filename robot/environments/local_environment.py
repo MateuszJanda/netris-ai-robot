@@ -219,6 +219,12 @@ class LocalEnvironment:
 
         return out_board
 
+    def raw_board(self):
+        """
+        Return 2D raw board (without piece).
+        """
+        return self._board > 0
+
     def close(self):
         """Only to fulfill API requirements."""
         pass

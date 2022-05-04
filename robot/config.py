@@ -26,7 +26,7 @@ EMPTY_LINE = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 # Snapshot settings
 SNAPSHOT_MODULO = 50
-PRINT_BOARD_MODULO = 100
+PRINT_BOARD_MODULO = 50
 MODEL_SNAPSHOT = "%05d_model.h5"
 DATA_SNAPSHOT = "%05d_data.pickle"
 

@@ -77,15 +77,15 @@ def save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, mo
 
 
 def print_board(episode, env):
-    """Print board from raw_board (flat without piece)."""
+    """Print board from raw_board (without piece)."""
     if episode == 0 or episode % config.PRINT_BOARD_MODULO != 0:
         return
 
-    print("Board at episode: ", episode)
+    print("[i] Board at episode:", episode)
     look = ""
-    board = env.raw_board().reshape(config.BOARD_HEIGHT, config.BOARD_WIDTH)
+    board = env.raw_board()
     for line in board:
-        blocks_line = "".join(["[]" if b else "  " for b in line])
+        blocks_line = "".join(["1" if b else " " for b in line])
         look += "|" + blocks_line + "|\n"
 
     print(look)

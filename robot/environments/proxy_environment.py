@@ -68,11 +68,6 @@ class ProxyEnvironment:
 
         return last_round, reward, piece_index, raw_board, board
 
-    def close(self):
-        """Close connection with robot."""
-        if self._conn:
-            self._conn.close()
-
     def _receive_data(self):
         """Receive data from robot."""
         if not self._conn:
@@ -94,3 +89,14 @@ class ProxyEnvironment:
         return self._tetris_data.last_round(), self._tetris_data.reward(), \
             self._tetris_data.piece_index(), self._tetris_data.raw_board(), \
             self._tetris_data.board()
+
+    def raw_board(self):
+        """
+        Return 2D raw board (without piece).
+        """
+        return self._tetris_data.raw_board()
+
+    def close(self):
+        """Close connection with robot."""
+        if self._conn:
+            self._conn.close()
