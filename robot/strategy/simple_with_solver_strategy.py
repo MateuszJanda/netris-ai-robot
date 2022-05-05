@@ -22,7 +22,7 @@ MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want t
 RAND_TRESHOLD = 0.005
 
 
-def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
+def play_one_game(total_steps, epsilon, env, agent, enable_learning):
     """
     Play one game. Scoring: lines with solver support.
     """
@@ -72,9 +72,9 @@ def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
         current_state = next_state
         raw_current_state = raw_next_state
 
-        total_rounds += 1
+        total_steps += 1
 
-    return total_rounds, episode_reward, episode_lines, epsilon
+    return total_steps, episode_reward, episode_lines, epsilon
 
 
 def adjust_reward(lines):

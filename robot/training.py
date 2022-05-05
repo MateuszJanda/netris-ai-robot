@@ -51,17 +51,17 @@ class Training:
         Start learning through episodes.
         """
         # Load snapshot if available
-        start_episode, total_rounds, epsilon = utils.load_snapshot_metadata(self.args.episode, self.agent)
+        start_episode, total_steps, epsilon = utils.load_snapshot_metadata(self.args.episode, self.agent)
 
         for episode in range(start_episode, config.EPISODES + 1):
-            total_rounds, episode_reward, episode_lines, epsilon = self.play_one_game_func(total_rounds,
+            total_steps, episode_reward, episode_lines, epsilon = self.play_one_game_func(total_steps,
                 epsilon, env, self.agent, self.args.enable_learning)
 
             # Save snapshot if right episode
-            utils.save_snapshot(episode, self.agent, total_rounds, epsilon, episode_reward, episode_lines)
+            utils.save_snapshot(episode, self.agent, total_steps, epsilon, episode_reward, episode_lines)
             # Print board if right episode
             utils.print_board(episode, env)
 
-            utils.save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, env)
+            utils.save_stats(episode, total_steps, epsilon, episode_reward, episode_lines, env)
 
         env.close()

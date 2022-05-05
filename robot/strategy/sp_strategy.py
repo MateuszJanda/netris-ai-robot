@@ -21,10 +21,10 @@ from robot import utils
 EPSILON_DELTA = 9 * 10**-7
 EPSILON_RAND = 0.05
 MIN_EPSILON = 0.1
-UPDATE_MODEL_ROUND = 1000
+UPDATE_MODEL_AT_STEP = 1000
 
 
-def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
+def play_one_game(total_steps, epsilon, env, agent, enable_learning):
     """
     Play one game. Stevens and Pradhan scoring (based on mistakes).
     """
@@ -79,12 +79,12 @@ def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
         raw_current_state = raw_next_state
 
         # Update Q' model (this prevent instability when training)
-        if enable_learning and total_rounds % UPDATE_MODEL_ROUND == 0:
+        if enable_learning and total_steps % UPDATE_MODEL_AT_STEP == 0:
             agent.update_caching_model()
 
-        total_rounds += 1
+        total_steps += 1
 
-    return total_rounds, episode_reward, episode_lines, epsilon
+    return total_steps, episode_reward, episode_lines, epsilon
 
 
 def adjust_score(board, lines):

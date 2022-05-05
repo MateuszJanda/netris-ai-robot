@@ -37,37 +37,37 @@ def load_snapshot_metadata(episode, agent):
     """
     if episode:
         with open(config.DATA_SNAPSHOT % episode, "rb") as f:
-            total_rounds, epsilon, replay_memory, _, _ = pickle.load(f)
+            total_steps, epsilon, replay_memory, _, _ = pickle.load(f)
             agent.load_replay_memory(replay_memory)
         start_episode = episode + 1
     else:
         epsilon = 1
         start_episode = 0
-        total_rounds = 0
+        total_steps = 0
 
-    return start_episode, total_rounds, epsilon
+    return start_episode, total_steps, epsilon
 
 
-def save_snapshot(episode, agent, total_rounds, epsilon, episode_reward, episode_lines):
+def save_snapshot(episode, agent, total_steps, epsilon, episode_reward, episode_lines):
     """Save snapshot."""
     if episode > 0 and episode % config.SNAPSHOT_MODULO == 0:
         agent.get_tf_model().save(config.MODEL_SNAPSHOT % episode)
 
         with open(config.DATA_SNAPSHOT % episode, "wb") as f:
-            pickle.dump((total_rounds, epsilon, agent.replay_memory, episode_reward, episode_lines), f)
+            pickle.dump((total_steps, epsilon, agent.replay_memory, episode_reward, episode_lines), f)
 
 
-def save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, env):
+def save_stats(episode, total_steps, epsilon, episode_reward, episode_lines, env):
     """
     Log and save statistics.
     """
     with open(config.STATS_FILE, "a") as f:
-        f.write(f"Episode: {episode}, rounds: {total_rounds}, epsilon: {epsilon: %0.2f}, " \
-                f"reward: {episode_reward: %0.2f}, lines: {episode_lines}, moves: {env.num_of_steps()}\n")
+        f.write(f"Episode: {episode}, steps: {total_steps}, epsilon: {epsilon: 0.2f}, " \
+                f"reward: {episode_reward: 0.2f}, lines: {episode_lines}, moves: {env.num_of_steps()}\n")
 
-    print(f"[+] Episode: {episode}, rounds: {total_rounds}, epsilon: {epsilon: %0.3f}, " \
-          f"reward: {episode_reward: %0.2f}, lines: {episode_lines}, moves: {env.num_of_steps()}, " \
-          f"step duration: {env.step_duration(): %0.4f}, game duration: {env.game_duration(): %0.4f}")
+    print(f"[+] Episode: {episode}, steps: {total_steps}, epsilon: {epsilon:0.3f}, " \
+          f"reward: {episode_reward:0.2f}, lines: {episode_lines}, moves: {env.num_of_steps()}, " \
+          f"step duration: {env.step_duration():0.4f}, game duration: {env.game_duration():0.4f}")
 
 
 def print_board(episode, env):

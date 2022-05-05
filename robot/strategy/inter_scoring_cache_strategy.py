@@ -18,10 +18,10 @@ from robot import utils
 
 EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random action should be taken
 MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want to check something new
-UPDATE_MODEL_ROUND = 400
+UPDATE_MODEL_AT_STEP = 400
 
 
-def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
+def play_one_game(total_steps, epsilon, env, agent, enable_learning):
     """
     Play one game. Scoring based on mistakes (holes, bumpiness).
     """
@@ -61,13 +61,13 @@ def play_one_game(total_rounds, epsilon, env, agent, enable_learning):
             epsilon = adjust_epsilon(epsilon)
 
         # Update Q' model (this prevent instability when training)
-        if enable_learning and total_rounds % UPDATE_MODEL_ROUND == 0:
+        if enable_learning and total_steps % UPDATE_MODEL_AT_STEP == 0:
             agent.update_caching_model()
 
-        total_rounds += 1
+        total_steps += 1
         current_state = next_state
 
-    return total_rounds, episode_reward, episode_lines, epsilon
+    return total_steps, episode_reward, episode_lines, epsilon
 
 
 def adjust_reward(board, prev_lines, lines):
