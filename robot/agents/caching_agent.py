@@ -6,9 +6,9 @@ Site: github.com/MateuszJanda/netris-ai-robot
 Ad maiorem Dei gloriam
 """
 
-import numpy as np
 import random
 from collections import deque
+import numpy as np
 from robot import config
 
 

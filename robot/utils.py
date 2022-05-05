@@ -6,8 +6,8 @@ Site: github.com/MateuszJanda/netris-ai-robot
 Ad maiorem Dei gloriam
 """
 
-import tensorflow as tf
 import pickle
+import tensorflow as tf
 from robot import config
 
 
