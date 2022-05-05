@@ -62,10 +62,10 @@ def save_stats(episode, total_steps, epsilon, episode_reward, episode_lines, env
     Log and save statistics.
     """
     with open(config.STATS_FILE, "a") as f:
-        f.write(f"Episode: {episode}, total_steps: {total_steps}, epsilon: {epsilon: 0.2f}, " \
+        f.write(f"Episode: {episode}, total steps: {total_steps}, epsilon: {epsilon: 0.2f}, " \
                 f"reward: {episode_reward: 0.2f}, lines: {episode_lines}, steps: {env.num_of_steps()}\n")
 
-    print(f"[+] Episode: {episode}, total_steps: {total_steps}, epsilon: {epsilon:0.3f}, " \
+    print(f"[+] Episode: {episode}, total steps: {total_steps}, epsilon: {epsilon:0.3f}, " \
           f"reward: {episode_reward:0.2f}, lines: {episode_lines}, steps: {env.num_of_steps()}, " \
           f"step duration: {env.step_duration():0.4f}, game duration: {env.game_duration():0.4f}")
 
