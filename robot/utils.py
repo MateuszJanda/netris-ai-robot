@@ -57,23 +57,17 @@ def save_snapshot(episode, agent, total_rounds, epsilon, episode_reward, episode
             pickle.dump((total_rounds, epsilon, agent.replay_memory, episode_reward, episode_lines), f)
 
 
-def save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, moves, one_step_time, game_time):
+def save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, env):
     """
     Log and save statistics.
     """
     with open(config.STATS_FILE, "a") as f:
-        f.write("Episode: %d, rounds: %d, epsilon: %0.2f, reward: %0.2f, lines: %d, moves: %d\n"
-            % (episode, total_rounds, epsilon, episode_reward, episode_lines, moves))
+        f.write(f"Episode: {episode}, rounds: {total_rounds}, epsilon: {epsilon: %0.2f}, " \
+                f"reward: {episode_reward: %0.2f}, lines: {episode_lines}, moves: {env.num_of_steps()}\n")
 
-    print("[+] Episode: %d, rounds: %d, epsilon: %0.3f, reward: %0.2f, lines: %d, moves: %d, one step time: %0.4f, game time: %0.4f"
-        % (episode,
-            total_rounds,
-            epsilon,
-            episode_reward,
-            episode_lines,
-            moves,
-            one_step_time,
-            game_time))
+    print(f"[+] Episode: {episode}, rounds: {total_rounds}, epsilon: {epsilon: %0.3f}, " \
+          f"reward: {episode_reward: %0.2f}, lines: {episode_lines}, moves: {env.num_of_steps()}, " \
+          f"step duration: {env.step_duration(): %0.4f}, game duration: {env.game_duration(): %0.4f}")
 
 
 def print_board(episode, env):

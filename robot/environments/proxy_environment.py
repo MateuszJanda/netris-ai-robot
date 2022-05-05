@@ -33,18 +33,18 @@ class ProxyEnvironment:
         self._tetris_data = TetrisData()
 
         self._start_tic = time.time()
-        self.game_tic = time.time()
-        self.handle_times = []
+        self._game_tic = time.time()
+        self._handle_times = []
 
     def reset(self):
         """
         Reset game. Close connection with old robot and establish
         connection with new one.
         """
-        self.game_tic = time.time()
-        self.handle_times = []
+        self._game_tic = time.time()
+        self._handle_times = []
 
-        self._conn, addr = self._sock.accept()
+        self._conn, _ = self._sock.accept()
         last_round, reward, piece_index, raw_board, board = self._receive_data()
 
         self._start_tic = time.time()
@@ -52,7 +52,7 @@ class ProxyEnvironment:
 
     def step(self, action):
         """Send action to robot and receive new feedback."""
-        self.handle_times.append(time.time() - self._start_tic)
+        self._handle_times.append(time.time() - self._start_tic)
         self._start_tic = time.time()
 
         if action >= config.ACTION_SPACE_SIZE:
@@ -95,6 +95,18 @@ class ProxyEnvironment:
         Return 2D raw board (without piece).
         """
         return self._tetris_data.raw_board()
+
+    def num_of_steps(self):
+        """Return current numer of steps (pieces)."""
+        return len(self._handle_times)
+
+    def game_duration(self):
+        """Return current game duration."""
+        return time.time() - self._game_tic
+
+    def step_duration(self):
+        """Return one step duration."""
+        return sum(self._handle_times) / len(self._handle_times)
 
     def close(self):
         """Close connection with robot."""

@@ -7,7 +7,6 @@ Ad maiorem Dei gloriam
 """
 
 import socket
-import time
 from robot.environments.proxy_environment import ProxyEnvironment
 from robot.environments.local_environment import LocalEnvironment
 from robot import config
@@ -63,10 +62,6 @@ class Training:
             # Print board if right episode
             utils.print_board(episode, env)
 
-            # Calculate stats
-            game_time = time.time() - env.game_tic
-            moves = len(env.handle_times)
-            one_step_time = sum(env.handle_times) / moves
-            utils.save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, moves, one_step_time, game_time)
+            utils.save_stats(episode, total_rounds, epsilon, episode_reward, episode_lines, env)
 
         env.close()

@@ -98,13 +98,14 @@ class LocalEnvironment:
         self._board = None
         self._piece_index = 0
 
-        self.game_tic = time.time()
+        self._game_tic = time.time()
         self._start_tic = time.time()
-        self.handle_times = []
+        self._handle_times = []
 
     def reset(self):
         """Reset game, clear board."""
-        self.game_tic = time.time()
+        self._game_tic = time.time()
+        self._handle_times = []
 
         self._board = np.zeros(shape=(config.BOARD_HEIGHT, config.BOARD_WIDTH), dtype=int)
 
@@ -119,7 +120,7 @@ class LocalEnvironment:
 
     def step(self, action):
         """Apply action from agent and return current game state."""
-        self.handle_times.append(time.time() - self._start_tic)
+        self._handle_times.append(time.time() - self._start_tic)
         self._start_tic = time.time()
 
         if action >= config.ACTION_SPACE_SIZE:
@@ -227,6 +228,18 @@ class LocalEnvironment:
         Return 2D raw board (without piece).
         """
         return self._board > 0
+
+    def num_of_steps(self):
+        """Return current numer of steps (pieces)."""
+        return len(self._handle_times)
+
+    def game_duration(self):
+        """Return current game duration."""
+        return time.time() - self._game_tic
+
+    def step_duration(self):
+        """Return one step duration."""
+        return sum(self._handle_times) / len(self._handle_times)
 
     def close(self):
         """Only to fulfill API requirements."""
