@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+# Author: Mateusz Janda <mateusz janda at gmail com>
+# Site: github.com/MateuszJanda/netris-ai-robot
+# Ad maiorem Dei gloriam
+
 """
-Author: Mateusz Janda <mateusz janda at gmail com>
-Site: github.com/MateuszJanda/netris-ai-robot
-Ad maiorem Dei gloriam
+Main reinforcement learning (DQN) for experiments.
 """
 
 import argparse

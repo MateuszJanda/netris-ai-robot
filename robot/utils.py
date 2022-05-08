@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+# Author: Mateusz Janda <mateusz janda at gmail com>
+# Site: github.com/MateuszJanda/netris-ai-robot
+# Ad maiorem Dei gloriam
+
 """
-Author: Mateusz Janda <mateusz janda at gmail com>
-Site: github.com/MateuszJanda/netris-ai-robot
-Ad maiorem Dei gloriam
+Utils.
 """
 
 import pickle
@@ -12,6 +14,10 @@ from robot import config
 
 
 class Transition:
+    """
+    State dane.
+    """
+
     def __init__(self, current_state, action, reward, next_state, last_round):
         self.current_state = current_state
         self.action = action

@@ -1,10 +1,8 @@
 #! /usr/bin/env python3
 
-"""
-Author: Mateusz Janda <mateusz janda at gmail com>
-Site: github.com/MateuszJanda/netris-ai-robot
-Ad maiorem Dei gloriam
-"""
+# Author: Mateusz Janda <mateusz janda at gmail com>
+# Site: github.com/MateuszJanda/netris-ai-robot
+# Ad maiorem Dei gloriam
 
 
 import numpy as np
@@ -12,6 +10,10 @@ from robot import config
 
 
 class TetrisData:
+    """
+    Current game state data.
+    """
+
     def __init__(self):
         self._last_round = False
         self._lines_cleared = 0
