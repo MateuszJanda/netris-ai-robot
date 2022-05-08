@@ -128,6 +128,12 @@ if __name__ == "__main__":
         model = Flat2NnModel(args.episode)
         agent = Agent(model)
         play_one_game_func = simple_episode_espsilon_strategy.play_one_game
+    elif args.experiment == 9:
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat2NN, scoring: lines with solver support.")
+
+        model = Flat2NnModel(args.episode)
+        agent = Agent(model)
+        play_one_game_func = simple_with_solver_strategy.play_one_game
     else:
         raise Exception(f"Experiment {args.experiment} is missing. Please check documentation.")
 
