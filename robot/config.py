@@ -44,6 +44,7 @@ EPISODES = 50_000                             # Episodes == full games
 
 
 # Custom reward settings
+MAX_LINES_IN_EPISODE = 100
 MAX_PIECE_HEIGHT = 4
 MAX_ALLOWED_GAPS = 5
 MAX_CLEARED_LINES = 4

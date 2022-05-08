@@ -34,7 +34,7 @@ def play_one_game(total_steps, epsilon, env, agent, enable_learning):
     # Reset flag and start iterating until episode ends
     last_round = False
 
-    while not last_round:
+    while not last_round and episode_lines < config.MAX_LINES_IN_EPISODE:
         # Explore other actions with probability epsilon
         r = np.random.random()
         if enable_learning and r < epsilon:
