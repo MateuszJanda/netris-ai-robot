@@ -11,6 +11,7 @@ Main reinforcement learning (DQN) for experiments.
 import argparse
 from robot.models.flatnn_model import FlatNnModel
 from robot.models.flat2nn_model import Flat2NnModel
+from robot.models.flat3nn_model import Flat3NnModel
 from robot.models.cnn_model import CnnModel
 from robot.models.sp_model import SpModel
 from robot.agents.agent import Agent
@@ -134,6 +135,12 @@ if __name__ == "__main__":
         utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat2NN, scoring: lines with solver support.")
 
         model = Flat2NnModel(args.episode)
+        agent = Agent(model)
+        play_one_game_func = simple_with_solver_strategy.play_one_game
+    elif args.experiment == 10:
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat3NN, scoring: lines with solver support.")
+
+        model = Flat3NnModel(args.episode)
         agent = Agent(model)
         play_one_game_func = simple_with_solver_strategy.play_one_game
     else:
