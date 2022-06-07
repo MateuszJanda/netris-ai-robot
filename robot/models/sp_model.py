@@ -47,7 +47,7 @@ class SpModel:
         model.add(tf.keras.layers.Dense(units=config.ACTION_SPACE_SIZE, activation='linear'))
 
         # Compile model
-        model.compile(optimizer=tf.keras.optimizers.RMSprop(lr=0.001), loss='mse',
+        model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=0.001), loss='mse',
             metrics=['accuracy'])
 
         return model
