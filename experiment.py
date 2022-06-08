@@ -21,6 +21,7 @@ import robot.strategy.simple_with_solver_strategy as simple_with_solver_strategy
 import robot.strategy.inter_scoring_strategy as inter_scoring_strategy
 import robot.strategy.inter_scoring_cache_strategy as inter_scoring_cache_strategy
 import robot.strategy.simple_episode_espsilon_strategy as simple_episode_espsilon_strategy
+import robot.strategy.simple_episode_espsilon_with_solver_strategy as simple_episode_espsilon_with_solver_strategy
 import robot.strategy.sp_strategy as sp_strategy
 from robot.training import Training
 from robot import config
@@ -149,6 +150,12 @@ if __name__ == "__main__":
         model = Flat3NnModel(args.episode)
         agent = Agent(model)
         strategy = simple_strategy.SimpleStrategy()
+    elif args.experiment == 12:
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat2NN, scoring: lines with solver support and epsilon calculated after episode.")
+
+        model = Flat2NnModel(args.episode)
+        agent = Agent(model)
+        strategy = simple_episode_espsilon_with_solver_strategy.SimpleEpisodeEpsiloneWithSolverStrategy()
     else:
         raise Exception(f"Experiment {args.experiment} is missing. Please check documentation.")
 
