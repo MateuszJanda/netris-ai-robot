@@ -143,6 +143,12 @@ if __name__ == "__main__":
         model = Flat3NnModel(args.episode)
         agent = Agent(model)
         play_one_game_func = simple_with_solver_strategy.play_one_game
+    elif args.experiment == 11:
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat3NN, scoring: lines.")
+
+        model = Flat3NnModel(args.episode)
+        agent = Agent(model)
+        play_one_game_func = simple_strategy.play_one_game
     else:
         raise Exception(f"Experiment {args.experiment} is missing. Please check documentation.")
 
