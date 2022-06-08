@@ -6,10 +6,12 @@
 
 
 """
-Reinforcement learning - Deep Q-Network/Learning.
+Reinforcement learning - Deep Q-Network/Learning. Simple strategy (reward based
+on cleared lines) with solver and episilon calculated at the end of episode.
 """
 
 import numpy as np
+from robot.models.netris_solver import NetrisSolver
 from robot import config
 from robot import utils
 
@@ -17,6 +19,7 @@ from robot import utils
 # Exploration settings - try/explore random action with probability epsilon
 EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random action should be taken
 MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want to check something new
+RAND_TRESHOLD = 0.005
 
 
 class SimpleEpisodeEpsiloneWithSolverStrategy:
@@ -25,33 +28,44 @@ class SimpleEpisodeEpsiloneWithSolverStrategy:
     calculated at the end of episode.
     """
 
-    def __init__(self, epsilon_decay=EPSILON_DECAY, min_epsilon=MIN_EPSILON):
+    def __init__(self, epsilon_decay=EPSILON_DECAY, min_epsilon=MIN_EPSILON,
+                 random_treshold=RAND_TRESHOLD):
         self._epsilon_decay = epsilon_decay
         self._min_epsilon = min_epsilon
+        self._random_treshold = random_treshold
 
     def play(self, total_steps, epsilon, env, agent, enable_learning):
         """
-        Play one game. Scoring: lines with epsilon calculated after episode.
+        Play one game. Scoring: lines with solver support.
         """
         episode_reward = 0
         episode_lines = 0
+        solver = NetrisSolver()
 
         # Reset environment and get initial state
-        _, _, _, _, current_state = env.reset()
+        _, _, current_piece, raw_current_state, current_state = env.reset()
 
         # Reset flag and start iterating until episode ends
         last_round = False
 
-        while not last_round:
+        while not last_round and episode_lines < config.MAX_LINES_IN_EPISODE:
             # Explore other actions with probability epsilon
-            if enable_learning and np.random.random() <= epsilon:
-                action = np.random.randint(0, config.ACTION_SPACE_SIZE)
+            r = np.random.random()
+            if enable_learning and r < epsilon:
+                if r < self._random_treshold:
+                    action = np.random.randint(0, config.ACTION_SPACE_SIZE)
+                else:
+                    action = solver.action(current_piece, raw_current_state)
             else:
                 q_values = agent.q_values_for_state(current_state)
                 # Choose best action
                 action = np.argmax(q_values)
 
-            last_round, lines, _, _, next_state = env.step(action)
+                if np.isnan(q_values[action]) or np.isinf(q_values[action]):
+                    print("Error: Q value = ", q_values[action])
+                    exit()
+
+            last_round, lines, next_piece, raw_next_state, next_state = env.step(action)
             episode_lines += lines
 
             # Transform new continuous state to new discrete state and count reward
@@ -64,8 +78,11 @@ class SimpleEpisodeEpsiloneWithSolverStrategy:
                 agent.update_replay_memory(transition)
                 agent.train(last_round)
 
-            total_steps += 1
+            current_piece = next_piece
             current_state = next_state
+            raw_current_state = raw_next_state
+
+            total_steps += 1
 
         epsilon = self._adjust_epsilon(epsilon)
         return total_steps, episode_reward, episode_lines, epsilon

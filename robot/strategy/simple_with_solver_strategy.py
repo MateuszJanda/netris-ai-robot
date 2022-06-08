@@ -6,7 +6,8 @@
 
 
 """
-Reinforcement learning - Deep Q-Network/Learning. Simple flat NN with NetrisSolver.
+Reinforcement learning - Deep Q-Network/Learning. Simple strategy (reward based
+on cleared lines) with solver.
 """
 
 import numpy as np
