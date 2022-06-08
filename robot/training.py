@@ -20,9 +20,9 @@ class Training:
     Class is responsible for environment setup and starting training.
     """
 
-    def __init__(self, args, play_one_game_func, agent) -> None:
+    def __init__(self, args, strategy, agent):
         self._args = args
-        self._play_one_game_func = play_one_game_func
+        self._strategy = strategy
         self._agent = agent
 
     def start(self):
@@ -60,7 +60,7 @@ class Training:
         start_episode, total_steps, epsilon = utils.load_snapshot_metadata(self._args.episode, self._agent)
 
         for episode in range(start_episode, config.EPISODES + 1):
-            total_steps, episode_reward, episode_lines, epsilon = self._play_one_game_func(total_steps,
+            total_steps, episode_reward, episode_lines, epsilon = self._strategy.play(total_steps,
                 epsilon, env, self._agent, self._args.enable_learning)
 
             # Save snapshot if right episode

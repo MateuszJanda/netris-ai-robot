@@ -19,60 +19,65 @@ EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random act
 MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want to check something new
 
 
-def play_one_game(total_steps, epsilon, env, agent, enable_learning):
-    """
-    Play one game. Scoring: lines with epsilon calculated after episode.
-    """
-    episode_reward = 0
-    episode_lines = 0
+class SimpleEpisodeEpsilonStrategy:
+    """Simple episode epsilon strategy."""
 
-    # Reset environment and get initial state
-    _, _, _, _, current_state = env.reset()
+    def __init__(self, epsilon_decay=EPSILON_DECAY, min_epsilon=MIN_EPSILON):
+        self._epsilon_decay = epsilon_decay
+        self._min_epsilon = min_epsilon
 
-    # Reset flag and start iterating until episode ends
-    last_round = False
+    def play(self, total_steps, epsilon, env, agent, enable_learning):
+        """
+        Play one game. Scoring: lines with epsilon calculated after episode.
+        """
+        episode_reward = 0
+        episode_lines = 0
 
-    while not last_round:
-        # Explore other actions with probability epsilon
-        if enable_learning and np.random.random() <= epsilon:
-            action = np.random.randint(0, config.ACTION_SPACE_SIZE)
-        else:
-            q_values = agent.q_values_for_state(current_state)
-            # Choose best action
-            action = np.argmax(q_values)
+        # Reset environment and get initial state
+        _, _, _, _, current_state = env.reset()
 
-        last_round, lines, _, _, next_state = env.step(action)
-        episode_lines += lines
+        # Reset flag and start iterating until episode ends
+        last_round = False
 
-        # Transform new continuous state to new discrete state and count reward
-        reward = adjust_reward(lines)
-        episode_reward += reward
+        while not last_round:
+            # Explore other actions with probability epsilon
+            if enable_learning and np.random.random() <= epsilon:
+                action = np.random.randint(0, config.ACTION_SPACE_SIZE)
+            else:
+                q_values = agent.q_values_for_state(current_state)
+                # Choose best action
+                action = np.argmax(q_values)
 
-        # Every step update replay memory and train NN model
-        if enable_learning:
-            transition = utils.Transition(current_state, action, reward, next_state, last_round)
-            agent.update_replay_memory(transition)
-            agent.train(last_round)
+            last_round, lines, _, _, next_state = env.step(action)
+            episode_lines += lines
 
-        total_steps += 1
-        current_state = next_state
+            # Transform new continuous state to new discrete state and count reward
+            reward = self._adjust_reward(lines)
+            episode_reward += reward
 
-    epsilon = adjust_epsilon(epsilon)
-    return total_steps, episode_reward, episode_lines, epsilon
+            # Every step update replay memory and train NN model
+            if enable_learning:
+                transition = utils.Transition(current_state, action, reward, next_state, last_round)
+                agent.update_replay_memory(transition)
+                agent.train(last_round)
 
+            total_steps += 1
+            current_state = next_state
 
-def adjust_reward(lines):
-    """
-    Adjust reward - lines_cleared**2
-    """
-    return lines**2
+        epsilon = self._adjust_epsilon(epsilon)
+        return total_steps, episode_reward, episode_lines, epsilon
 
+    def _adjust_reward(self, lines):
+        """
+        Adjust reward - lines_cleared**2
+        """
+        return lines**2
 
-def adjust_epsilon(epsilon):
-    """
-    Decay epsilon.
-    """
-    if epsilon > MIN_EPSILON:
-        epsilon = epsilon * EPSILON_DECAY
+    def _adjust_epsilon(self, epsilon):
+        """
+        Decay epsilon.
+        """
+        if epsilon > self._min_epsilon:
+            epsilon = epsilon * self._epsilon_decay
 
-    return epsilon
+        return epsilon
