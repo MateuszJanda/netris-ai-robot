@@ -98,4 +98,4 @@ def log_in_stats(text):
     with open(config.STATS_FILE, "a") as f:
         f.write(text + "\n")
 
-    print("[+]" + text)
+    print("[+] " + text)

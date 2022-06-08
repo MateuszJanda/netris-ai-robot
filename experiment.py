@@ -151,9 +151,9 @@ if __name__ == "__main__":
         agent = Agent(model)
         strategy = simple_strategy.SimpleStrategy()
     elif args.experiment == 12:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat2NN, scoring: lines with solver support and epsilon calculated after episode.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat3NN, scoring: lines with solver support and epsilon calculated after episode.")
 
-        model = Flat2NnModel(args.episode)
+        model = Flat3NnModel(args.episode)
         agent = Agent(model)
         strategy = simple_episode_espsilon_with_solver_strategy.SimpleEpisodeEpsiloneWithSolverStrategy()
     else:
