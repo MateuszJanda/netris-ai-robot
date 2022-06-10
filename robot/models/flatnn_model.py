@@ -13,7 +13,9 @@ class FlatNnModel:
     Flat model with small number of layers.
     """
 
-    def __init__(self, episode=None):
+    def __init__(self, episode=None, learning_rate=0.001):
+        self._learning_rate = learning_rate
+
         # Build NN model
         if episode:
             self._model = tf.keras.models.load_model(config.MODEL_SNAPSHOT % episode)
@@ -22,8 +24,7 @@ class FlatNnModel:
 
         print(self._model.summary())
 
-    @staticmethod
-    def create_model():
+    def create_model(self):
         """Create tensorflow model."""
         model = tf.keras.models.Sequential()
 
@@ -39,8 +40,8 @@ class FlatNnModel:
         model.add(tf.keras.layers.Dense(units=config.ACTION_SPACE_SIZE, activation='linear'))
 
         # Compile model
-        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss='mse',
-            metrics=['accuracy'])
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=self._learning_rate),
+            loss='mse', metrics=['accuracy'])
 
         return model
 

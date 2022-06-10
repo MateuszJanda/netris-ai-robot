@@ -13,10 +13,10 @@ class SpModel:
     Rough Stevens and Pradhan model (I don't know if it is correct).
     """
 
-    def __init__(self, episode=None):
-        """
-        Build NN model.
-        """
+    def __init__(self, episode=None, learning_rate=0.001):
+        self._learning_rate = learning_rate
+
+        # Build NN model
         if episode:
             self._model = tf.keras.models.load_model(config.MODEL_SNAPSHOT % episode)
         else:
@@ -24,8 +24,7 @@ class SpModel:
 
         print(self._model.summary())
 
-    @staticmethod
-    def create_model():
+    def create_model(self):
         """Create tensorflow model."""
         model = tf.keras.models.Sequential()
 
@@ -47,8 +46,8 @@ class SpModel:
         model.add(tf.keras.layers.Dense(units=config.ACTION_SPACE_SIZE, activation='linear'))
 
         # Compile model
-        model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=0.001), loss='mse',
-            metrics=['accuracy'])
+        model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=self._learning_rate),
+            loss='mse', metrics=['accuracy'])
 
         return model
 

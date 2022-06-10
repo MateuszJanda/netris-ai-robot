@@ -135,7 +135,7 @@ if __name__ == "__main__":
     elif args.experiment == 9:
         utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat2NN, scoring: lines with solver support.")
 
-        model = Flat2NnModel(args.episode)
+        model = Flat2NnModel(episode=args.episode, learning_rate=0.00001)
         agent = Agent(model)
         strategy = simple_with_solver_strategy.SimpleWithSolverStrategy()
     elif args.experiment == 10:
