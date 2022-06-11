@@ -73,7 +73,7 @@ class Training:
 
             utils.save_stats(episode, total_steps, epsilon, episode_reward, episode_lines, env)
 
-            # If model is good enough, then finish
+            # If model is good enough then finish
             if epsilon < 0.1 and episode_lines >= config.MAX_LINES_IN_EPISODE:
                 utils.save_snapshot(episode, self._agent, total_steps, epsilon, episode_reward, episode_lines)
                 utils.log_in_stats("[!] Model is good enough. Finish.")
