@@ -77,5 +77,6 @@ class Training:
             if epsilon < 0.1 and episode_lines >= config.MAX_LINES_IN_EPISODE:
                 utils.save_snapshot(episode, self._agent, total_steps, epsilon, episode_reward, episode_lines)
                 utils.log_in_stats("[!] Model is good enough. Finish.")
+                break
 
         env.close()
