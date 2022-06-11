@@ -64,14 +64,18 @@ class Training:
                 epsilon, env, self._agent, self._args.enable_learning)
 
             # Save snapshot if right episode
-            utils.save_snapshot(episode, self._agent, total_steps, epsilon, episode_reward, episode_lines)
+            if episode > 0 and episode % config.SNAPSHOT_MODULO == 0:
+                utils.save_snapshot(episode, self._agent, total_steps, epsilon, episode_reward, episode_lines)
+
             # Print board if right episode
-            utils.print_board(episode, env)
+            if episode > 0 and episode % config.PRINT_BOARD_MODULO != 0:
+                utils.print_board(episode, env)
 
             utils.save_stats(episode, total_steps, epsilon, episode_reward, episode_lines, env)
 
             # If model is good enough, then finish
             if epsilon < 0.1 and episode_lines >= config.MAX_LINES_IN_EPISODE:
+                utils.save_snapshot(episode, self._agent, total_steps, epsilon, episode_reward, episode_lines)
                 utils.log_in_stats("[!] Model is good enough. Finish.")
 
         env.close()

@@ -56,11 +56,10 @@ def load_snapshot_metadata(episode, agent):
 
 def save_snapshot(episode, agent, total_steps, epsilon, episode_reward, episode_lines):
     """Save snapshot."""
-    if episode > 0 and episode % config.SNAPSHOT_MODULO == 0:
-        agent.get_tf_model().save(config.MODEL_SNAPSHOT % episode)
+    agent.get_tf_model().save(config.MODEL_SNAPSHOT % episode)
 
-        with open(config.DATA_SNAPSHOT % episode, "wb") as f:
-            pickle.dump((total_steps, epsilon, agent.replay_memory, episode_reward, episode_lines), f)
+    with open(config.DATA_SNAPSHOT % episode, "wb") as f:
+        pickle.dump((total_steps, epsilon, agent.replay_memory, episode_reward, episode_lines), f)
 
 
 def save_stats(episode, total_steps, epsilon, episode_reward, episode_lines, env):
@@ -78,9 +77,6 @@ def save_stats(episode, total_steps, epsilon, episode_reward, episode_lines, env
 
 def print_board(episode, env):
     """Print board from raw_board (without piece)."""
-    if episode == 0 or episode % config.PRINT_BOARD_MODULO != 0:
-        return
-
     print("[i] Board at episode:", episode)
     look = ""
     board = env.raw_board()
