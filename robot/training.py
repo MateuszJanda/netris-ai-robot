@@ -68,7 +68,7 @@ class Training:
                 utils.save_snapshot(episode, self._agent, total_steps, epsilon, episode_reward, episode_lines)
 
             # Print board if right episode
-            if episode > 0 and episode % config.PRINT_BOARD_MODULO != 0:
+            if episode > 0 and episode % config.PRINT_BOARD_MODULO == 0:
                 utils.print_board(episode, env)
 
             utils.save_stats(episode, total_steps, epsilon, episode_reward, episode_lines, env)
