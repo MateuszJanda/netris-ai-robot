@@ -69,17 +69,6 @@ between Netris envirement and machine learning code.
 ./netris-env -n -m -c localhost -i 0.1 -r 'python proxy.py --log-in-terminal /dev/pts/3 --port 9800'
 ```
 
-# Running game with learned robot.
-Learned model, can be used by robot with standard Netris instance
-On first terminal, run game in server mode and wait for **robot**
-```bash
-netris -w
-```
-On second terminal, connect **robot** (using supervised learning) to server as second player
-```bash
-netris -c localhost -r 'python robot_sup_learn.py -f'
-```
-
 # References
 * [1] Volodymyr Mnih, Koray Kavukcuoglu, David Silver, Alex Graves, Ioannis Antonoglou, Daan Wierstra, Martin Riedmiller. [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/pdf/1312.5602.pdf). _arXiv preprint arXiv:1312.5602, 2013_.
 * [2] Volodymyr Mnih, Koray Kavukcuoglu, David Silver, Andrei A. Rusu, Joel Veness, Marc G. Bellemare, Alex Graves, Martin Riedmiller, Andreas K. Fidjeland, Georg Ostrovski, Stig Petersen, Charles Beattie, Amir Sadik, Ioannis Antonoglou, Helen King, Dharshan Kumaran, Daan Wierstra, Shane Legg & Demis Hassabis. [Human-level control through deep reinforcement learning](https://web.stanford.edu/class/psych209/Readings/MnihEtAlHassibis15NatureControlDeepRL.pdf)
