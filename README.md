@@ -1,4 +1,4 @@
-# DQN for single tetrimino/piece "O"
+# DQN for Netris
 
 - Experiment 3. For single tetrimino "I" model achieved target after 2000 episodes.
 - Experiment 9. For two tetriminos "I" and "O" model achieved target after 4973 episodes. To support learning Netris
