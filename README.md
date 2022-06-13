@@ -1,8 +1,13 @@
 # DQN for Netris
 
-- Experiment 3. For single tetrimino "I" model achieved target after 2000 episodes.
-- Experiment 9. For two tetriminos "I" and "O" model achieved target after 4973 episodes. To support learning Netris
-solver was used.
+The ultimate goal of this project is to create competitive network that can play with all seven tetrominoes, what
+could be difficult problem[5](https://arxiv.org/pdf/1905.01652.pdf).
+
+Current status:
+- Experiment 3. For single tetrimino/piece "I" model achieved target after 2000 episodes.
+- Experiment 9. For two tetriminos/pieces "I" and "O" model achieved target after 4973 episodes. To accelerate learning
+Netris solver was used, also more layers was used than in model from experiment 3. What is interesting client never
+rotate given tetrimino.
 
 <p align="center">
 <img src="./gallery/demo.gif"/>
@@ -80,6 +85,7 @@ netris -c localhost -r 'python robot_sup_learn.py -f'
 * [2] Volodymyr Mnih, Koray Kavukcuoglu, David Silver, Andrei A. Rusu, Joel Veness, Marc G. Bellemare, Alex Graves, Martin Riedmiller, Andreas K. Fidjeland, Georg Ostrovski, Stig Petersen, Charles Beattie, Amir Sadik, Ioannis Antonoglou, Helen King, Dharshan Kumaran, Daan Wierstra, Shane Legg & Demis Hassabis. [Human-level control through deep reinforcement learning](https://web.stanford.edu/class/psych209/Readings/MnihEtAlHassibis15NatureControlDeepRL.pdf)
 * [3] Harrison Kinsley. [Training Deep Q Learning and Deep Q Networks (DQN) Intro and Agent Reinforcement Learning w/ Python Tutorial](https://pythonprogramming.net/training-deep-q-learning-dqn-reinforcement-learning-python-tutorial/)
 * [4] Matt Stevens, Sabeek Pradhan. [Playing Tetris with Deep Reinforcement Learning](http://cs231n.stanford.edu/reports/2016/pdfs/121_Report.pdf)
-* [5] [Q-learning](https://en.wikipedia.org/wiki/Q-learning#Algorithm). _Wikipedia_
-* [6] [Bellman equation](https://en.wikipedia.org/wiki/Bellman_equation). _Wikipedia_
-* [7] https://www.quora.com/Artificial-Intelligence-What-is-an-intuitive-explanation-of-how-deep-Q-networks-DQN-work
+* [5] Simón Algorta, Özgür Şimşek. [The Game of Tetris in Machine Learning](https://arxiv.org/pdf/1905.01652.pdf). _arXiv:1905.01652_
+* [6] [Q-learning](https://en.wikipedia.org/wiki/Q-learning#Algorithm). _Wikipedia_
+* [7] [Bellman equation](https://en.wikipedia.org/wiki/Bellman_equation). _Wikipedia_
+* [8] https://www.quora.com/Artificial-Intelligence-What-is-an-intuitive-explanation-of-how-deep-Q-networks-DQN-work
