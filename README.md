@@ -10,7 +10,7 @@ Netris solver was used, also more layers was used than in model from experiment 
 rotate given tetrimino.
 
 <p align="center">
-<img src="./gallery/demo.gif"/>
+<img src="./gallery/experiment9_i_o.gif"/>
 </p>
 
 # Setup
