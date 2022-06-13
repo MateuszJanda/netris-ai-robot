@@ -110,7 +110,7 @@ class LocalEnvironment:
         last_round = False
         reward = 0
         # self._piece_index = random.randrange(1, config.NUM_OF_PIECES + 1)
-        self._piece_index = random.choice([2, 3])
+        self._piece_index = random.choice([2, 3, 4])
 
         raw_board = (self._board > 0).astype(float)
 
@@ -128,7 +128,7 @@ class LocalEnvironment:
         last_round, reward = self._apply_action(action)
 
         # self._piece_index = random.randrange(1, config.NUM_OF_PIECES + 1)
-        self._piece_index = random.choice([2, 3])
+        self._piece_index = random.choice([2, 3, 4])
         raw_board = (self._board > 0).astype(float)
 
         return last_round, reward, self._piece_index, raw_board, self._board_with_flat_piece(self._piece_index)
