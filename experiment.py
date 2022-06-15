@@ -115,45 +115,59 @@ if __name__ == "__main__":
         agent = CachingAgent(training_model, caching_model)
         strategy = inter_scoring_cache_strategy.InterScoringCacheStrategy()
     elif args.experiment == 6:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: FlatNN, scoring: lines with solver support.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: FlatNN, " \
+            "scoring: lines with solver support.")
 
         model = FlatNnModel(args.episode)
         agent = Agent(model)
         strategy = simple_with_solver_strategy.SimpleWithSolverStrategy()
     elif args.experiment == 7:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: FlatNN, scoring: lines with epsilon calculated after episode.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: FlatNN, " \
+            "scoring: lines with epsilon calculated after episode.")
 
         model = FlatNnModel(args.episode)
         agent = Agent(model)
         strategy = simple_episode_espsilon_strategy.SimpleEpisodeEpsilonStrategy()
     elif args.experiment == 8:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat2NN, scoring: lines with epsilon calculated after episode.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat2NN, " \
+            "scoring: lines with epsilon calculated after episode.")
 
         model = Flat2NnModel(args.episode)
         agent = Agent(model)
         strategy = simple_episode_espsilon_strategy.SimpleEpisodeEpsilonStrategy()
     elif args.experiment == 9:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat2NN, scoring: lines with solver support.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat2NN, " \
+            "scoring: lines with solver support.")
 
         model = Flat2NnModel(episode=args.episode, learning_rate=0.00001)
         agent = Agent(model)
         strategy = simple_with_solver_strategy.SimpleWithSolverStrategy()
     elif args.experiment == 10:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat3NN, scoring: lines with solver support.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat3NN, " \
+            "scoring: lines with solver support.")
 
         model = Flat3NnModel(args.episode)
         agent = Agent(model)
         strategy = simple_with_solver_strategy.SimpleWithSolverStrategy()
     elif args.experiment == 11:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat3NN, scoring: lines.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat3NN, " \
+            "scoring: lines.")
 
         model = Flat3NnModel(args.episode)
         agent = Agent(model)
         strategy = simple_strategy.SimpleStrategy()
     elif args.experiment == 12:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat3NN, scoring: lines with solver support and epsilon calculated after episode.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat3NN, " \
+            "scoring: lines with solver support and epsilon calculated after episode.")
 
         model = Flat3NnModel(args.episode)
+        agent = Agent(model)
+        strategy = simple_episode_espsilon_with_solver_strategy.SimpleEpisodeEpsiloneWithSolverStrategy()
+    elif args.experiment == 13:
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat2NN, " \
+            "scoring: lines with solver support and epsilon calculated after episode.")
+
+        model = Flat2NnModel(episode=args.episode, learning_rate=0.00001)
         agent = Agent(model)
         strategy = simple_episode_espsilon_with_solver_strategy.SimpleEpisodeEpsiloneWithSolverStrategy()
     else:
