@@ -16,7 +16,7 @@ class CachingAgent:
     (caching - copied from training model every few episodes).
     """
 
-    def __init__(self, training_model, caching_model, episode=None):
+    def __init__(self, training_model, caching_model):
         # Build NN model
         self._training_model = training_model
         self._caching_model = caching_model
@@ -38,7 +38,7 @@ class CachingAgent:
         """
         return self._training_model.predict(batch_size=1, state=state)[0]
 
-    def train(self, last_round):
+    def train(self):
         """Trains NN model every step during episode."""
 
         # Start training only if certain number of samples is already saved in

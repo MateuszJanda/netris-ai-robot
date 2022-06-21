@@ -13,7 +13,7 @@ from robot import config
 class Agent:
     """DQN agent with one model for training and prediction."""
 
-    def __init__(self, model, episode=None):
+    def __init__(self, model):
         # Build NN model
         self._model = model
 
@@ -34,7 +34,7 @@ class Agent:
         """
         return self._model.predict(batch_size=1, state=state)[0]
 
-    def train(self, last_round):
+    def train(self):
         """Trains NN model every step during episode."""
 
         # Start training only if certain number of samples is already saved in

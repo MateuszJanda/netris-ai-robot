@@ -59,7 +59,7 @@ class SimpleEpisodeEpsilonStrategy:
             if enable_learning:
                 transition = utils.Transition(current_state, action, reward, next_state, last_round)
                 agent.update_replay_memory(transition)
-                agent.train(last_round)
+                agent.train()
 
             total_steps += 1
             current_state = next_state
