@@ -11,6 +11,7 @@ Main reinforcement learning (DQN) for experiments.
 import argparse
 from robot.models.flatnn_model import FlatNnModel
 from robot.models.flat2nn_model import Flat2NnModel
+from robot.models.flat_sigmoid_model import FlatSigmoidModel
 from robot.models.flat3nn_model import Flat3NnModel
 from robot.models.cnn_model import CnnModel
 from robot.models.sp_model import SpModel
@@ -164,10 +165,10 @@ if __name__ == "__main__":
         agent = Agent(model)
         strategy = simple_episode_espsilon_with_solver_strategy.SimpleEpisodeEpsiloneWithSolverStrategy()
     elif args.experiment == 13:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: Flat2NN, " \
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: FlatSigmoidModel, " \
             "scoring: lines with solver support and epsilon calculated after episode.")
 
-        model = Flat2NnModel(episode=args.episode, learning_rate=0.00001)
+        model = FlatSigmoidModel(args.episode)
         agent = Agent(model)
         strategy = simple_episode_espsilon_with_solver_strategy.SimpleEpisodeEpsiloneWithSolverStrategy()
     else:
