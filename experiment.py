@@ -171,6 +171,16 @@ if __name__ == "__main__":
         model = FlatSigmoidModel(args.episode)
         agent = Agent(model)
         strategy = simple_episode_espsilon_with_solver_strategy.SimpleEpisodeEpsiloneWithSolverStrategy()
+    elif args.experiment == 14:
+        assert simple_episode_espsilon_with_solver_strategy.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
+            "Caching and training model can't differ when snapshot is saved"
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: FlatSigmoidModel, " \
+            "scoring: lines with solver support and epsilon calculated after episode.")
+
+        training_model = FlatSigmoidModel(args.episode)
+        caching_model = FlatSigmoidModel(args.episode)
+        agent = CachingAgent(training_model, caching_model)
+        strategy = simple_episode_espsilon_with_solver_strategy.SimpleEpisodeEpsiloneWithSolverStrategy()
     else:
         raise Exception(f"Experiment {args.experiment} is missing. Please check documentation.")
 
