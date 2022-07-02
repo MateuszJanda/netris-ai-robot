@@ -1,7 +1,8 @@
 # DQN for Netris
 
 The ultimate goal of this project is to create competitive network that can play with all seven tetrominoes, what
-could be difficult problem[5](https://arxiv.org/pdf/1905.01652.pdf).
+could be challenging [5](https://arxiv.org/pdf/1905.01652.pdf). Project use modified Netris environment
+- [netris-env](https://github.com/MateuszJanda/netris) for learning.
 
 Current status:
 - Experiment 3. For single tetrimino/piece "I" model achieved target after 2000 episodes.
@@ -15,8 +16,17 @@ rotate given tetrimino.
 
 # Setup
 ## Project setup
-Download project and create environment
+Download and compile netris-env
 ```bash
+git clone https://github.com/MateuszJanda/netris
+cd netris
+./Configure
+make
+```
+
+Download project and prepare environment for robot
+```bash
+cd ~/
 git clone https://github.com/MateuszJanda/netris-ai-robot.git
 cd netris-ai-robot
 virtualenv -p python3 venv
