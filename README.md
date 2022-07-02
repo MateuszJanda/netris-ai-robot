@@ -1,8 +1,8 @@
 # DQN for Netris
 
 The ultimate goal of this project is to create competitive network that can play with all seven tetrominoes, what
-could be challenging [5](https://arxiv.org/pdf/1905.01652.pdf). Project use modified Netris environment
-- [netris-env](https://github.com/MateuszJanda/netris) for learning.
+could be challenging [5](https://arxiv.org/pdf/1905.01652.pdf). Project use modified Netris (originally created by
+by Mark H. Weaver) client [netris-env](https://github.com/MateuszJanda/netris) for learning.
 
 Current status:
 - Experiment 3. For single tetrimino/piece "I" model achieved target after 2000 episodes.
