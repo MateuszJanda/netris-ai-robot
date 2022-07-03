@@ -174,11 +174,11 @@ if __name__ == "__main__":
     elif args.experiment == 14:
         assert simple_episode_espsilon_with_solver_strategy.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
             "Caching and training model can't differ when snapshot is saved"
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: FlatSigmoidModel, " \
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: Flat2NN, " \
             "scoring: lines with solver support and epsilon calculated after episode.")
 
-        training_model = FlatSigmoidModel(args.episode)
-        caching_model = FlatSigmoidModel(args.episode)
+        training_model =  Flat2NnModel(episode=args.episode, learning_rate=0.00001)
+        caching_model =  Flat2NnModel(episode=args.episode, learning_rate=0.00001)
         agent = CachingAgent(training_model, caching_model)
         strategy = simple_episode_espsilon_with_solver_strategy.SimpleEpisodeEpsiloneWithSolverStrategy()
     else:
