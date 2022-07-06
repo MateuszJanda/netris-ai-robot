@@ -24,6 +24,7 @@ import robot.strategy.inter_scoring_cache_strategy as inter_scoring_cache_strate
 import robot.strategy.simple_episode_espsilon_strategy as simple_episode_espsilon_strategy
 import robot.strategy.simple_episode_espsilon_with_solver_strategy as simple_episode_espsilon_with_solver_strategy
 import robot.strategy.sp_strategy as sp_strategy
+import robot.strategy.cache_and_solver_strategy as cache_and_solver_strategy
 from robot.training import Training
 from robot import config
 from robot import utils
@@ -186,6 +187,16 @@ if __name__ == "__main__":
         caching_model =  Flat2NnModel(episode=args.episode)
         agent = CachingAgent(training_model, caching_model)
         strategy = inter_scoring_cache_strategy.InterScoringCacheStrategy()
+    elif args.experiment == 15:
+        assert cache_and_solver_strategy.UPDATE_MODEL_AT_STEP % config.SNAPSHOT_MODULO == 0, \
+            "Caching and training model can't differ when snapshot is saved"
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: Flat2NN, " \
+            "scoring: lines with solver support and epsilon calculated after episode.")
+
+        training_model =  Flat2NnModel(episode=args.episode)
+        caching_model =  Flat2NnModel(episode=args.episode)
+        agent = CachingAgent(training_model, caching_model)
+        strategy = cache_and_solver_strategy.CacheAndSolverStrategy()
     else:
         raise Exception(f"Experiment {args.experiment} is missing. Please check documentation.")
 
