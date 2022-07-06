@@ -12,7 +12,7 @@ Reinforcement learning - Deep Q-Network/Learning.
 import numpy as np
 from robot import config
 from robot import utils
-from robot import board_helpers
+from robot.models import board_helpers
 
 
 EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random action should be taken
