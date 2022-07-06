@@ -80,36 +80,41 @@ if __name__ == "__main__":
         utils.set_fixed_memory()
 
     if args.experiment == 1:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: FlatNN, scoring: lines.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: FlatNN, " \
+            "scoring: lines.")
 
         model = FlatNnModel(args.episode)
         agent = Agent(model)
         strategy = simple_strategy.SimpleStrategy()
     elif args.experiment == 2:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: ConvolutionalNN, scoring: lines.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: " \
+            "ConvolutionalNN, scoring: lines.")
 
         model = CnnModel(args.episode)
         agent = Agent(model)
         strategy = simple_strategy.SimpleStrategy()
     elif args.experiment == 3:
-        assert sp_strategy.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
+        assert sp_strategy.UPDATE_MODEL_AT_STEP % config.SNAPSHOT_MODULO == 0, \
             "Caching and training model can't differ when snapshot is saved"
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: Stevens and Pradhan, scoring: Stevens and Pradhan.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: Stevens " \
+            "and Pradhan, scoring: Stevens and Pradhan.")
 
         training_model = SpModel(args.episode)
         caching_model = SpModel(args.episode)
         agent = CachingAgent(training_model, caching_model)
         strategy = sp_strategy.SPStrategy()
     elif args.experiment == 4:
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: FlatNN, scoring: based on mistakes.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: normal, model: FlatNN, " \
+            "scoring: based on mistakes.")
 
         model = FlatNnModel(args.episode)
         agent = Agent(model)
         strategy = inter_scoring_strategy.InterScoringStrategy()
     elif args.experiment == 5:
-        assert inter_scoring_cache_strategy.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
+        assert inter_scoring_cache_strategy.UPDATE_MODEL_AT_STEP % config.SNAPSHOT_MODULO == 0, \
             "Caching and training model can't differ when snapshot is saved"
-        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: FlatNN, scoring: based on mistakes.")
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: FlatNN, " \
+            "scoring: based on mistakes.")
 
         training_model = FlatNnModel(args.episode)
         caching_model = FlatNnModel(args.episode)
@@ -172,15 +177,15 @@ if __name__ == "__main__":
         agent = Agent(model)
         strategy = simple_episode_espsilon_with_solver_strategy.SimpleEpisodeEpsiloneWithSolverStrategy()
     elif args.experiment == 14:
-        assert simple_episode_espsilon_with_solver_strategy.UPDATE_MODEL_ROUND % config.SNAPSHOT_MODULO == 0, \
+        assert inter_scoring_cache_strategy.UPDATE_MODEL_AT_STEP % config.SNAPSHOT_MODULO == 0, \
             "Caching and training model can't differ when snapshot is saved"
         utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: Flat2NN, " \
-            "scoring: lines with solver support and epsilon calculated after episode.")
+            "scoring: based on mistakes.")
 
         training_model =  Flat2NnModel(episode=args.episode)
         caching_model =  Flat2NnModel(episode=args.episode)
         agent = CachingAgent(training_model, caching_model)
-        strategy = simple_episode_espsilon_with_solver_strategy.SimpleEpisodeEpsiloneWithSolverStrategy()
+        strategy = inter_scoring_cache_strategy.InterScoringCacheStrategy()
     else:
         raise Exception(f"Experiment {args.experiment} is missing. Please check documentation.")
 
