@@ -95,8 +95,6 @@ if __name__ == "__main__":
         agent = Agent(model)
         strategy = simple_strategy.SimpleStrategy()
     elif args.experiment == 3:
-        assert sp_strategy.UPDATE_MODEL_AT_STEP % config.SNAPSHOT_MODULO == 0, \
-            "Caching and training model can't differ when snapshot is saved"
         utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: Stevens " \
             "and Pradhan, scoring: Stevens and Pradhan.")
 
@@ -112,8 +110,6 @@ if __name__ == "__main__":
         agent = Agent(model)
         strategy = inter_scoring_strategy.InterScoringStrategy()
     elif args.experiment == 5:
-        assert inter_scoring_cache_strategy.UPDATE_MODEL_AT_STEP % config.SNAPSHOT_MODULO == 0, \
-            "Caching and training model can't differ when snapshot is saved"
         utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: FlatNN, " \
             "scoring: based on mistakes.")
 
@@ -178,8 +174,6 @@ if __name__ == "__main__":
         agent = Agent(model)
         strategy = simple_episode_espsilon_with_solver_strategy.SimpleEpisodeEpsiloneWithSolverStrategy()
     elif args.experiment == 14:
-        assert inter_scoring_cache_strategy.UPDATE_MODEL_AT_STEP % config.SNAPSHOT_MODULO == 0, \
-            "Caching and training model can't differ when snapshot is saved"
         utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: Flat2NN, " \
             "scoring: based on mistakes.")
 
@@ -188,8 +182,6 @@ if __name__ == "__main__":
         agent = CachingAgent(training_model, caching_model)
         strategy = inter_scoring_cache_strategy.InterScoringCacheStrategy()
     elif args.experiment == 15:
-        assert cache_and_solver_strategy.UPDATE_MODEL_AT_STEP % config.SNAPSHOT_MODULO == 0, \
-            "Caching and training model can't differ when snapshot is saved"
         utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: Flat2NN, " \
             "scoring: lines with solver support and epsilon calculated after episode.")
 

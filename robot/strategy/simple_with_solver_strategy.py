@@ -29,7 +29,7 @@ class SimpleWithSolverStrategy:
         self._min_epsilon = min_epsilon
         self._random_treshold = random_treshold
 
-    def play(self, total_steps, epsilon, env, agent, enable_learning):
+    def play(self, _episode, total_steps, epsilon, env, agent, enable_learning):
         """
         Play one game. Scoring: lines with solver support.
         """

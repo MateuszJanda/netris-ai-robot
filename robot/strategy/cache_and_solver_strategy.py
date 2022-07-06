@@ -36,7 +36,7 @@ class CacheAndSolverStrategy:
         self._min_epsilon = min_epsilon
         self._random_treshold = random_treshold
 
-    def play(self, total_steps, epsilon, env, agent, enable_learning):
+    def play(self, episode, total_steps, epsilon, env, agent, enable_learning):
         """
         Play one game. Scoring: lines with solver support.
         """
@@ -81,7 +81,9 @@ class CacheAndSolverStrategy:
                 agent.train()
 
             # Update Q' model (this prevent instability when training)
-            if enable_learning and total_steps % UPDATE_MODEL_AT_STEP == 0:
+            # Caching and training model can't differ when snapshot is saved
+            if enable_learning and (total_steps % UPDATE_MODEL_AT_STEP == 0 or \
+              (episode > 0 and episode % config.SNAPSHOT_MODULO == 0)):
                 agent.update_caching_model()
 
             current_piece = next_piece

@@ -60,8 +60,8 @@ class Training:
         start_episode, total_steps, epsilon = utils.load_snapshot_metadata(self._args.episode, self._agent)
 
         for episode in range(start_episode, config.EPISODES + 1):
-            total_steps, episode_reward, episode_lines, epsilon = self._strategy.play(total_steps,
-                epsilon, env, self._agent, self._args.enable_learning)
+            total_steps, episode_reward, episode_lines, epsilon = self._strategy.play(episode,
+                total_steps, epsilon, env, self._agent, self._args.enable_learning)
 
             # Save snapshot if right episode
             if episode > 0 and episode % config.SNAPSHOT_MODULO == 0:

@@ -26,7 +26,7 @@ class InterScoringStrategy:
         self._epsilon_decay = epsilon_decay
         self._min_epsilon = min_epsilon
 
-    def play(self, total_steps, epsilon, env, agent, enable_learning):
+    def play(self, _episode, total_steps, epsilon, env, agent, enable_learning):
         """
         Play one game.
         """

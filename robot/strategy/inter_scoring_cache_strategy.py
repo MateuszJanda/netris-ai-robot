@@ -27,7 +27,7 @@ class InterScoringCacheStrategy:
         self._epsilon_decay = epsilon_decay
         self._min_epsilon = min_epsilon
 
-    def play(self, total_steps, epsilon, env, agent, enable_learning):
+    def play(self, episode, total_steps, epsilon, env, agent, enable_learning):
         """
         Play one game. Scoring based on mistakes (holes, bumpiness).
         """
@@ -67,7 +67,9 @@ class InterScoringCacheStrategy:
                 epsilon = self._adjust_epsilon(epsilon)
 
             # Update Q' model (this prevent instability when training)
-            if enable_learning and total_steps % UPDATE_MODEL_AT_STEP == 0:
+            # Caching and training model can't differ when snapshot is saved
+            if enable_learning and (total_steps % UPDATE_MODEL_AT_STEP == 0 or \
+              (episode > 0 and episode % config.SNAPSHOT_MODULO == 0)):
                 agent.update_caching_model()
 
             total_steps += 1
