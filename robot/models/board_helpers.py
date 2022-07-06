@@ -22,14 +22,14 @@ def columns_height(board):
     """
     Calculate height for each column.
     """
-    columns_height = [0 for _ in range(config.BOARD_WIDTH)]
+    col_height = [0 for _ in range(config.BOARD_WIDTH)]
     for x in range(config.BOARD_WIDTH):
         for y, block in enumerate(board[:, x]):
             if block:
-                columns_height[x] = config.BOARD_HEIGHT - y
+                col_height[x] = config.BOARD_HEIGHT - y
                 break
 
-    return columns_height
+    return col_height
 
 
 def aggregate_height(board):
