@@ -12,6 +12,7 @@ Reinforcement learning - Deep Q-Network/Learning.
 import numpy as np
 from robot import config
 from robot import utils
+from robot import board_helpers
 
 
 EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random action should be taken
@@ -74,10 +75,10 @@ class InterScoringStrategy:
         Adjust reward.
         """
         if prev_lines > 0 and lines == 0:
-            return - 0.36 * utils.holes(board) - 0.18 * utils.bumpiness(board)
+            return - 0.36 * board_helpers.holes(board) - 0.18 * board_helpers.bumpiness(board)
         else:
-            return -0.51 * utils.aggregate_height(board) + 0.76 * lines \
-                - 0.36 * utils.holes(board) - 0.18 * utils.bumpiness(board)
+            return -0.51 * board_helpers.aggregate_height(board) + 0.76 * lines \
+                - 0.36 * board_helpers.holes(board) - 0.18 * board_helpers.bumpiness(board)
 
     def _adjust_epsilon(self, epsilon):
         """
