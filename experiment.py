@@ -177,16 +177,16 @@ if __name__ == "__main__":
         utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: Flat2NN, " \
             "scoring: based on mistakes.")
 
-        training_model =  Flat2NnModel(episode=args.episode)
-        caching_model =  Flat2NnModel(episode=args.episode)
+        training_model = Flat2NnModel(episode=args.episode)
+        caching_model = Flat2NnModel(episode=args.episode)
         agent = CachingAgent(training_model, caching_model)
         strategy = inter_scoring_cache_strategy.InterScoringCacheStrategy()
     elif args.experiment == 15:
         utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: Flat2NN, " \
             "scoring: lines with solver support and epsilon calculated after episode.")
 
-        training_model =  Flat2NnModel(episode=args.episode)
-        caching_model =  Flat2NnModel(episode=args.episode)
+        training_model = Flat2NnModel(episode=args.episode)
+        caching_model = Flat2NnModel(episode=args.episode)
         agent = CachingAgent(training_model, caching_model)
         strategy = cache_and_solver_strategy.CacheAndSolverStrategy()
     else:
