@@ -21,7 +21,7 @@ from robot import utils
 EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random action should be taken
 MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want to check something new
 RAND_TRESHOLD = 0.005
-UPDATE_MODEL_AT_STEP = 400
+UPDATE_MODEL_AT_STEP = 100
 
 
 class CacheAndSolverStrategy:
