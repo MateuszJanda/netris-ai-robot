@@ -189,6 +189,14 @@ if __name__ == "__main__":
         caching_model = Flat2NnModel(episode=args.episode, learning_rate=0.00001)
         agent = CachingAgent(training_model, caching_model)
         strategy = cache_and_solver_strategy.CacheAndSolverStrategy()
+    elif args.experiment == 16:
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: FlatSigmoidModel, " \
+            "scoring: lines with solver support and epsilon calculated after episode.")
+
+        training_model = FlatSigmoidModel(episode=args.episode)
+        caching_model = FlatSigmoidModel(episode=args.episode)
+        agent = CachingAgent(training_model, caching_model)
+        strategy = cache_and_solver_strategy.CacheAndSolverStrategy()
     else:
         raise Exception(f"Experiment {args.experiment} is missing. Please check documentation.")
 
