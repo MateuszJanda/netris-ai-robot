@@ -26,7 +26,7 @@ UPDATE_MODEL_AT_STEP = 100
 
 class CacheAndSolverStrategy:
     """
-    Simple strategy (reward based on cleared lines) with solver, cached model
+    Strategy (reward based on cleared lines) with solver, cached model
     and episilon calculated at the end of episode.
     """
 
@@ -92,7 +92,9 @@ class CacheAndSolverStrategy:
 
             total_steps += 1
 
-        epsilon = self._adjust_epsilon(epsilon)
+        if enable_learning:
+            epsilon = self._adjust_epsilon(epsilon)
+
         return total_steps, episode_reward, episode_lines, epsilon
 
     def _adjust_reward(self, lines):

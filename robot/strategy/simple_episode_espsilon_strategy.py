@@ -64,7 +64,9 @@ class SimpleEpisodeEpsilonStrategy:
             total_steps += 1
             current_state = next_state
 
-        epsilon = self._adjust_epsilon(epsilon)
+        if enable_learning:
+            epsilon = self._adjust_epsilon(epsilon)
+
         return total_steps, episode_reward, episode_lines, epsilon
 
     def _adjust_reward(self, lines):

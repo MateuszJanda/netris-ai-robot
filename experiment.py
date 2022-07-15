@@ -25,6 +25,7 @@ import robot.strategy.simple_episode_espsilon_strategy as simple_episode_espsilo
 import robot.strategy.simple_episode_espsilon_with_solver_strategy as simple_episode_espsilon_with_solver_strategy
 import robot.strategy.sp_strategy as sp_strategy
 import robot.strategy.cache_and_solver_strategy as cache_and_solver_strategy
+import robot.strategy.cache_and_solver_strategy as fast_cache_and_solver_strategy
 from robot.training import Training
 from robot import config
 from robot import utils
@@ -197,6 +198,14 @@ if __name__ == "__main__":
         caching_model = FlatSigmoidModel(episode=args.episode)
         agent = CachingAgent(training_model, caching_model)
         strategy = cache_and_solver_strategy.CacheAndSolverStrategy()
+    elif args.experiment == 17:
+        utils.log_in_stats(f"Experiment: {args.experiment}. Agent: caching, model: Flat2NnModel, " \
+            "scoring: lines with solver support.")
+
+        training_model = Flat2NnModel(episode=args.episode)
+        caching_model = Flat2NnModel(episode=args.episode)
+        agent = CachingAgent(training_model, caching_model)
+        strategy = fast_cache_and_solver_strategy.FastCacheAndSolverStrategy()
     else:
         raise Exception(f"Experiment {args.experiment} is missing. Please check documentation.")
 

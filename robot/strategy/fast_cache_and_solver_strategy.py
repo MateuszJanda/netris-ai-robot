@@ -7,7 +7,8 @@
 
 """
 Reinforcement learning - Deep Q-Network/Learning. Simple strategy (reward based
-on cleared lines) with solver and episilon calculated at the end of episode.
+on cleared lines) with solver, cached model and episilon calculated at the end
+of episode.
 """
 
 import numpy as np
@@ -20,12 +21,13 @@ from robot import utils
 EPSILON_DECAY = 0.99995     # Decay epsilon. Smarter NN is, then less random action should be taken
 MIN_EPSILON = 0.02          # Epsilon shouldn't less than this. We always want to check something new
 RAND_TRESHOLD = 0.005
+UPDATE_MODEL_AT_STEP = 100
 
 
-class SimpleEpisodeEpsiloneWithSolverStrategy:
+class FastCacheAndSolverStrategy:
     """
-    Simple strategy (reward based on cleared lines) with solver and episilon
-    calculated at the end of episode.
+    Strategy (reward based on cleared lines - simple) with solver, cached model
+    and episilon calculated at the end of every step.
     """
 
     def __init__(self, epsilon_decay=EPSILON_DECAY, min_epsilon=MIN_EPSILON,
@@ -34,7 +36,7 @@ class SimpleEpisodeEpsiloneWithSolverStrategy:
         self._min_epsilon = min_epsilon
         self._random_treshold = random_treshold
 
-    def play(self, _episode, total_steps, epsilon, env, agent, enable_learning):
+    def play(self, episode, total_steps, epsilon, env, agent, enable_learning):
         """
         Play one game. Scoring: lines with solver support.
         """
@@ -78,14 +80,19 @@ class SimpleEpisodeEpsiloneWithSolverStrategy:
                 agent.update_replay_memory(transition)
                 agent.train()
 
+                epsilon = self._adjust_epsilon(epsilon)
+
+            # Update Q' model (this prevent instability when training)
+            # Caching and training model can't differ when snapshot is saved
+            if enable_learning and (total_steps % UPDATE_MODEL_AT_STEP == 0 or \
+              (episode > 0 and episode % config.SNAPSHOT_MODULO == 0)):
+                agent.update_caching_model()
+
             current_piece = next_piece
             current_state = next_state
             raw_current_state = raw_next_state
 
             total_steps += 1
-
-        if enable_learning:
-            epsilon = self._adjust_epsilon(epsilon)
 
         return total_steps, episode_reward, episode_lines, epsilon
 
