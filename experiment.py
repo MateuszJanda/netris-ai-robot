@@ -25,7 +25,7 @@ import robot.strategy.simple_episode_espsilon_strategy as simple_episode_espsilo
 import robot.strategy.simple_episode_espsilon_with_solver_strategy as simple_episode_espsilon_with_solver_strategy
 import robot.strategy.sp_strategy as sp_strategy
 import robot.strategy.cache_and_solver_strategy as cache_and_solver_strategy
-import robot.strategy.cache_and_solver_strategy as fast_cache_and_solver_strategy
+import robot.strategy.fast_cache_and_solver_strategy as fast_cache_and_solver_strategy
 from robot.training import Training
 from robot import config
 from robot import utils
